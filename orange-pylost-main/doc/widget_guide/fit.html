@@ -1,0 +1,13 @@
+<h1>Fit widget guide</h1>
+<p>Fitting widget can be used to fit and subtract (a) terms like piston, pitch, roll, sphere, cylinder x/y, astigmatism, or (b) polynomial from start degree to end degree (e.g. start degree = 2, end degree = 3 fits ax<sup>2</sup> + bx<sup>3</sup> for curves and ay<sup>2</sup>+bxy+cx<sup>2</sup>+dy<sup>3</sup>+ey<sup>2</sup>x+fyx<sup>2</sup>+gx<sup>3</sup> for images) or (c) tangential ellipse for curves/images using parameters p: distance from source, q: distance to image focus, theta: angle of incidence, center offset (optional): center of mirror offset from given data center, rotate (optional): rotate mirror axes, piston (optional): translate mirror axes.</p>
+<p>Polynomial fitting has options to use either Legendre or Zernike polynomials in addition to regular polynomials. Polynomial/term fits use '<em>scipy.linalg.lstsq</em>' function which return the least-squares solution to a linear matrix equation. The ellipse fit uses '<em>scipy.optimize.least_squares</em>', which solves a linear least-squares problem with optimization.</p>
+<h3>Instructions to use fit</h3>
+<p><video controls="controls" width="500" height="250">
+<source src="videos/fit.mp4" type="video/mp4" /></video></p>
+<p>Fit results shows the coefficients in polynomial/terms fit and parameters (p,q,...) for ellipse fit. Shape parameters such as tangential/sagittal radius are shown if the fit allows for their calculation.</p>
+<p>Additional options are given to specify whether to fit just slopes or heights or both (integrate slopes/differentiate heights if not available). Data and all the axes (X, Y) can be centered through a checkbox. An option to rescale is added, which is automatically calculated as follows (manual rescaling is to be implemented).</p>
+<blockquote>
+<p><em>scale = peak to valley of all axes X,Y / peak to valley of data </em><br /><em>data_scaled = data * scale</em><br /><em>fit data...</em><br /><em>data_fit = data_fit / scale, residuals = residuals / scale</em></p>
+</blockquote>
+<p>The equations for ellipse fit are given below (ref: Amparo VIVO)</p>
+<p><img src="images/ellipse_fit.png" alt="Ellipse fit equations" width="500" height="600" /></p>

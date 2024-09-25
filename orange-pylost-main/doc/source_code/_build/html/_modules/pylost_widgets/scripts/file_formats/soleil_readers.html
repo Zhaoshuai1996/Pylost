@@ -1,0 +1,330 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pylost_widgets.scripts.file_formats.soleil_readers &#8212; pylost_widgets  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/alabaster.css" />
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for pylost_widgets.scripts.file_formats.soleil_readers</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">h5py</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtWidgets</span> <span class="kn">import</span> <span class="n">QLineEdit</span><span class="p">,</span> <span class="n">QHBoxLayout</span><span class="p">,</span> <span class="n">QWidget</span><span class="p">,</span> <span class="n">QLabel</span><span class="p">,</span> <span class="n">QSizePolicy</span> <span class="k">as</span> <span class="n">Policy</span>
+
+<span class="kn">from</span> <span class="nn">pylost_widgets.util.MetrologyData</span> <span class="kn">import</span> <span class="n">MetrologyData</span>
+<span class="kn">from</span> <span class="nn">pylost_widgets.util.ow_filereaders</span> <span class="kn">import</span> <span class="n">H5Reader</span><span class="p">,</span> <span class="n">H5TreeDialog</span>
+<span class="kn">from</span> <span class="nn">pylost_widgets.util.util_functions</span> <span class="kn">import</span> <span class="n">format_nanarr</span>
+
+<div class="viewcode-block" id="MINTNexusTreeDialog"><a class="viewcode-back" href="../../../../pylost_widgets.scripts.file_formats.html#pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusTreeDialog">[docs]</a><span class="k">class</span> <span class="nc">MINTNexusTreeDialog</span><span class="p">(</span><span class="n">H5TreeDialog</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Dialog for loading HDF5 files&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">MINTNexusTreeDialog</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="n">widget</span> <span class="o">=</span> <span class="n">QWidget</span><span class="p">()</span>
+        <span class="n">hbox</span> <span class="o">=</span> <span class="n">QHBoxLayout</span><span class="p">()</span>
+        <span class="n">widget</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">hbox</span><span class="p">)</span>
+        <span class="n">widget</span><span class="o">.</span><span class="n">setSizePolicy</span><span class="p">(</span><span class="n">Policy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">,</span> <span class="n">Policy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">)</span>
+
+        <span class="n">label</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="s1">&#39;Scale height : &#39;</span><span class="p">)</span>
+        <span class="n">label</span><span class="o">.</span><span class="n">setSizePolicy</span><span class="p">(</span><span class="n">Policy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">,</span> <span class="n">Policy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">)</span>
+        <span class="n">hbox</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale_heights</span> <span class="o">=</span> <span class="n">QLineEdit</span><span class="p">(</span><span class="s1">&#39;255.5&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale_heights</span><span class="o">.</span><span class="n">setSizePolicy</span><span class="p">(</span><span class="n">Policy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">,</span> <span class="n">Policy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale_heights</span><span class="o">.</span><span class="n">setFixedWidth</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+        <span class="n">hbox</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scale_heights</span><span class="p">)</span>
+
+        <span class="n">label</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="s1">&#39;Scale motor X : &#39;</span><span class="p">)</span>
+        <span class="n">label</span><span class="o">.</span><span class="n">setSizePolicy</span><span class="p">(</span><span class="n">Policy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">,</span> <span class="n">Policy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">)</span>
+        <span class="n">hbox</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale_mx</span> <span class="o">=</span> <span class="n">QLineEdit</span><span class="p">(</span><span class="s1">&#39;-1&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale_mx</span><span class="o">.</span><span class="n">setSizePolicy</span><span class="p">(</span><span class="n">Policy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">,</span> <span class="n">Policy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale_mx</span><span class="o">.</span><span class="n">setFixedWidth</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>
+        <span class="n">hbox</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scale_mx</span><span class="p">)</span>
+
+        <span class="n">label</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="s1">&#39;Scale motor Y : &#39;</span><span class="p">)</span>
+        <span class="n">label</span><span class="o">.</span><span class="n">setSizePolicy</span><span class="p">(</span><span class="n">Policy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">,</span> <span class="n">Policy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">)</span>
+        <span class="n">hbox</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale_my</span> <span class="o">=</span> <span class="n">QLineEdit</span><span class="p">(</span><span class="s1">&#39;1&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale_my</span><span class="o">.</span><span class="n">setFixedWidth</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>
+        <span class="n">hbox</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scale_my</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lt</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MINTNexusTreeDialog.get_params"><a class="viewcode-back" href="../../../../pylost_widgets.scripts.file_formats.html#pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusTreeDialog.get_params">[docs]</a>    <span class="k">def</span> <span class="nf">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_heights</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_mx</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_my</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">h</span><span class="o">!=</span><span class="s1">&#39;&#39;</span><span class="p">:</span> <span class="n">h</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">x</span><span class="o">!=</span><span class="s1">&#39;&#39;</span><span class="p">:</span> <span class="n">x</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">y</span><span class="o">!=</span><span class="s1">&#39;&#39;</span><span class="p">:</span> <span class="n">y</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">h</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Error reading scaling factors&#39;</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="MINTNexusReader"><a class="viewcode-back" href="../../../../pylost_widgets.scripts.file_formats.html#pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader">[docs]</a><span class="k">class</span> <span class="nc">MINTNexusReader</span><span class="p">(</span><span class="n">H5Reader</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;File reader for hdf5 formats&quot;&quot;&quot;</span>
+    <span class="n">EXTENSIONS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;.nxs&#39;</span><span class="p">,</span> <span class="p">)</span>
+    <span class="n">DESCRIPTION</span> <span class="o">=</span> <span class="s1">&#39;Nexus file reader for the SOLEIL MINT instrument data&#39;</span>
+    <span class="n">SUPPORT_COMPRESSED</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">SUPPORT_SPARSE_DATA</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">PRIORITY</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">exclude_interferograms</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">clear_output_before_loading</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">scale_height</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="n">scale_motor_x</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="n">scale_motor_y</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+<div class="viewcode-block" id="MINTNexusReader.read"><a class="viewcode-back" href="../../../../pylost_widgets.scripts.file_formats.html#pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader.read">[docs]</a>    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reader for nexus file formats. It opens a dialog and provides option to load partially a single group in file.</span>
+
+<span class="sd">        :return: Formatted file data as dictionary</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dialog</span> <span class="o">=</span> <span class="n">MINTNexusTreeDialog</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
+        <span class="n">dialog</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="s1">&#39;Load MINT nexus file&#39;</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">MINTNexusReader</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">dialog</span><span class="o">=</span><span class="n">dialog</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale_height</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_motor_x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_motor_y</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;scale_height&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;scale_motor_x&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;scale_motor_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dialog</span><span class="o">.</span><span class="n">get_params</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">data</span></div>
+
+<div class="viewcode-block" id="MINTNexusReader.dump_to_dict"><a class="viewcode-back" href="../../../../pylost_widgets.scripts.file_formats.html#pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader.dump_to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">dump_to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                     <span class="n">h5f</span><span class="p">,</span>
+                     <span class="n">path</span><span class="o">=</span><span class="s2">&quot;/&quot;</span><span class="p">,</span>
+                     <span class="n">exclude_names</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">asarray</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                     <span class="n">dereference_links</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                     <span class="n">include_attributes</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                     <span class="n">errors</span><span class="o">=</span><span class="s1">&#39;raise&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">exclude_interferograms</span><span class="p">:</span>
+            <span class="n">exclude_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exclude_names</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">h5f</span><span class="o">.</span><span class="n">visititems</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_exclude_names</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">MINTNexusReader</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">dump_to_dict</span><span class="p">(</span><span class="n">h5f</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">exclude_names</span><span class="p">,</span> <span class="n">asarray</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                                         <span class="n">dereference_links</span><span class="o">=</span><span class="n">dereference_links</span><span class="p">,</span>
+                                                         <span class="n">include_attributes</span><span class="o">=</span><span class="n">include_attributes</span><span class="p">,</span>
+                                                         <span class="n">errors</span><span class="o">=</span><span class="n">errors</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MINTNexusReader.get_exclude_names"><a class="viewcode-back" href="../../../../pylost_widgets.scripts.file_formats.html#pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader.get_exclude_names">[docs]</a>    <span class="k">def</span> <span class="nf">get_exclude_names</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;NX_class&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="sa">b</span><span class="s1">&#39;NXinterferogram_collection&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">exclude_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="MINTNexusReader.write_file"><a class="viewcode-back" href="../../../../pylost_widgets.scripts.file_formats.html#pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader.write_file">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">write_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H5 writer to save dictionary data.</span>
+
+<span class="sd">        :param filename: Save file name</span>
+<span class="sd">        :type filename: str</span>
+<span class="sd">        :param data: Dictionary data</span>
+<span class="sd">        :type data: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">H5Reader</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MINTNexusReader.load_first_entry"><a class="viewcode-back" href="../../../../pylost_widgets.scripts.file_formats.html#pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader.load_first_entry">[docs]</a>    <span class="k">def</span> <span class="nf">load_first_entry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">h5f</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">h5f</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">h5f</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;NX_class&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="sa">b</span><span class="s1">&#39;NXentry&#39;</span><span class="p">:</span>
+                <span class="n">ret_data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;module&#39;</span><span class="p">:</span> <span class="s1">&#39;scan_data&#39;</span><span class="p">,</span> <span class="s1">&#39;entry&#39;</span><span class="p">:</span> <span class="n">key</span><span class="p">}</span>
+                <span class="n">ret_data</span><span class="p">[</span><span class="s1">&#39;scan_data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_scans</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">h5f</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+                <span class="k">return</span> <span class="n">ret_data</span></div>
+
+<div class="viewcode-block" id="MINTNexusReader.get_scans"><a class="viewcode-back" href="../../../../pylost_widgets.scripts.file_formats.html#pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader.get_scans">[docs]</a>    <span class="k">def</span> <span class="nf">get_scans</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">h5entry</span><span class="p">):</span>
+        <span class="n">ret_data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">h5entry</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">h5entry</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;NX_class&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="sa">b</span><span class="s1">&#39;NXscan&#39;</span><span class="p">:</span>
+                <span class="n">ret_data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_scan</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">h5entry</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">ret_data</span></div>
+
+<div class="viewcode-block" id="MINTNexusReader.get_scan"><a class="viewcode-back" href="../../../../pylost_widgets.scripts.file_formats.html#pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader.get_scan">[docs]</a>    <span class="k">def</span> <span class="nf">get_scan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">h5scan</span><span class="p">):</span>
+        <span class="n">ret_data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">height</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">cam_size</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">pix_size</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">motor_X</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">motor_Y</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">motor_Z</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">skey</span> <span class="ow">in</span> <span class="n">h5scan</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">h5scan</span><span class="p">[</span><span class="n">skey</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;NX_class&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="sa">b</span><span class="s1">&#39;NXscanData&#39;</span><span class="p">:</span>
+                <span class="n">h5scandata</span> <span class="o">=</span> <span class="n">h5scan</span><span class="p">[</span><span class="n">skey</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">sdkey</span> <span class="ow">in</span> <span class="n">h5scandata</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">h5scandata</span><span class="p">[</span><span class="n">sdkey</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;NX_class&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="sa">b</span><span class="s1">&#39;NXwavefront_collection&#39;</span><span class="p">:</span>
+                        <span class="n">h5wfs</span> <span class="o">=</span> <span class="n">h5scandata</span><span class="p">[</span><span class="n">sdkey</span><span class="p">]</span>
+                        <span class="c1"># Assuming all wavefront are of the same size, as there is no start position info inside NXwavefront</span>
+                        <span class="c1"># First calculate the shape required for 3D subaperture array, and then build array from already loaded &#39;data&#39;.</span>
+                        <span class="c1"># If image size and count is available in NXparameters, maybe we can use them?</span>
+                        <span class="n">shp</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+                        <span class="k">for</span> <span class="n">wkey</span> <span class="ow">in</span> <span class="n">h5wfs</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">h5wfs</span><span class="p">[</span><span class="n">wkey</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;NX_class&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="sa">b</span><span class="s1">&#39;NXwavefront&#39;</span><span class="p">:</span>
+                                <span class="n">shp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                                <span class="k">if</span> <span class="n">shp</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="mi">0</span> <span class="ow">or</span> <span class="n">shp</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+                                    <span class="n">shp</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="n">h5wfs</span><span class="p">[</span><span class="n">wkey</span><span class="p">][</span><span class="s1">&#39;unwrpdPhase&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span>
+                        <span class="n">height</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">shp</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+                        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+                        <span class="k">for</span> <span class="n">wkey</span> <span class="ow">in</span> <span class="n">h5wfs</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">h5wfs</span><span class="p">[</span><span class="n">wkey</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;NX_class&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="sa">b</span><span class="s1">&#39;NXwavefront&#39;</span><span class="p">:</span>
+                                <span class="n">height</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">skey</span><span class="p">][</span><span class="n">sdkey</span><span class="p">][</span><span class="n">wkey</span><span class="p">][</span><span class="s1">&#39;unwrpdPhase&#39;</span><span class="p">]</span>
+                                <span class="n">i</span><span class="o">+=</span><span class="mi">1</span>
+                        <span class="k">break</span>
+            <span class="k">elif</span> <span class="n">h5scan</span><span class="p">[</span><span class="n">skey</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;NX_class&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="sa">b</span><span class="s1">&#39;NXinstrument&#39;</span><span class="p">:</span>
+                <span class="n">h5instr</span> <span class="o">=</span> <span class="n">h5scan</span><span class="p">[</span><span class="n">skey</span><span class="p">]</span>
+                <span class="n">data_instr</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">skey</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">ikey</span> <span class="ow">in</span> <span class="n">h5instr</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">h5instr</span><span class="p">[</span><span class="n">ikey</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;NX_class&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="sa">b</span><span class="s1">&#39;NXdetector&#39;</span><span class="p">:</span>
+                        <span class="n">cam_size</span> <span class="o">=</span> <span class="p">[</span><span class="n">data_instr</span><span class="p">[</span><span class="n">ikey</span><span class="p">][</span><span class="s1">&#39;y_dim&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">data_instr</span><span class="p">[</span><span class="n">ikey</span><span class="p">][</span><span class="s1">&#39;x_dim&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span>
+                        <span class="n">pix_size</span> <span class="o">=</span> <span class="p">[</span><span class="n">data_instr</span><span class="p">[</span><span class="n">ikey</span><span class="p">][</span><span class="s1">&#39;y_pixel_size&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">data_instr</span><span class="p">[</span><span class="n">ikey</span><span class="p">][</span><span class="s1">&#39;x_pixel_size&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span>
+                    <span class="k">if</span> <span class="n">h5instr</span><span class="p">[</span><span class="n">ikey</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;NX_class&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="sa">b</span><span class="s1">&#39;NXactuator&#39;</span><span class="p">:</span>
+                        <span class="n">motor_X</span> <span class="o">=</span> <span class="n">data_instr</span><span class="p">[</span><span class="n">ikey</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;sample_X&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                        <span class="n">motor_Y</span> <span class="o">=</span> <span class="n">data_instr</span><span class="p">[</span><span class="n">ikey</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;sample_Y&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                        <span class="n">motor_Z</span> <span class="o">=</span> <span class="n">data_instr</span><span class="p">[</span><span class="n">ikey</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;sample_Z&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">height</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">motors</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">height</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_height</span><span class="o">*</span><span class="n">height</span>
+            <span class="k">if</span> <span class="n">motor_X</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">motor_X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_motor_x</span><span class="o">*</span><span class="n">motor_X</span>
+                <span class="n">motors</span><span class="o">+=</span><span class="p">[{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="s1">&#39;motor_X&#39;</span><span class="p">,</span> <span class="s1">&#39;values&#39;</span><span class="p">:</span><span class="n">format_nanarr</span><span class="p">(</span><span class="n">motor_X</span><span class="p">),</span> <span class="s1">&#39;axis&#39;</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">],</span> <span class="s1">&#39;unit&#39;</span><span class="p">:</span><span class="s1">&#39;mm&#39;</span><span class="p">}]</span>
+            <span class="k">if</span> <span class="n">motor_Y</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">motor_Y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_motor_y</span><span class="o">*</span><span class="n">motor_Y</span>
+                <span class="n">motors</span><span class="o">+=</span><span class="p">[{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="s1">&#39;motor_Y&#39;</span><span class="p">,</span> <span class="s1">&#39;values&#39;</span><span class="p">:</span><span class="n">format_nanarr</span><span class="p">(</span><span class="n">motor_Y</span><span class="p">),</span> <span class="s1">&#39;axis&#39;</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">],</span> <span class="s1">&#39;unit&#39;</span><span class="p">:</span><span class="s1">&#39;mm&#39;</span><span class="p">}]</span>
+            <span class="k">if</span> <span class="n">motor_Z</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">motors</span><span class="o">+=</span><span class="p">[{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="s1">&#39;motor_Z&#39;</span><span class="p">,</span> <span class="s1">&#39;values&#39;</span><span class="p">:</span><span class="n">format_nanarr</span><span class="p">(</span><span class="n">motor_Z</span><span class="p">),</span> <span class="s1">&#39;axis&#39;</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">],</span> <span class="s1">&#39;unit&#39;</span><span class="p">:</span><span class="s1">&#39;mm&#39;</span><span class="p">}]</span>
+            <span class="n">ret_data</span><span class="p">[</span><span class="s1">&#39;height&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">MetrologyData</span><span class="p">(</span><span class="n">height</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;nm&#39;</span><span class="p">,</span> <span class="n">pix_size</span><span class="o">=</span><span class="p">[</span><span class="n">x</span><span class="o">*</span><span class="mf">1e-3</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">pix_size</span><span class="p">],</span> <span class="n">pix_unit</span><span class="o">=</span><span class="s1">&#39;mm&#39;</span><span class="p">,</span>
+                                      <span class="n">dim_detector</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">axis_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Motor&#39;</span><span class="p">,</span><span class="s1">&#39;Y&#39;</span><span class="p">,</span><span class="s1">&#39;X&#39;</span><span class="p">],</span> <span class="n">motors</span><span class="o">=</span><span class="n">motors</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">cam_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">ret_data</span><span class="p">[</span><span class="s1">&#39;height&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">_set_init_shape</span><span class="p">(</span><span class="n">cam_size</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret_data</span></div>
+
+<div class="viewcode-block" id="MINTNexusReader.get_file_data"><a class="viewcode-back" href="../../../../pylost_widgets.scripts.file_formats.html#pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader.get_file_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_file_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">h5obj</span><span class="p">):</span>
+        <span class="n">ret_data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">h5obj</span><span class="p">)</span> <span class="ow">is</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">:</span>
+            <span class="n">ret_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_first_entry</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">h5obj</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">h5obj</span><span class="p">)</span> <span class="ow">is</span> <span class="n">h5py</span><span class="o">.</span><span class="n">Group</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">h5obj</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;NX_class&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="sa">b</span><span class="s1">&#39;NXwavefront&#39;</span><span class="p">:</span>
+                <span class="n">ret_data</span><span class="p">[</span><span class="s1">&#39;height&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;unwrpdPhase&#39;</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">ret_data</span></div>
+
+
+<div class="viewcode-block" id="MINTNexusReader.data_standard_format"><a class="viewcode-back" href="../../../../pylost_widgets.scripts.file_formats.html#pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader.data_standard_format">[docs]</a>    <span class="k">def</span> <span class="nf">data_standard_format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert data in standard format readable by orange pylost widgets, e.g. import heights / slopes_x as MetrologyData from the raw file data.</span>
+
+<span class="sd">        :param data: Raw file data</span>
+<span class="sd">        :type data: dict</span>
+<span class="sd">        :return: Standard format data</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ret_data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">h5path</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;h5path&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">h5path</span><span class="o">==</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
+                    <span class="n">ret_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_first_entry</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="n">h5path</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;NX_class&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="sa">b</span><span class="s1">&#39;NXentry&#39;</span><span class="p">:</span>
+                        <span class="n">ret_data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;module&#39;</span><span class="p">:</span><span class="s1">&#39;scan_data&#39;</span><span class="p">,</span> <span class="s1">&#39;entry&#39;</span><span class="p">:</span><span class="n">h5path</span><span class="p">}</span>
+                        <span class="n">ret_data</span><span class="p">[</span><span class="s1">&#39;scan_data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_scans</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">f</span><span class="p">[</span><span class="n">h5path</span><span class="p">])</span>
+                    <span class="k">elif</span> <span class="n">f</span><span class="p">[</span><span class="n">h5path</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;NX_class&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="sa">b</span><span class="s1">&#39;NXscan&#39;</span><span class="p">:</span>
+                        <span class="n">ret_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_scan</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">f</span><span class="p">[</span><span class="n">h5path</span><span class="p">])</span>
+                        <span class="n">ret_data</span><span class="p">[</span><span class="s1">&#39;module&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;custom&#39;</span>
+                        <span class="n">ret_data</span><span class="p">[</span><span class="s1">&#39;h5path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">h5path</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">ret_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_file_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">f</span><span class="p">[</span><span class="n">h5path</span><span class="p">])</span>
+                        <span class="n">ret_data</span><span class="p">[</span><span class="s1">&#39;module&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;custom&#39;</span>
+                        <span class="n">ret_data</span><span class="p">[</span><span class="s1">&#39;h5path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">h5path</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Error while converting to standard format: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">e</span><span class="p">)))</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ret_data</span></div></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../index.html">pylost_widgets</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../pylost_widgets.html">pylost_widgets package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

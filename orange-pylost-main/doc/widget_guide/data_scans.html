@@ -1,0 +1,13 @@
+<h1>Data (scans) widget guide</h1>
+<p>&nbsp;</p>
+<p>This widget is used to load multiple scans located in a folder. It loads all recognized filenames and groups them by extension. The widget has many options to order filenames and split them into different scans, as seen in the below image.</p>
+<p><img src="images/data_scans_options.png" alt="Options of data scans widget" width="300" height="300" /></p>
+<p>The option 'select file reader' is used to select a files with specific extension. Only same type of files can be loaded using this widget. The option 'number of scans' is used to split the list of filenames into multiple scans. Filenames can be sorted in ascending order with timestamp or in alphabetical order, or using sort selection.</p>
+<p>E.g. using sort selection '|_|.has', the files are sorted by the strings in the location of '|'. If the data is ['forward_1.has', 'forward_2.has', 'backward_1.has'], it is sorted by 'forward'/'backward' and after by the number after character '_'. Since backward scans should be loaded in reverse (descending) order, an option to flip sequence (ascending to descending) is also implemented.</p>
+<p>The loaded data at the output channel is in dictionary format, in the following format.</p>
+<p>output data = <br />{<br />&nbsp;&nbsp;&nbsp;&nbsp; scan_data : {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; scan_0 : {'height':Array(m,n)},<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; scan_1 : {'height':Array(m,n)},...<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />}</p>
+<p>&nbsp;</p>
+<h3>Instructions to use Load scans</h3>
+<p><video controls="controls" width="500" height="250">
+<source src="videos/load_scans.mp4" type="video/mp4" /></video></p>
+<h3>&nbsp;</h3>

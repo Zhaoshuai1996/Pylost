@@ -1,0 +1,12 @@
+<h1>Save data widget guide</h1>
+<p>Save orange pylost data to pickle or hdf5 formats. Pickle format saves all data in native &amp; custom python datatypes, whereas hdf5 is limited to few types like numpy arrays, strings, floats etc. Pickle can be directly reloaded within orange pylost without any modifications and so it is extremely helpful for saving intermediate processed data. However HDF5 is quite useful across platforms and pickle may not correctly load in another python environment.</p>
+<p>This widget also has option to save heights data as MetroPro dat format, so that it can be viewed through MetroPro. Similar writers can be easily implemented by users and can be integrated into orange pylost.</p>
+<p>The widget has basic saving where all data directly dumped to a file. It also has advanced saving where partial data can be dumped to file, file dataset names can be modified or datasets deleted, file hdf5 structure can be modified and so on.</p>
+<p>&nbsp;</p>
+<h3>Instructions to save in basic mode</h3>
+<p><video controls="controls" width="500" height="250">
+<source src="videos/save_basic.mp4" type="video/mp4" /></video></p>
+<h3>Instructions to save in advanced mode</h3>
+<p><video controls="controls" width="500" height="250">
+<source src="videos/save_complex.mp4" type="video/mp4" /></video></p>
+<p>&nbsp;</p>

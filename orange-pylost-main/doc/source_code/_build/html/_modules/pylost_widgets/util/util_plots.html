@@ -1,0 +1,827 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pylost_widgets.util.util_plots &#8212; pylost_widgets  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for pylost_widgets.util.util_plots</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">ast</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">silx</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtCore</span> <span class="kn">import</span> <span class="n">pyqtSignal</span><span class="p">,</span> <span class="n">Qt</span><span class="p">,</span> <span class="n">QEvent</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtGui</span> <span class="kn">import</span> <span class="n">QColor</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtWidgets</span> <span class="kn">import</span> <span class="n">QInputDialog</span><span class="p">,</span> <span class="n">QFileDialog</span><span class="p">,</span> <span class="n">QMenu</span>
+<span class="kn">from</span> <span class="nn">silx.gui</span> <span class="kn">import</span> <span class="n">qt</span>
+<span class="kn">from</span> <span class="nn">silx.gui.plot</span> <span class="kn">import</span> <span class="n">Plot1D</span><span class="p">,</span> <span class="n">PlotWindow</span><span class="p">,</span> <span class="n">Plot2D</span>
+<span class="kn">from</span> <span class="nn">silx.gui.plot.LegendSelector</span> <span class="kn">import</span> <span class="n">LegendsDockWidget</span><span class="p">,</span> <span class="n">LegendListContextMenu</span>
+<span class="kn">from</span> <span class="nn">silx.gui.plot.Profile</span> <span class="kn">import</span> <span class="n">ProfileToolBar</span>
+<span class="kn">from</span> <span class="nn">silx.utils.weakref</span> <span class="kn">import</span> <span class="n">WeakMethodProxy</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="OrangePlot1D"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.util_plots.OrangePlot1D">[docs]</a><span class="k">class</span> <span class="nc">OrangePlot1D</span><span class="p">(</span><span class="n">Plot1D</span><span class="p">,</span> <span class="n">PlotWindow</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">show_legend</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Custom Plot1D implementation extending silx Plot1D.</span>
+
+<span class="sd">        :param parent: Parent object</span>
+<span class="sd">        :type parent: QWidget</span>
+<span class="sd">        :param backend: Backend plotting agent &#39;matplotlib&#39; or &#39;opengl&#39;</span>
+<span class="sd">        :type backend: str</span>
+<span class="sd">        :param show_legend: Show legends widget</span>
+<span class="sd">        :type show_legend: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">OrangePlot1D</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">backend</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">legend_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getLegendsDockWidget</span><span class="p">()</span><span class="o">.</span><span class="n">_legendWidget</span>
+            <span class="n">contextMenu</span> <span class="o">=</span> <span class="n">CurveLegendListContextMenu</span><span class="p">(</span><span class="n">legend_list</span><span class="o">.</span><span class="n">model</span><span class="p">())</span>
+            <span class="n">contextMenu</span><span class="o">.</span><span class="n">sigContextMenu</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">legend_list</span><span class="o">.</span><span class="n">_contextMenuSlot</span><span class="p">)</span>
+            <span class="n">legend_list</span><span class="o">.</span><span class="n">setContextMenu</span><span class="p">(</span><span class="n">contextMenu</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">show_legend</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">getLegendsDockWidget</span><span class="p">()</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+<div class="viewcode-block" id="OrangePlot1D.getLegendsDockWidget"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.util_plots.OrangePlot1D.getLegendsDockWidget">[docs]</a>    <span class="k">def</span> <span class="nf">getLegendsDockWidget</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Widget listing all the legends of the plot.</span>
+
+<span class="sd">        :return: Legends dock widget</span>
+<span class="sd">        :rtype: CurveLegendsDockWidget</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_legendsDockWidget</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_legendsDockWidget</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">getLegendsDockWidget</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_legendsDockWidget</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_legendsDockWidget</span><span class="p">)</span><span class="o">==</span><span class="n">LegendsDockWidget</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_legendsDockWidget</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">=</span> <span class="n">CurveLegendsDockWidget</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_legendsDockWidget</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_legendsDockWidget</span></div></div>
+
+
+
+<div class="viewcode-block" id="OrangePlot2D"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.util_plots.OrangePlot2D">[docs]</a><span class="k">class</span> <span class="nc">OrangePlot2D</span><span class="p">(</span><span class="n">Plot2D</span><span class="p">,</span> <span class="n">PlotWindow</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">opacity</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">show_legend</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Custom Plot2D implementation extending silx Plot2D.</span>
+
+<span class="sd">        :param parent: Parent object</span>
+<span class="sd">        :type parent: QWidget</span>
+<span class="sd">        :param backend: Backend plotting agent &#39;matplotlib&#39; or &#39;opengl&#39;</span>
+<span class="sd">        :type backend: str</span>
+<span class="sd">        :param opacity: Opacity of image</span>
+<span class="sd">        :type opacity: float</span>
+<span class="sd">        :param show_legend: Show legends widget</span>
+<span class="sd">        :type show_legend: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># List of information to display at the bottom of the plot</span>
+        <span class="n">posInfo</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="s1">&#39;X&#39;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;Y&#39;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">y</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;Data&#39;</span><span class="p">,</span> <span class="n">WeakMethodProxy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_getImageValue</span><span class="p">)),</span>
+            <span class="p">(</span><span class="s1">&#39;Dims&#39;</span><span class="p">,</span> <span class="n">WeakMethodProxy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_getImageDims</span><span class="p">)),</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">opacity</span> <span class="o">=</span> <span class="n">opacity</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">OrangePlot2D</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">backend</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Plot2D</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span>
+                                     <span class="n">resetzoom</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">autoScale</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                     <span class="n">logScale</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                     <span class="n">curveStyle</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">colormap</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                     <span class="n">aspectRatio</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">yInverted</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                     <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">print_</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                     <span class="n">control</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="n">posInfo</span><span class="p">,</span>
+                                     <span class="n">roi</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">parent</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="s1">&#39;Plot2D&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">getXAxis</span><span class="p">()</span><span class="o">.</span><span class="n">setLabel</span><span class="p">(</span><span class="s1">&#39;Columns&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">getYAxis</span><span class="p">()</span><span class="o">.</span><span class="n">setLabel</span><span class="p">(</span><span class="s1">&#39;Rows&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setKeepDataAspectRatio</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">silx</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">DEFAULT_PLOT_IMAGE_Y_AXIS_ORIENTATION</span> <span class="o">==</span> <span class="s1">&#39;downward&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">getYAxis</span><span class="p">()</span><span class="o">.</span><span class="n">setInverted</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">profile</span> <span class="o">=</span> <span class="n">ProfileToolBar</span><span class="p">(</span><span class="n">plot</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addToolBar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">colorbarAction</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">getColorBarWidget</span><span class="p">()</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Put colorbar action after colormap action</span>
+        <span class="n">actions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">toolBar</span><span class="p">()</span><span class="o">.</span><span class="n">actions</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">action</span> <span class="ow">in</span> <span class="n">actions</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">action</span> <span class="ow">is</span> <span class="bp">self</span><span class="o">.</span><span class="n">getColormapAction</span><span class="p">():</span>
+                <span class="k">break</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">legend_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getLegendsDockWidget</span><span class="p">()</span><span class="o">.</span><span class="n">_legendWidget</span>
+            <span class="n">contextMenu</span> <span class="o">=</span> <span class="n">ImageLegendListContextMenu</span><span class="p">(</span><span class="n">legend_list</span><span class="o">.</span><span class="n">model</span><span class="p">())</span>
+            <span class="n">contextMenu</span><span class="o">.</span><span class="n">sigContextMenu</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">legend_list</span><span class="o">.</span><span class="n">_contextMenuSlot</span><span class="p">)</span>
+            <span class="n">legend_list</span><span class="o">.</span><span class="n">setContextMenu</span><span class="p">(</span><span class="n">contextMenu</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">show_legend</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">getLegendsDockWidget</span><span class="p">()</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+<div class="viewcode-block" id="OrangePlot2D.getLegendsDockWidget"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.util_plots.OrangePlot2D.getLegendsDockWidget">[docs]</a>    <span class="k">def</span> <span class="nf">getLegendsDockWidget</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Widget listing all the legends of the plot.</span>
+
+<span class="sd">        :return: Legends doct widget</span>
+<span class="sd">        :rtype: ImageLegendsDockWidget</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_legendsDockWidget</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_legendsDockWidget</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">getLegendsDockWidget</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_legendsDockWidget</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_legendsDockWidget</span><span class="p">)</span><span class="o">==</span><span class="n">LegendsDockWidget</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_legendsDockWidget</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">=</span> <span class="n">ImageLegendsDockWidget</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_legendsDockWidget</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">opacity</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_legendsDockWidget</span></div>
+
+<div class="viewcode-block" id="OrangePlot2D.hideImage"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.util_plots.OrangePlot2D.hideImage">[docs]</a>    <span class="k">def</span> <span class="nf">hideImage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">legend</span><span class="p">,</span> <span class="n">flag</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Show/Hide the image associated to legend.</span>
+<span class="sd">        Even when hidden, the image is kept in the list of images.</span>
+
+<span class="sd">        :param legend: The legend associated to the image to be hidden</span>
+<span class="sd">        :type legend: str</span>
+<span class="sd">        :param flag: True (default) to hide the image, False to show it</span>
+<span class="sd">        :type flag: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getItem</span><span class="p">(</span><span class="s1">&#39;image&#39;</span><span class="p">,</span> <span class="n">legend</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">img</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Image not in plot: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">legend</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">isVisible</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">flag</span>
+        <span class="k">if</span> <span class="n">isVisible</span> <span class="o">!=</span> <span class="n">img</span><span class="o">.</span><span class="n">isVisible</span><span class="p">():</span>
+            <span class="n">img</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="n">isVisible</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="CurveLegendsDockWidget"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.util_plots.CurveLegendsDockWidget">[docs]</a><span class="k">class</span> <span class="nc">CurveLegendsDockWidget</span><span class="p">(</span><span class="n">LegendsDockWidget</span><span class="p">):</span>
+
+    <span class="n">sigCommonEvents</span> <span class="o">=</span> <span class="n">pyqtSignal</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Widget listing all the legends of the plot.</span>
+<span class="sd">        Right click on a legend allows selection of further operations like offsetting or renaming the curve.</span>
+
+<span class="sd">        :param parent: Parent object</span>
+<span class="sd">        :type parent: QWidget</span>
+<span class="sd">        :param plot: Plot widget</span>
+<span class="sd">        :type plot: CustomPlot1DD</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">plot</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+
+<div class="viewcode-block" id="CurveLegendsDockWidget.init"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.util_plots.CurveLegendsDockWidget.init">[docs]</a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize legends signal handler&quot;&quot;&quot;</span>
+        <span class="c1"># self._legendWidget.sigLegendSignal.disconnect(super()._legendSignalHandler) # Keep the old signal handler</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_legendWidget</span><span class="o">.</span><span class="n">sigLegendSignal</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_legendSignalHandler</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_legendSignalHandler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ddict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handler for right click events. For some events common across all plot widgets, the event is forwarded.</span>
+
+<span class="sd">        :param ddict: Event information dictionary</span>
+<span class="sd">        :type ddict: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">curve</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="s1">&#39;legend&#39;</span> <span class="ow">in</span> <span class="n">ddict</span><span class="p">:</span>
+            <span class="n">curve</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">getCurve</span><span class="p">(</span><span class="n">ddict</span><span class="p">[</span><span class="s1">&#39;legend&#39;</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">ddict</span><span class="p">[</span><span class="s1">&#39;event&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;legendClicked&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ddict</span><span class="p">[</span><span class="s1">&#39;button&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;left&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">update_alpha</span><span class="p">(</span><span class="n">ddict</span><span class="p">[</span><span class="s1">&#39;legend&#39;</span><span class="p">])</span>
+
+        <span class="k">elif</span> <span class="n">ddict</span><span class="p">[</span><span class="s1">&#39;event&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;setActiveCurve&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_alpha</span><span class="p">(</span><span class="n">ddict</span><span class="p">[</span><span class="s1">&#39;legend&#39;</span><span class="p">])</span>
+
+        <span class="k">elif</span> <span class="n">ddict</span><span class="p">[</span><span class="s1">&#39;event&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;mouseClicked&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_alpha</span><span class="p">()</span>
+
+        <span class="k">elif</span> <span class="n">ddict</span><span class="p">[</span><span class="s1">&#39;event&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;changeLineWidth&quot;</span><span class="p">:</span>
+            <span class="n">lwidth</span> <span class="o">=</span> <span class="n">curve</span><span class="o">.</span><span class="n">getLineWidth</span><span class="p">()</span>
+            <span class="n">text</span><span class="p">,</span> <span class="n">ok</span> <span class="o">=</span> <span class="n">QInputDialog</span><span class="o">.</span><span class="n">getText</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;Line width&#39;</span><span class="p">,</span> <span class="s1">&#39;Enter new line width:&#39;</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">lwidth</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">ok</span><span class="p">:</span>
+                <span class="n">lwidth</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">ddict</span><span class="p">[</span><span class="s1">&#39;event&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;changeColor&quot;</span><span class="p">:</span>
+            <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">curve</span><span class="o">.</span><span class="n">getColor</span><span class="p">())</span>
+            <span class="n">text</span><span class="p">,</span> <span class="n">ok</span> <span class="o">=</span> <span class="n">QInputDialog</span><span class="o">.</span><span class="n">getText</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;Line width&#39;</span><span class="p">,</span> <span class="s1">&#39;Enter new color, e.g. &quot;black&quot;, &quot;#6a4597&quot;, (red[0,1], green[0,1], blue[0,1], alpha[0,1]):&#39;</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ok</span><span class="p">:</span>
+                <span class="n">color</span> <span class="o">=</span> <span class="n">text</span>
+                <span class="k">if</span> <span class="n">text</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;(&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">text</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;)&#39;</span><span class="p">):</span>
+                    <span class="k">try</span><span class="p">:</span> <span class="n">color</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">literal_eval</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span> <span class="k">pass</span>
+
+        <span class="k">elif</span> <span class="n">ddict</span><span class="p">[</span><span class="s1">&#39;event&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;offsetX&quot;</span><span class="p">:</span>
+            <span class="n">xoff</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">xabs</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">text</span><span class="p">,</span> <span class="n">ok</span> <span class="o">=</span> <span class="n">QInputDialog</span><span class="o">.</span><span class="n">getText</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;Offset X&#39;</span><span class="p">,</span> <span class="s1">&#39;Enter offset value:&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ok</span><span class="p">:</span>
+                <span class="n">xoff</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">text</span><span class="p">,</span> <span class="n">ok</span> <span class="o">=</span> <span class="n">QInputDialog</span><span class="o">.</span><span class="n">getText</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;Offset X absolute&#39;</span><span class="p">,</span> <span class="s1">&#39;Enter absolute offset value:&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">ok</span><span class="p">:</span>
+                    <span class="n">xabs</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">xoff</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">ddict</span><span class="p">[</span><span class="s1">&#39;event&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;offsetY&quot;</span><span class="p">:</span>
+            <span class="n">text</span><span class="p">,</span> <span class="n">ok</span> <span class="o">=</span> <span class="n">QInputDialog</span><span class="o">.</span><span class="n">getText</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;Offset Y&#39;</span><span class="p">,</span> <span class="s1">&#39;Enter offset value:&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ok</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">offset_y</span><span class="p">(</span><span class="n">ddict</span><span class="p">[</span><span class="s1">&#39;legend&#39;</span><span class="p">],</span> <span class="nb">float</span><span class="p">(</span><span class="n">text</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">text</span><span class="p">,</span> <span class="n">ok</span> <span class="o">=</span> <span class="n">QInputDialog</span><span class="o">.</span><span class="n">getText</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;Offset Y absolute&#39;</span><span class="p">,</span> <span class="s1">&#39;Enter absolute offset value:&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">ok</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">offset_y</span><span class="p">(</span><span class="n">ddict</span><span class="p">[</span><span class="s1">&#39;legend&#39;</span><span class="p">],</span> <span class="nb">float</span><span class="p">(</span><span class="n">text</span><span class="p">),</span> <span class="n">absolute</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">ddict</span><span class="p">[</span><span class="s1">&#39;event&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;exportData&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">export_data</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">ddict</span><span class="p">[</span><span class="s1">&#39;event&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;removeCurve&#39;</span><span class="p">,</span> <span class="s1">&#39;offsetX&#39;</span><span class="p">,</span> <span class="s1">&#39;clearChanges&#39;</span><span class="p">,</span> <span class="s1">&#39;changeLineWidth&#39;</span><span class="p">,</span> <span class="s1">&#39;changeColor&#39;</span><span class="p">]:</span>
+            <span class="n">cdict</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;event&#39;</span><span class="p">:</span><span class="n">ddict</span><span class="p">[</span><span class="s1">&#39;event&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;legend&#39;</span><span class="p">:</span><span class="n">ddict</span><span class="p">[</span><span class="s1">&#39;legend&#39;</span><span class="p">]</span>
+            <span class="p">}</span>
+            <span class="k">if</span> <span class="n">ddict</span><span class="p">[</span><span class="s1">&#39;event&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;removeCurve&#39;</span><span class="p">:</span>
+                <span class="n">cdict</span><span class="p">[</span><span class="s1">&#39;modelIndex&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_legendWidget</span><span class="o">.</span><span class="n">currentIndex</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">ddict</span><span class="p">[</span><span class="s1">&#39;event&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;offsetX&quot;</span><span class="p">:</span>
+                <span class="n">cdict</span><span class="p">[</span><span class="s1">&#39;offset&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xoff</span>
+                <span class="n">cdict</span><span class="p">[</span><span class="s1">&#39;absolute&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xabs</span>
+            <span class="k">if</span> <span class="n">ddict</span><span class="p">[</span><span class="s1">&#39;event&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;changeLineWidth&quot;</span><span class="p">:</span>
+                <span class="n">cdict</span><span class="p">[</span><span class="s1">&#39;lineWidth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lwidth</span>
+            <span class="k">if</span> <span class="n">ddict</span><span class="p">[</span><span class="s1">&#39;event&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;changeColor&quot;</span><span class="p">:</span>
+                <span class="n">cdict</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">color</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sigCommonEvents</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">cdict</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CurveLegendsDockWidget.renameCurve"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.util_plots.CurveLegendsDockWidget.renameCurve">[docs]</a>    <span class="k">def</span> <span class="nf">renameCurve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">oldLegend</span><span class="p">,</span> <span class="n">newLegend</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Rename curve legend. The signal is forwarded to be implemented across all plot widgets</span>
+
+<span class="sd">        :param oldLegend: Old legend</span>
+<span class="sd">        :type oldLegend: str</span>
+<span class="sd">        :param newLegend: New legend</span>
+<span class="sd">        :type newLegend: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">renameCurve</span><span class="p">(</span><span class="n">oldLegend</span><span class="p">,</span> <span class="n">newLegend</span><span class="p">)</span>
+        <span class="n">cdict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;event&#39;</span><span class="p">:</span><span class="s1">&#39;renameCurve&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;legend&#39;</span><span class="p">:</span><span class="n">oldLegend</span><span class="p">,</span>
+            <span class="s1">&#39;newLegend&#39;</span><span class="p">:</span><span class="n">newLegend</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sigCommonEvents</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">cdict</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CurveLegendsDockWidget.update_alpha_all"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.util_plots.CurveLegendsDockWidget.update_alpha_all">[docs]</a>    <span class="k">def</span> <span class="nf">update_alpha_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update alpha value for all curves</span>
+
+<span class="sd">        :param alpha: Alpha value</span>
+<span class="sd">        :type alpha: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">curves</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">getAllCurves</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">curve</span> <span class="ow">in</span> <span class="n">curves</span><span class="p">:</span>
+            <span class="n">curve</span><span class="o">.</span><span class="n">setAlpha</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CurveLegendsDockWidget.update_alpha"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.util_plots.CurveLegendsDockWidget.update_alpha">[docs]</a>    <span class="k">def</span> <span class="nf">update_alpha</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update alpha of a curve.</span>
+
+<span class="sd">        :param legend: Legend of the curve</span>
+<span class="sd">        :type legend: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">curve</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">getCurve</span><span class="p">(</span><span class="n">legend</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">curve</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_alpha_all</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+            <span class="n">curve</span><span class="o">.</span><span class="n">setAlpha</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">curve</span><span class="o">.</span><span class="n">setHighlighted</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_alpha_all</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CurveLegendsDockWidget.offset_x"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.util_plots.CurveLegendsDockWidget.offset_x">[docs]</a>    <span class="k">def</span> <span class="nf">offset_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">legend</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">absolute</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Offset curve along x axis.</span>
+
+<span class="sd">        :param legend: Legend of the curve</span>
+<span class="sd">        :type legend: str</span>
+<span class="sd">        :param offset: Offset value</span>
+<span class="sd">        :type offset: float</span>
+<span class="sd">        :param absolute: Absolute or relative offset</span>
+<span class="sd">        :type absolute: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">curve</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">getCurve</span><span class="p">(</span><span class="n">legend</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">curve</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">xerr</span><span class="p">,</span> <span class="n">yerr</span> <span class="o">=</span> <span class="n">curve</span><span class="o">.</span><span class="n">getData</span><span class="p">()</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">-</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">offset</span> <span class="k">if</span> <span class="n">absolute</span> <span class="k">else</span> <span class="n">x</span> <span class="o">+</span> <span class="n">offset</span>
+                <span class="n">curve</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">xerr</span><span class="p">,</span> <span class="n">yerr</span><span class="p">)</span>
+                <span class="c1"># self.plot.resetZoom()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CurveLegendsDockWidget.offset_y"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.util_plots.CurveLegendsDockWidget.offset_y">[docs]</a>    <span class="k">def</span> <span class="nf">offset_y</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">legend</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">absolute</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Offset curve along y axis.</span>
+
+<span class="sd">        :param legend: Legend of the curve</span>
+<span class="sd">        :type legend: str</span>
+<span class="sd">        :param offset: Offset value</span>
+<span class="sd">        :type offset: float</span>
+<span class="sd">        :param absolute: Absolute or relative offset</span>
+<span class="sd">        :type absolute: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">curve</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">getCurve</span><span class="p">(</span><span class="n">legend</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">curve</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">xerr</span><span class="p">,</span> <span class="n">yerr</span> <span class="o">=</span> <span class="n">curve</span><span class="o">.</span><span class="n">getData</span><span class="p">()</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="o">-</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">offset</span> <span class="k">if</span> <span class="n">absolute</span> <span class="k">else</span> <span class="n">y</span> <span class="o">+</span> <span class="n">offset</span>
+                <span class="n">curve</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">xerr</span><span class="p">,</span> <span class="n">yerr</span><span class="p">)</span>
+                <span class="c1"># self.plot.resetZoom()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CurveLegendsDockWidget.export_data"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.util_plots.CurveLegendsDockWidget.export_data">[docs]</a>    <span class="k">def</span> <span class="nf">export_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Export data of all curves to excel / csv / txt files</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_legendWidget</span><span class="o">.</span><span class="n">model</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">rowCount</span><span class="p">()):</span>
+                <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="n">qt</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">CheckStateRole</span><span class="p">):</span>
+                    <span class="n">legend</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">DisplayRole</span><span class="p">))</span>
+                    <span class="n">curve</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">getCurve</span><span class="p">(</span><span class="n">legend</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">curve</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">xerr</span><span class="p">,</span> <span class="n">yerr</span> <span class="o">=</span> <span class="n">curve</span><span class="o">.</span><span class="n">getData</span><span class="p">()</span>
+                        <span class="n">out</span><span class="p">[</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">legend</span><span class="p">,</span> <span class="n">curve</span><span class="o">.</span><span class="n">getXLabel</span><span class="p">())]</span> <span class="o">=</span> <span class="n">x</span>
+                        <span class="n">out</span><span class="p">[</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">legend</span><span class="p">,</span> <span class="n">curve</span><span class="o">.</span><span class="n">getYLabel</span><span class="p">())]</span> <span class="o">=</span> <span class="n">y</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">out</span><span class="p">):</span>
+                <span class="n">filters</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Microsoft Excel spreadsheet (*.xlsx)&#39;</span><span class="p">,</span> <span class="s1">&#39;Comma seperated values (*.csv)&#39;</span><span class="p">,</span> <span class="s1">&#39;Tab seperated text file (*.txt)&#39;</span><span class="p">]</span>
+                <span class="n">name</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">QFileDialog</span><span class="o">.</span><span class="n">getSaveFileName</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;Save to file&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;;;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">filters</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">ext</span><span class="o">==</span><span class="n">filters</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                    <span class="n">out</span><span class="o">.</span><span class="n">to_excel</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="s1">&#39;Selected curves&#39;</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">ext</span><span class="o">==</span><span class="n">filters</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                    <span class="n">out</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">ext</span><span class="o">==</span><span class="n">filters</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span>
+                    <span class="n">out</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="ImageLegendsDockWidget"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.util_plots.ImageLegendsDockWidget">[docs]</a><span class="k">class</span> <span class="nc">ImageLegendsDockWidget</span><span class="p">(</span><span class="n">LegendsDockWidget</span><span class="p">):</span>
+
+    <span class="n">sigCommonEvents</span> <span class="o">=</span> <span class="n">pyqtSignal</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Widget listing all the legends of the plot.</span>
+<span class="sd">        Right click on a legend allows selection of further operations like offsetting or renaming the image.</span>
+
+<span class="sd">        :param parent: Parent object</span>
+<span class="sd">        :type parent: QWidget</span>
+<span class="sd">        :param plot: Plot widget</span>
+<span class="sd">        :type plot: CustomPlot2DD</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">plot</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+
+<div class="viewcode-block" id="ImageLegendsDockWidget.init"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.util_plots.ImageLegendsDockWidget.init">[docs]</a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize legends signal handler&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="n">alpha</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_legendWidget</span><span class="o">.</span><span class="n">sigLegendSignal</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_legendSignalHandler</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_legendWidget</span><span class="o">.</span><span class="n">sigLegendSignal</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_legendSignalHandler</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_legendSignalHandler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ddict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handler for right click events. For some events common across all plot widgets, the event is forwarded.</span>
+
+<span class="sd">        :param ddict: Event information dictionary</span>
+<span class="sd">        :type ddict: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Legend signal ddict = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">ddict</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">ddict</span><span class="p">[</span><span class="s1">&#39;event&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;legendClicked&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ddict</span><span class="p">[</span><span class="s1">&#39;button&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;left&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">setActiveImage</span><span class="p">(</span><span class="n">ddict</span><span class="p">[</span><span class="s1">&#39;legend&#39;</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">update_alpha</span><span class="p">(</span><span class="n">ddict</span><span class="p">[</span><span class="s1">&#39;legend&#39;</span><span class="p">])</span>
+
+        <span class="k">elif</span> <span class="n">ddict</span><span class="p">[</span><span class="s1">&#39;event&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;removeCurve&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">removeImage</span><span class="p">(</span><span class="n">ddict</span><span class="p">[</span><span class="s1">&#39;legend&#39;</span><span class="p">])</span>
+
+        <span class="k">elif</span> <span class="n">ddict</span><span class="p">[</span><span class="s1">&#39;event&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;renameCurve&quot;</span><span class="p">:</span>
+            <span class="n">imageLegends</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">getAllImages</span><span class="p">(</span><span class="n">just_legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">oldLegend</span> <span class="o">=</span> <span class="n">ddict</span><span class="p">[</span><span class="s1">&#39;legend&#39;</span><span class="p">]</span>
+            <span class="n">newLegend</span><span class="p">,</span> <span class="n">ok</span> <span class="o">=</span> <span class="n">QInputDialog</span><span class="o">.</span><span class="n">getText</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;Rename image&#39;</span><span class="p">,</span> <span class="s1">&#39;Image legend:&#39;</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">oldLegend</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ok</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">newLegend</span> <span class="ow">in</span> <span class="n">imageLegends</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Image name already exists&#39;</span><span class="p">)</span>
+                <span class="c1"># self.renameImage(oldLegend, newLegend)</span>
+
+        <span class="k">elif</span> <span class="n">ddict</span><span class="p">[</span><span class="s1">&#39;event&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;setActiveCurve&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">setActiveImage</span><span class="p">(</span><span class="n">ddict</span><span class="p">[</span><span class="s1">&#39;legend&#39;</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_alpha</span><span class="p">(</span><span class="n">ddict</span><span class="p">[</span><span class="s1">&#39;legend&#39;</span><span class="p">])</span>
+
+        <span class="k">elif</span> <span class="n">ddict</span><span class="p">[</span><span class="s1">&#39;event&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;checkBoxClicked&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">hideImage</span><span class="p">(</span><span class="n">ddict</span><span class="p">[</span><span class="s1">&#39;legend&#39;</span><span class="p">],</span> <span class="ow">not</span> <span class="n">ddict</span><span class="p">[</span><span class="s1">&#39;selected&#39;</span><span class="p">])</span>
+
+        <span class="k">elif</span> <span class="n">ddict</span><span class="p">[</span><span class="s1">&#39;event&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;mouseClicked&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_alpha</span><span class="p">()</span>
+
+        <span class="k">elif</span> <span class="n">ddict</span><span class="p">[</span><span class="s1">&#39;event&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;offsetX&quot;</span><span class="p">:</span>
+            <span class="n">xoff</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">xabs</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">text</span><span class="p">,</span> <span class="n">ok</span> <span class="o">=</span> <span class="n">QInputDialog</span><span class="o">.</span><span class="n">getDouble</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;Offset X&#39;</span><span class="p">,</span> <span class="s1">&#39;Enter offset value:&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ok</span><span class="p">:</span>
+                <span class="n">xoff</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">text</span><span class="p">,</span> <span class="n">ok</span> <span class="o">=</span> <span class="n">QInputDialog</span><span class="o">.</span><span class="n">getText</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;Offset X absolute&#39;</span><span class="p">,</span> <span class="s1">&#39;Enter absolute offset value:&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">ok</span><span class="p">:</span>
+                    <span class="n">xabs</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">xoff</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;unhandled event </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">ddict</span><span class="p">[</span><span class="s1">&#39;event&#39;</span><span class="p">]))</span>
+
+        <span class="k">if</span> <span class="n">ddict</span><span class="p">[</span><span class="s1">&#39;event&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;removeCurve&#39;</span><span class="p">,</span> <span class="s1">&#39;renameCurve&#39;</span><span class="p">,</span> <span class="s1">&#39;offsetX&#39;</span><span class="p">,</span> <span class="s1">&#39;clearChanges&#39;</span><span class="p">]:</span>
+            <span class="n">cdict</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;event&#39;</span><span class="p">:</span><span class="n">ddict</span><span class="p">[</span><span class="s1">&#39;event&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;legend&#39;</span><span class="p">:</span><span class="n">ddict</span><span class="p">[</span><span class="s1">&#39;legend&#39;</span><span class="p">]</span>
+            <span class="p">}</span>
+            <span class="k">if</span> <span class="n">ddict</span><span class="p">[</span><span class="s1">&#39;event&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;removeCurve&#39;</span><span class="p">:</span>
+                <span class="n">cdict</span><span class="p">[</span><span class="s1">&#39;modelIndex&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_legendWidget</span><span class="o">.</span><span class="n">currentIndex</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">ddict</span><span class="p">[</span><span class="s1">&#39;event&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;renameCurve&quot;</span><span class="p">:</span>
+                <span class="n">cdict</span><span class="p">[</span><span class="s1">&#39;newLegend&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">newLegend</span>
+            <span class="k">if</span> <span class="n">ddict</span><span class="p">[</span><span class="s1">&#39;event&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;offsetX&quot;</span><span class="p">:</span>
+                <span class="n">cdict</span><span class="p">[</span><span class="s1">&#39;offset&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xoff</span>
+                <span class="n">cdict</span><span class="p">[</span><span class="s1">&#39;absolute&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xabs</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sigCommonEvents</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">cdict</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="ImageLegendsDockWidget.renameImage"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.util_plots.ImageLegendsDockWidget.renameImage">[docs]</a>    <span class="k">def</span> <span class="nf">renameImage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">oldLegend</span><span class="p">,</span> <span class="n">newLegend</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Rename image legend.</span>
+
+<span class="sd">        :param oldLegend: Old legend</span>
+<span class="sd">        :type oldLegend: str</span>
+<span class="sd">        :param newLegend: New legend</span>
+<span class="sd">        :type newLegend: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">legends</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">getAllImages</span><span class="p">(</span><span class="n">just_legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">legend</span> <span class="ow">in</span> <span class="n">legends</span><span class="p">:</span>
+            <span class="n">img</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">getImage</span><span class="p">(</span><span class="n">legend</span><span class="p">)</span>
+            <span class="n">rm_legend</span> <span class="o">=</span> <span class="n">add_legend</span> <span class="o">=</span> <span class="n">legend</span>
+            <span class="k">if</span> <span class="n">legend</span><span class="o">==</span><span class="n">oldLegend</span><span class="p">:</span>
+                <span class="n">rm_legend</span> <span class="o">=</span> <span class="n">oldLegend</span>
+                <span class="n">add_legend</span> <span class="o">=</span> <span class="n">newLegend</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">rm_legend</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;image&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">addImage</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">getData</span><span class="p">(</span><span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+                               <span class="n">legend</span><span class="o">=</span><span class="n">add_legend</span><span class="p">,</span>
+                               <span class="n">info</span><span class="o">=</span><span class="n">img</span><span class="o">.</span><span class="n">getInfo</span><span class="p">(),</span>
+                               <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                               <span class="n">z</span><span class="o">=</span><span class="n">img</span><span class="o">.</span><span class="n">getZValue</span><span class="p">(),</span>
+                               <span class="n">selectable</span><span class="o">=</span><span class="n">img</span><span class="o">.</span><span class="n">isSelectable</span><span class="p">(),</span>
+                               <span class="n">draggable</span><span class="o">=</span><span class="n">img</span><span class="o">.</span><span class="n">isDraggable</span><span class="p">(),</span>
+                               <span class="n">colormap</span><span class="o">=</span><span class="n">img</span><span class="o">.</span><span class="n">getColormap</span><span class="p">(),</span>
+                               <span class="n">pixmap</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                               <span class="n">xlabel</span><span class="o">=</span><span class="n">img</span><span class="o">.</span><span class="n">getXLabel</span><span class="p">(),</span>
+                               <span class="n">ylabel</span><span class="o">=</span><span class="n">img</span><span class="o">.</span><span class="n">getYLabel</span><span class="p">(),</span>
+                               <span class="n">origin</span><span class="o">=</span><span class="n">img</span><span class="o">.</span><span class="n">getOrigin</span><span class="p">(),</span>
+                               <span class="n">scale</span><span class="o">=</span><span class="n">img</span><span class="o">.</span><span class="n">getScale</span><span class="p">(),</span>
+                               <span class="n">resetzoom</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ImageLegendsDockWidget.update_alpha_all"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.util_plots.ImageLegendsDockWidget.update_alpha_all">[docs]</a>    <span class="k">def</span> <span class="nf">update_alpha_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update alpha value for all images</span>
+
+<span class="sd">        :param alpha: Alpha value</span>
+<span class="sd">        :type alpha: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">imgs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">getAllImages</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">img</span> <span class="ow">in</span> <span class="n">imgs</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">getData</span><span class="p">(</span><span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">alpha_arr</span> <span class="o">=</span> <span class="n">alpha</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">img</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha_arr</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ImageLegendsDockWidget.update_alpha"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.util_plots.ImageLegendsDockWidget.update_alpha">[docs]</a>    <span class="k">def</span> <span class="nf">update_alpha</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update alpha of a curve.</span>
+
+<span class="sd">        :param legend: Legend of the curve</span>
+<span class="sd">        :type legend: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">getImage</span><span class="p">(</span><span class="n">legend</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">img</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_alpha_all</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">getData</span><span class="p">(</span><span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">alpha_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">img</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">getData</span><span class="p">(</span><span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha_arr</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_alpha_all</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ImageLegendsDockWidget.offset_x"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.util_plots.ImageLegendsDockWidget.offset_x">[docs]</a>    <span class="k">def</span> <span class="nf">offset_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">legend</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">absolute</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Offset image along x axis.</span>
+
+<span class="sd">        :param legend: Legend of the curve</span>
+<span class="sd">        :type legend: str</span>
+<span class="sd">        :param offset: Offset value</span>
+<span class="sd">        :type offset: float</span>
+<span class="sd">        :param absolute: Absolute or relative offset</span>
+<span class="sd">        :type absolute: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">getImage</span><span class="p">(</span><span class="n">legend</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">img</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">x0</span><span class="p">,</span> <span class="n">y0</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">getOrigin</span><span class="p">()</span>
+            <span class="n">x1</span> <span class="o">=</span> <span class="n">offset</span> <span class="k">if</span> <span class="n">absolute</span> <span class="k">else</span> <span class="n">x0</span><span class="o">+</span><span class="n">offset</span>
+            <span class="n">img</span><span class="o">.</span><span class="n">setOrigin</span><span class="p">((</span><span class="n">x1</span><span class="p">,</span> <span class="n">y0</span><span class="p">))</span></div>
+            <span class="c1"># self.plot.resetZoom()</span>
+
+<div class="viewcode-block" id="ImageLegendsDockWidget.updateLegends"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.util_plots.ImageLegendsDockWidget.updateLegends">[docs]</a>    <span class="k">def</span> <span class="nf">updateLegends</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sync the LegendSelector widget displayed info with the plot.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">legendList</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">img</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">getAllImages</span><span class="p">():</span>
+            <span class="n">legend</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">getName</span><span class="p">()</span>
+            <span class="c1"># isActive = legend == self.plot.getActiveImage(just_legend=True)</span>
+            <span class="n">color</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span>
+            <span class="n">curveInfo</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="n">QColor</span><span class="o">.</span><span class="n">fromRgbF</span><span class="p">(</span><span class="o">*</span><span class="n">color</span><span class="p">),</span> <span class="s1">&#39;linewidth&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;selected&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">}</span>
+            <span class="n">legendList</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">legend</span><span class="p">,</span> <span class="n">curveInfo</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_legendWidget</span><span class="o">.</span><span class="n">setLegendList</span><span class="p">(</span><span class="n">legendList</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="CurveLegendListContextMenu"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.util_plots.CurveLegendListContextMenu">[docs]</a><span class="k">class</span> <span class="nc">CurveLegendListContextMenu</span><span class="p">(</span><span class="n">LegendListContextMenu</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Right click menu for curve legends</span>
+
+<span class="sd">        :param model: Legend model</span>
+<span class="sd">        :type model: silx.gui.plot.LegendSelector.LegendModel</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">CurveLegendListContextMenu</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;Change Line Width&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">changeLineWidth</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;Change Color&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">changeColor</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;Offset X&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">offsetX</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;Offset Data&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">offsetY</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;Export Displayed Data&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">exportData</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;Clear Changes&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">clearChanges</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CurveLegendListContextMenu.offsetX"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.util_plots.CurveLegendListContextMenu.offsetX">[docs]</a>    <span class="k">def</span> <span class="nf">offsetX</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Emit offset x position event</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">modelIndex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">currentIdx</span><span class="p">()</span>
+        <span class="n">legend</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">modelIndex</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">DisplayRole</span><span class="p">))</span>
+        <span class="n">ddict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;legend&#39;</span><span class="p">:</span> <span class="n">legend</span><span class="p">,</span>
+            <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">legend</span><span class="p">,</span>
+            <span class="s1">&#39;selected&#39;</span><span class="p">:</span> <span class="n">modelIndex</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="n">qt</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">CheckStateRole</span><span class="p">),</span>
+            <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">modelIndex</span><span class="o">.</span><span class="n">data</span><span class="p">()),</span>
+            <span class="s1">&#39;event&#39;</span><span class="p">:</span> <span class="s2">&quot;offsetX&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sigContextMenu</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">ddict</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CurveLegendListContextMenu.offsetY"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.util_plots.CurveLegendListContextMenu.offsetY">[docs]</a>    <span class="k">def</span> <span class="nf">offsetY</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Emit offset x position event</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">modelIndex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">currentIdx</span><span class="p">()</span>
+        <span class="n">legend</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">modelIndex</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">DisplayRole</span><span class="p">))</span>
+        <span class="n">ddict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;legend&#39;</span><span class="p">:</span> <span class="n">legend</span><span class="p">,</span>
+            <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">legend</span><span class="p">,</span>
+            <span class="s1">&#39;selected&#39;</span><span class="p">:</span> <span class="n">modelIndex</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="n">qt</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">CheckStateRole</span><span class="p">),</span>
+            <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">modelIndex</span><span class="o">.</span><span class="n">data</span><span class="p">()),</span>
+            <span class="s1">&#39;event&#39;</span><span class="p">:</span> <span class="s2">&quot;offsetY&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sigContextMenu</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">ddict</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CurveLegendListContextMenu.exportData"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.util_plots.CurveLegendListContextMenu.exportData">[docs]</a>    <span class="k">def</span> <span class="nf">exportData</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Emit export data event</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">modelIndex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">currentIdx</span><span class="p">()</span>
+        <span class="n">legend</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">modelIndex</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">DisplayRole</span><span class="p">))</span>
+        <span class="n">ddict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;legend&#39;</span><span class="p">:</span> <span class="n">legend</span><span class="p">,</span>
+            <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">legend</span><span class="p">,</span>
+            <span class="s1">&#39;event&#39;</span><span class="p">:</span> <span class="s2">&quot;exportData&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sigContextMenu</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">ddict</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CurveLegendListContextMenu.clearChanges"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.util_plots.CurveLegendListContextMenu.clearChanges">[docs]</a>    <span class="k">def</span> <span class="nf">clearChanges</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Emit clear changes event</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">modelIndex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">currentIdx</span><span class="p">()</span>
+            <span class="n">legend</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">modelIndex</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">DisplayRole</span><span class="p">))</span>
+            <span class="n">ddict</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;legend&#39;</span><span class="p">:</span> <span class="n">legend</span><span class="p">,</span>
+                <span class="s1">&#39;event&#39;</span><span class="p">:</span> <span class="s2">&quot;clearChanges&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sigContextMenu</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">ddict</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CurveLegendListContextMenu.changeLineWidth"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.util_plots.CurveLegendListContextMenu.changeLineWidth">[docs]</a>    <span class="k">def</span> <span class="nf">changeLineWidth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Emit change line width event</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">modelIndex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">currentIdx</span><span class="p">()</span>
+        <span class="n">legend</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">modelIndex</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">DisplayRole</span><span class="p">))</span>
+        <span class="n">ddict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;legend&#39;</span><span class="p">:</span> <span class="n">legend</span><span class="p">,</span>
+            <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">legend</span><span class="p">,</span>
+            <span class="s1">&#39;selected&#39;</span><span class="p">:</span> <span class="n">modelIndex</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="n">qt</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">CheckStateRole</span><span class="p">),</span>
+            <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">modelIndex</span><span class="o">.</span><span class="n">data</span><span class="p">()),</span>
+            <span class="s1">&#39;event&#39;</span><span class="p">:</span> <span class="s2">&quot;changeLineWidth&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sigContextMenu</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">ddict</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CurveLegendListContextMenu.changeColor"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.util_plots.CurveLegendListContextMenu.changeColor">[docs]</a>    <span class="k">def</span> <span class="nf">changeColor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Emit change color event</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">modelIndex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">currentIdx</span><span class="p">()</span>
+        <span class="n">legend</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">modelIndex</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">DisplayRole</span><span class="p">))</span>
+        <span class="n">ddict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;legend&#39;</span><span class="p">:</span> <span class="n">legend</span><span class="p">,</span>
+            <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">legend</span><span class="p">,</span>
+            <span class="s1">&#39;selected&#39;</span><span class="p">:</span> <span class="n">modelIndex</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="n">qt</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">CheckStateRole</span><span class="p">),</span>
+            <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">modelIndex</span><span class="o">.</span><span class="n">data</span><span class="p">()),</span>
+            <span class="s1">&#39;event&#39;</span><span class="p">:</span> <span class="s2">&quot;changeColor&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sigContextMenu</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">ddict</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="ImageLegendListContextMenu"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.util_plots.ImageLegendListContextMenu">[docs]</a><span class="k">class</span> <span class="nc">ImageLegendListContextMenu</span><span class="p">(</span><span class="n">LegendListContextMenu</span><span class="p">,</span> <span class="n">QMenu</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Right click menu for image legends</span>
+
+<span class="sd">        :param model: Legend model</span>
+<span class="sd">        :type model: silx.gui.plot.LegendSelector.LegendModel</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># super(ImageLegendListContextMenu, self).__init__(model=model) # Do not init with LegendListContextMenu</span>
+        <span class="n">QMenu</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;Set Active&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">setActiveAction</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;Remove curve&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">removeItemAction</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;Rename curve&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">renameItemAction</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;Offset X&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">offsetX</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;Clear changes&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">clearChanges</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ImageLegendListContextMenu.exec_"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.util_plots.ImageLegendListContextMenu.exec_">[docs]</a>    <span class="k">def</span> <span class="nf">exec_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Store current index.</span>
+<span class="sd">        :param pos: Current legend drawn pos</span>
+<span class="sd">        :type pos: float, float</span>
+<span class="sd">        :param idx: Current index</span>
+<span class="sd">        :type idx: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__currentIdx</span> <span class="o">=</span> <span class="n">idx</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ImageLegendListContextMenu</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">popup</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ImageLegendListContextMenu.currentIdx"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.util_plots.ImageLegendListContextMenu.currentIdx">[docs]</a>    <span class="k">def</span> <span class="nf">currentIdx</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get current selected legend index</span>
+<span class="sd">        :return: Current index</span>
+<span class="sd">        :rtype: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__currentIdx</span></div>
+
+<div class="viewcode-block" id="ImageLegendListContextMenu.offsetX"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.util_plots.ImageLegendListContextMenu.offsetX">[docs]</a>    <span class="k">def</span> <span class="nf">offsetX</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Emit offset x position event</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">modelIndex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">currentIdx</span><span class="p">()</span>
+            <span class="n">legend</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">modelIndex</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">DisplayRole</span><span class="p">))</span>
+            <span class="n">ddict</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;legend&#39;</span><span class="p">:</span> <span class="n">legend</span><span class="p">,</span>
+                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">legend</span><span class="p">,</span>
+                <span class="s1">&#39;selected&#39;</span><span class="p">:</span> <span class="n">modelIndex</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="n">qt</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">CheckStateRole</span><span class="p">),</span>
+                <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">modelIndex</span><span class="o">.</span><span class="n">data</span><span class="p">()),</span>
+                <span class="s1">&#39;event&#39;</span><span class="p">:</span> <span class="s2">&quot;offsetX&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sigContextMenu</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">ddict</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ImageLegendListContextMenu.clearChanges"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.util_plots.ImageLegendListContextMenu.clearChanges">[docs]</a>    <span class="k">def</span> <span class="nf">clearChanges</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Emit clear changes event</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">modelIndex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">currentIdx</span><span class="p">()</span>
+            <span class="n">legend</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">modelIndex</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">DisplayRole</span><span class="p">))</span>
+            <span class="n">ddict</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;legend&#39;</span><span class="p">:</span> <span class="n">legend</span><span class="p">,</span>
+                <span class="s1">&#39;event&#39;</span><span class="p">:</span> <span class="s2">&quot;clearChanges&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sigContextMenu</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">ddict</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">pylost_widgets</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../pylost_widgets.html">pylost_widgets package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

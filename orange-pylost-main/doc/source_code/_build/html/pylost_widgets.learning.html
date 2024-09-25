@@ -1,0 +1,618 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>pylost_widgets.learning package &#8212; pylost_widgets  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pylost_widgets.learning.net package" href="pylost_widgets.learning.net.html" />
+    <link rel="prev" title="pylost_widgets.icons package" href="pylost_widgets.icons.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="pylost-widgets-learning-package">
+<h1>pylost_widgets.learning package<a class="headerlink" href="#pylost-widgets-learning-package" title="Permalink to this headline">¶</a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pylost_widgets.learning.net.html">pylost_widgets.learning.net package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pylost_widgets.learning.net.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pylost_widgets.learning.net.html#pylost-widgets-learning-net-cnnnetwork-module">pylost_widgets.learning.net.CNNNetwork module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pylost_widgets.learning.net.html#pylost-widgets-learning-net-cnn-keras-module">pylost_widgets.learning.net.CNN_keras module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pylost_widgets.learning.net.html#pylost-widgets-learning-net-customnets-module">pylost_widgets.learning.net.CustomNets module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pylost_widgets.learning.net.html#pylost-widgets-learning-net-denoising-example-module">pylost_widgets.learning.net.Denoising_example module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pylost_widgets.learning.net.html#pylost-widgets-learning-net-interpolation-module">pylost_widgets.learning.net.Interpolation module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pylost_widgets.learning.net.html#pylost-widgets-learning-net-rnnnetwork-module">pylost_widgets.learning.net.RNNNetwork module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pylost_widgets.learning.net.html#pylost-widgets-learning-net-simplenetwork-module">pylost_widgets.learning.net.SimpleNetwork module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pylost_widgets.learning.net.html#pylost-widgets-learning-net-simulations-module">pylost_widgets.learning.net.Simulations module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pylost_widgets.learning.net.html#module-pylost_widgets.learning.net">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="module-pylost_widgets.learning.OWFileFeatures">
+<span id="pylost-widgets-learning-owfilefeatures-module"></span><h2>pylost_widgets.learning.OWFileFeatures module<a class="headerlink" href="#module-pylost_widgets.learning.OWFileFeatures" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="https://stats.stackexchange.com/questions/7757/data-normalization-and-standardization-in-neural-networks">https://stats.stackexchange.com/questions/7757/data-normalization-and-standardization-in-neural-networks</a></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pylost_widgets.learning.OWFileFeatures.</span></span><span class="sig-name descname"><span class="pre">OWFileFeatures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">captionTitle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/learning/OWFileFeatures.html#OWFileFeatures"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Orange.widgets.widget.OWWidget</span></code></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.Error">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">Error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">widget</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/learning/OWFileFeatures.html#OWFileFeatures.Error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.Error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">orangewidget.utils.messages.WidgetMessagesMixin.Error</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.Error.unknown">
+<span class="sig-name descname"><span class="pre">unknown</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'Read</span> <span class="pre">error:\n{}'</span></em><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.Error.unknown" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.Information">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">Information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">widget</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/learning/OWFileFeatures.html#OWFileFeatures.Information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.Information" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">orangewidget.utils.messages.WidgetMessagesMixin.Information</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.Information.info">
+<span class="sig-name descname"><span class="pre">info</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'Info:\n{}'</span></em><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.Information.info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.Inputs">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">Inputs</span></span><a class="reference internal" href="_modules/pylost_widgets/learning/OWFileFeatures.html#OWFileFeatures.Inputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.Inputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.Inputs.data">
+<span class="sig-name descname"><span class="pre">data</span></span><em class="property"> <span class="pre">=</span> <span class="pre">Input(name='data',</span> <span class="pre">type=&lt;class</span> <span class="pre">'dict'&gt;,</span> <span class="pre">handler='set_data',</span> <span class="pre">...)</span></em><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.Inputs.data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.Outputs">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">Outputs</span></span><a class="reference internal" href="_modules/pylost_widgets/learning/OWFileFeatures.html#OWFileFeatures.Outputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.Outputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.Outputs.data_allpix">
+<span class="sig-name descname"><span class="pre">data_allpix</span></span><em class="property"> <span class="pre">=</span> <span class="pre">Output(name='all_pixels',</span> <span class="pre">type=&lt;class</span> <span class="pre">'Orange.data.table.Table'&gt;,</span> <span class="pre">...)</span></em><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.Outputs.data_allpix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.Outputs.data_cnn">
+<span class="sig-name descname"><span class="pre">data_cnn</span></span><em class="property"> <span class="pre">=</span> <span class="pre">Output(name='cnn_images',</span> <span class="pre">type=&lt;class</span> <span class="pre">'dict'&gt;,</span> <span class="pre">...)</span></em><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.Outputs.data_cnn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.Outputs.data_pix_seq">
+<span class="sig-name descname"><span class="pre">data_pix_seq</span></span><em class="property"> <span class="pre">=</span> <span class="pre">Output(name='pixel_sequence',</span> <span class="pre">type=&lt;class</span> <span class="pre">'Orange.data.table.Table'&gt;,</span> <span class="pre">...)</span></em><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.Outputs.data_pix_seq" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.Outputs.data_terms">
+<span class="sig-name descname"><span class="pre">data_terms</span></span><em class="property"> <span class="pre">=</span> <span class="pre">Output(name='terms',</span> <span class="pre">type=&lt;class</span> <span class="pre">'Orange.data.table.Table'&gt;,</span> <span class="pre">...)</span></em><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.Outputs.data_terms" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.apply_changes">
+<span class="sig-name descname"><span class="pre">apply_changes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/learning/OWFileFeatures.html#OWFileFeatures.apply_changes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.apply_changes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.ast">
+<span class="sig-name descname"><span class="pre">ast</span></span><em class="property"> <span class="pre">=</span> <span class="pre">Setting</span> <span class="pre">&quot;None&quot;</span></em><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.ast" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.center_target">
+<span class="sig-name descname"><span class="pre">center_target</span></span><em class="property"> <span class="pre">=</span> <span class="pre">Setting</span> <span class="pre">&quot;None&quot;</span></em><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.center_target" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.chk_all_pix">
+<span class="sig-name descname"><span class="pre">chk_all_pix</span></span><em class="property"> <span class="pre">=</span> <span class="pre">Setting</span> <span class="pre">&quot;None&quot;</span></em><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.chk_all_pix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.chk_conv">
+<span class="sig-name descname"><span class="pre">chk_conv</span></span><em class="property"> <span class="pre">=</span> <span class="pre">Setting</span> <span class="pre">&quot;None&quot;</span></em><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.chk_conv" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.chk_pix_seq">
+<span class="sig-name descname"><span class="pre">chk_pix_seq</span></span><em class="property"> <span class="pre">=</span> <span class="pre">Setting</span> <span class="pre">&quot;None&quot;</span></em><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.chk_pix_seq" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.chk_terms">
+<span class="sig-name descname"><span class="pre">chk_terms</span></span><em class="property"> <span class="pre">=</span> <span class="pre">Setting</span> <span class="pre">&quot;None&quot;</span></em><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.chk_terms" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.combo_terms_selection">
+<span class="sig-name descname"><span class="pre">combo_terms_selection</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/learning/OWFileFeatures.html#OWFileFeatures.combo_terms_selection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.combo_terms_selection" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.cylX">
+<span class="sig-name descname"><span class="pre">cylX</span></span><em class="property"> <span class="pre">=</span> <span class="pre">Setting</span> <span class="pre">&quot;None&quot;</span></em><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.cylX" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.cylY">
+<span class="sig-name descname"><span class="pre">cylY</span></span><em class="property"> <span class="pre">=</span> <span class="pre">Setting</span> <span class="pre">&quot;None&quot;</span></em><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.cylY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.description">
+<span class="sig-name descname"><span class="pre">description</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><em class="property"> <span class="pre">=</span> <span class="pre">'Loads</span> <span class="pre">data</span> <span class="pre">from</span> <span class="pre">file</span> <span class="pre">sequence</span> <span class="pre">and</span> <span class="pre">create</span> <span class="pre">features</span> <span class="pre">table.'</span></em><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.description" title="Permalink to this definition">¶</a></dt>
+<dd><p>Short widget description, displayed in canvas help tooltips.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.filter">
+<span class="sig-name descname"><span class="pre">filter</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/learning/OWFileFeatures.html#OWFileFeatures.filter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.filter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.get_filter_terms">
+<span class="sig-name descname"><span class="pre">get_filter_terms</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/learning/OWFileFeatures.html#OWFileFeatures.get_filter_terms"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.get_filter_terms" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.hide_all_terms">
+<span class="sig-name descname"><span class="pre">hide_all_terms</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/learning/OWFileFeatures.html#OWFileFeatures.hide_all_terms"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.hide_all_terms" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.hide_terms_basic">
+<span class="sig-name descname"><span class="pre">hide_terms_basic</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/learning/OWFileFeatures.html#OWFileFeatures.hide_terms_basic"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.hide_terms_basic" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.hide_terms_poly">
+<span class="sig-name descname"><span class="pre">hide_terms_poly</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/learning/OWFileFeatures.html#OWFileFeatures.hide_terms_poly"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.hide_terms_poly" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.icon">
+<span class="sig-name descname"><span class="pre">icon</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><em class="property"> <span class="pre">=</span> <span class="pre">'../icons/features.svg'</span></em><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.icon" title="Permalink to this definition">¶</a></dt>
+<dd><p>Widget icon path, relative to the defining module.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.join_arr">
+<span class="sig-name descname"><span class="pre">join_arr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/learning/OWFileFeatures.html#OWFileFeatures.join_arr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.join_arr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.load_all_pix">
+<span class="sig-name descname"><span class="pre">load_all_pix</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/learning/OWFileFeatures.html#OWFileFeatures.load_all_pix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.load_all_pix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.load_cnn_images">
+<span class="sig-name descname"><span class="pre">load_cnn_images</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/learning/OWFileFeatures.html#OWFileFeatures.load_cnn_images"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.load_cnn_images" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.load_data">
+<span class="sig-name descname"><span class="pre">load_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/learning/OWFileFeatures.html#OWFileFeatures.load_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.load_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.load_pix_seq">
+<span class="sig-name descname"><span class="pre">load_pix_seq</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/learning/OWFileFeatures.html#OWFileFeatures.load_pix_seq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.load_pix_seq" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.load_terms">
+<span class="sig-name descname"><span class="pre">load_terms</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/learning/OWFileFeatures.html#OWFileFeatures.load_terms"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.load_terms" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><em class="property"> <span class="pre">=</span> <span class="pre">'Data</span> <span class="pre">Features'</span></em><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Widget name, as presented in the Canvas.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.normalize_inputs_pv">
+<span class="sig-name descname"><span class="pre">normalize_inputs_pv</span></span><em class="property"> <span class="pre">=</span> <span class="pre">Setting</span> <span class="pre">&quot;None&quot;</span></em><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.normalize_inputs_pv" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.normalize_inputs_tanh">
+<span class="sig-name descname"><span class="pre">normalize_inputs_tanh</span></span><em class="property"> <span class="pre">=</span> <span class="pre">Setting</span> <span class="pre">&quot;None&quot;</span></em><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.normalize_inputs_tanh" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.normalize_inputs_zscore">
+<span class="sig-name descname"><span class="pre">normalize_inputs_zscore</span></span><em class="property"> <span class="pre">=</span> <span class="pre">Setting</span> <span class="pre">&quot;None&quot;</span></em><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.normalize_inputs_zscore" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.piston">
+<span class="sig-name descname"><span class="pre">piston</span></span><em class="property"> <span class="pre">=</span> <span class="pre">Setting</span> <span class="pre">&quot;None&quot;</span></em><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.piston" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.poly_deg">
+<span class="sig-name descname"><span class="pre">poly_deg</span></span><em class="property"> <span class="pre">=</span> <span class="pre">Setting</span> <span class="pre">&quot;None&quot;</span></em><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.poly_deg" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.poly_deg_start">
+<span class="sig-name descname"><span class="pre">poly_deg_start</span></span><em class="property"> <span class="pre">=</span> <span class="pre">Setting</span> <span class="pre">&quot;None&quot;</span></em><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.poly_deg_start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.priority">
+<span class="sig-name descname"><span class="pre">priority</span></span><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><em class="property"> <span class="pre">=</span> <span class="pre">1000</span></em><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.priority" title="Permalink to this definition">¶</a></dt>
+<dd><p>Widget priority, used for sorting within a category.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.scale_data">
+<span class="sig-name descname"><span class="pre">scale_data</span></span><em class="property"> <span class="pre">=</span> <span class="pre">Setting</span> <span class="pre">&quot;None&quot;</span></em><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.scale_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.sel_cyl_x">
+<span class="sig-name descname"><span class="pre">sel_cyl_x</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/learning/OWFileFeatures.html#OWFileFeatures.sel_cyl_x"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.sel_cyl_x" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.sel_cyl_y">
+<span class="sig-name descname"><span class="pre">sel_cyl_y</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/learning/OWFileFeatures.html#OWFileFeatures.sel_cyl_y"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.sel_cyl_y" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.sel_sph">
+<span class="sig-name descname"><span class="pre">sel_sph</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/learning/OWFileFeatures.html#OWFileFeatures.sel_sph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.sel_sph" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.sel_terms">
+<span class="sig-name descname"><span class="pre">sel_terms</span></span><em class="property"> <span class="pre">=</span> <span class="pre">Setting</span> <span class="pre">&quot;None&quot;</span></em><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.sel_terms" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.sel_terms_items">
+<span class="sig-name descname"><span class="pre">sel_terms_items</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'BASIC':</span> <span class="pre">'Basic',</span> <span class="pre">'LEGENDRE':</span> <span class="pre">'Legendre</span> <span class="pre">polynomial',</span> <span class="pre">'POLY':</span> <span class="pre">'Polynomial',</span> <span class="pre">'SELECT':</span> <span class="pre">'Select',</span> <span class="pre">'ZERNIKE':</span> <span class="pre">'Zernike</span> <span class="pre">polynomial'}</span></em><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.sel_terms_items" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.sel_tilt">
+<span class="sig-name descname"><span class="pre">sel_tilt</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/learning/OWFileFeatures.html#OWFileFeatures.sel_tilt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.sel_tilt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.sel_tilt_x">
+<span class="sig-name descname"><span class="pre">sel_tilt_x</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/learning/OWFileFeatures.html#OWFileFeatures.sel_tilt_x"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.sel_tilt_x" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.sel_tilt_y">
+<span class="sig-name descname"><span class="pre">sel_tilt_y</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/learning/OWFileFeatures.html#OWFileFeatures.sel_tilt_y"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.sel_tilt_y" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.send_output">
+<span class="sig-name descname"><span class="pre">send_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">typ</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names_targets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_targets</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/learning/OWFileFeatures.html#OWFileFeatures.send_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.send_output" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.set_data">
+<span class="sig-name descname"><span class="pre">set_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/learning/OWFileFeatures.html#OWFileFeatures.set_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.set_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.settingsHandler">
+<span class="sig-name descname"><span class="pre">settingsHandler</span></span><em class="property"><span class="pre">:</span> <span class="pre">orangewidget.settings.SettingsHandler</span></em><em class="property"> <span class="pre">=</span> <span class="pre">&lt;orangewidget.settings.SettingsHandler</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.settingsHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Settings handler, can be overridden for context handling.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.show_terms_basic">
+<span class="sig-name descname"><span class="pre">show_terms_basic</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/learning/OWFileFeatures.html#OWFileFeatures.show_terms_basic"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.show_terms_basic" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.show_terms_poly">
+<span class="sig-name descname"><span class="pre">show_terms_poly</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/learning/OWFileFeatures.html#OWFileFeatures.show_terms_poly"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.show_terms_poly" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.sizeHint">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">sizeHint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">QSize</span></span></span><a class="reference internal" href="_modules/pylost_widgets/learning/OWFileFeatures.html#OWFileFeatures.sizeHint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.sizeHint" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.sphere">
+<span class="sig-name descname"><span class="pre">sphere</span></span><em class="property"> <span class="pre">=</span> <span class="pre">Setting</span> <span class="pre">&quot;None&quot;</span></em><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.sphere" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.tilt">
+<span class="sig-name descname"><span class="pre">tilt</span></span><em class="property"> <span class="pre">=</span> <span class="pre">Setting</span> <span class="pre">&quot;None&quot;</span></em><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.tilt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.tiltX">
+<span class="sig-name descname"><span class="pre">tiltX</span></span><em class="property"> <span class="pre">=</span> <span class="pre">Setting</span> <span class="pre">&quot;None&quot;</span></em><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.tiltX" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.tiltY">
+<span class="sig-name descname"><span class="pre">tiltY</span></span><em class="property"> <span class="pre">=</span> <span class="pre">Setting</span> <span class="pre">&quot;None&quot;</span></em><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.tiltY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWFileFeatures.OWFileFeatures.want_main_area">
+<span class="sig-name descname"><span class="pre">want_main_area</span></span><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#pylost_widgets.learning.OWFileFeatures.OWFileFeatures.want_main_area" title="Permalink to this definition">¶</a></dt>
+<dd><p>Should the widget construct a <cite>mainArea</cite>?
+(a resizable area to the right of the <cite>controlArea</cite>)</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="pylost-widgets-learning-owneuralnet-module">
+<h2>pylost_widgets.learning.OWNeuralNet module<a class="headerlink" href="#pylost-widgets-learning-owneuralnet-module" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="module-pylost_widgets.learning.OWVisFitResults">
+<span id="pylost-widgets-learning-owvisfitresults-module"></span><h2>pylost_widgets.learning.OWVisFitResults module<a class="headerlink" href="#module-pylost_widgets.learning.OWVisFitResults" title="Permalink to this headline">¶</a></h2>
+<p>OWFileExternal is copied from orange native OWFile and adapted to pylost use</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWVisFitResults.OWVisFitResults">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pylost_widgets.learning.OWVisFitResults.</span></span><span class="sig-name descname"><span class="pre">OWVisFitResults</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">captionTitle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/learning/OWVisFitResults.html#OWVisFitResults"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.learning.OWVisFitResults.OWVisFitResults" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Orange.widgets.widget.OWWidget</span></code></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWVisFitResults.OWVisFitResults.Error">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">Error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">widget</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/learning/OWVisFitResults.html#OWVisFitResults.Error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.learning.OWVisFitResults.OWVisFitResults.Error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">orangewidget.utils.messages.WidgetMessagesMixin.Error</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWVisFitResults.OWVisFitResults.Error.unknown">
+<span class="sig-name descname"><span class="pre">unknown</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'Error:\n{}'</span></em><a class="headerlink" href="#pylost_widgets.learning.OWVisFitResults.OWVisFitResults.Error.unknown" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWVisFitResults.OWVisFitResults.Inputs">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">Inputs</span></span><a class="reference internal" href="_modules/pylost_widgets/learning/OWVisFitResults.html#OWVisFitResults.Inputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.learning.OWVisFitResults.OWVisFitResults.Inputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWVisFitResults.OWVisFitResults.Inputs.data">
+<span class="sig-name descname"><span class="pre">data</span></span><em class="property"> <span class="pre">=</span> <span class="pre">Input(name='fit_data',</span> <span class="pre">type=&lt;class</span> <span class="pre">'Orange.data.table.Table'&gt;,</span> <span class="pre">handler='set_data',</span> <span class="pre">...)</span></em><a class="headerlink" href="#pylost_widgets.learning.OWVisFitResults.OWVisFitResults.Inputs.data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWVisFitResults.OWVisFitResults.NoFileSelected">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">NoFileSelected</span></span><a class="reference internal" href="_modules/pylost_widgets/learning/OWVisFitResults.html#OWVisFitResults.NoFileSelected"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.learning.OWVisFitResults.OWVisFitResults.NoFileSelected" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWVisFitResults.OWVisFitResults.addPlot">
+<span class="sig-name descname"><span class="pre">addPlot</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/learning/OWVisFitResults.html#OWVisFitResults.addPlot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.learning.OWVisFitResults.OWVisFitResults.addPlot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWVisFitResults.OWVisFitResults.addPlotDiff">
+<span class="sig-name descname"><span class="pre">addPlotDiff</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/learning/OWVisFitResults.html#OWVisFitResults.addPlotDiff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.learning.OWVisFitResults.OWVisFitResults.addPlotDiff" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWVisFitResults.OWVisFitResults.clearPlot">
+<span class="sig-name descname"><span class="pre">clearPlot</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/learning/OWVisFitResults.html#OWVisFitResults.clearPlot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.learning.OWVisFitResults.OWVisFitResults.clearPlot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWVisFitResults.OWVisFitResults.description">
+<span class="sig-name descname"><span class="pre">description</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><em class="property"> <span class="pre">=</span> <span class="pre">'Visualize</span> <span class="pre">results</span> <span class="pre">of</span> <span class="pre">different</span> <span class="pre">regression</span> <span class="pre">fits.'</span></em><a class="headerlink" href="#pylost_widgets.learning.OWVisFitResults.OWVisFitResults.description" title="Permalink to this definition">¶</a></dt>
+<dd><p>Short widget description, displayed in canvas help tooltips.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWVisFitResults.OWVisFitResults.get_xy">
+<span class="sig-name descname"><span class="pre">get_xy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/learning/OWVisFitResults.html#OWVisFitResults.get_xy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.learning.OWVisFitResults.OWVisFitResults.get_xy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWVisFitResults.OWVisFitResults.icon">
+<span class="sig-name descname"><span class="pre">icon</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><em class="property"> <span class="pre">=</span> <span class="pre">'../icons/plot.svg'</span></em><a class="headerlink" href="#pylost_widgets.learning.OWVisFitResults.OWVisFitResults.icon" title="Permalink to this definition">¶</a></dt>
+<dd><p>Widget icon path, relative to the defining module.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWVisFitResults.OWVisFitResults.load_data">
+<span class="sig-name descname"><span class="pre">load_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/learning/OWVisFitResults.html#OWVisFitResults.load_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.learning.OWVisFitResults.OWVisFitResults.load_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWVisFitResults.OWVisFitResults.load_plots">
+<span class="sig-name descname"><span class="pre">load_plots</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/learning/OWVisFitResults.html#OWVisFitResults.load_plots"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.learning.OWVisFitResults.OWVisFitResults.load_plots" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWVisFitResults.OWVisFitResults.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><em class="property"> <span class="pre">=</span> <span class="pre">'Visualize</span> <span class="pre">regression'</span></em><a class="headerlink" href="#pylost_widgets.learning.OWVisFitResults.OWVisFitResults.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Widget name, as presented in the Canvas.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWVisFitResults.OWVisFitResults.priority">
+<span class="sig-name descname"><span class="pre">priority</span></span><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><em class="property"> <span class="pre">=</span> <span class="pre">1001</span></em><a class="headerlink" href="#pylost_widgets.learning.OWVisFitResults.OWVisFitResults.priority" title="Permalink to this definition">¶</a></dt>
+<dd><p>Widget priority, used for sorting within a category.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWVisFitResults.OWVisFitResults.sel_x">
+<span class="sig-name descname"><span class="pre">sel_x</span></span><em class="property"> <span class="pre">=</span> <span class="pre">Setting</span> <span class="pre">&quot;None&quot;</span></em><a class="headerlink" href="#pylost_widgets.learning.OWVisFitResults.OWVisFitResults.sel_x" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWVisFitResults.OWVisFitResults.sel_y">
+<span class="sig-name descname"><span class="pre">sel_y</span></span><em class="property"> <span class="pre">=</span> <span class="pre">Setting</span> <span class="pre">&quot;None&quot;</span></em><a class="headerlink" href="#pylost_widgets.learning.OWVisFitResults.OWVisFitResults.sel_y" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWVisFitResults.OWVisFitResults.set_data">
+<span class="sig-name descname"><span class="pre">set_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylost_widgets.learning.OWVisFitResults.OWVisFitResults.set_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWVisFitResults.OWVisFitResults.settingsHandler">
+<span class="sig-name descname"><span class="pre">settingsHandler</span></span><em class="property"><span class="pre">:</span> <span class="pre">orangewidget.settings.SettingsHandler</span></em><em class="property"> <span class="pre">=</span> <span class="pre">&lt;orangewidget.settings.SettingsHandler</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#pylost_widgets.learning.OWVisFitResults.OWVisFitResults.settingsHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Settings handler, can be overridden for context handling.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWVisFitResults.OWVisFitResults.sizeHint">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">sizeHint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">QSize</span></span></span><a class="reference internal" href="_modules/pylost_widgets/learning/OWVisFitResults.html#OWVisFitResults.sizeHint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.learning.OWVisFitResults.OWVisFitResults.sizeHint" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.learning.OWVisFitResults.OWVisFitResults.want_main_area">
+<span class="sig-name descname"><span class="pre">want_main_area</span></span><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#pylost_widgets.learning.OWVisFitResults.OWVisFitResults.want_main_area" title="Permalink to this definition">¶</a></dt>
+<dd><p>Should the widget construct a <cite>mainArea</cite>?
+(a resizable area to the right of the <cite>controlArea</cite>)</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pylost_widgets.learning">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pylost_widgets.learning" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">pylost_widgets</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="pylost_widgets.html">pylost_widgets package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pylost_widgets.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="pylost_widgets.config.html">pylost_widgets.config package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pylost_widgets.icons.html">pylost_widgets.icons package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">pylost_widgets.learning package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pylost_widgets.learning.OWFileFeatures">pylost_widgets.learning.OWFileFeatures module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pylost-widgets-learning-owneuralnet-module">pylost_widgets.learning.OWNeuralNet module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pylost_widgets.learning.OWVisFitResults">pylost_widgets.learning.OWVisFitResults module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pylost_widgets.learning">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pylost_widgets.scripts.html">pylost_widgets.scripts package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pylost_widgets.util.html">pylost_widgets.util package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pylost_widgets.widgets.html">pylost_widgets.widgets package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pylost_widgets.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pylost_widgets.html#module-pylost_widgets.test_widget">pylost_widgets.test_widget module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pylost_widgets.html#module-pylost_widgets">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="pylost_widgets.html">pylost_widgets package</a><ul>
+      <li>Previous: <a href="pylost_widgets.icons.html" title="previous chapter">pylost_widgets.icons package</a></li>
+      <li>Next: <a href="pylost_widgets.learning.net.html" title="next chapter">pylost_widgets.learning.net package</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/pylost_widgets.learning.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

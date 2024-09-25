@@ -1,0 +1,353 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pylost_widgets.widgets.OWGravityCorrection &#8212; pylost_widgets  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for pylost_widgets.widgets.OWGravityCorrection</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">Orange.widgets</span> <span class="kn">import</span> <span class="n">gui</span><span class="p">,</span> <span class="n">widget</span>
+<span class="kn">from</span> <span class="nn">Orange.widgets.utils.signals</span> <span class="kn">import</span> <span class="n">Output</span><span class="p">,</span> <span class="n">Input</span>
+<span class="kn">from</span> <span class="nn">Orange.widgets.widget</span> <span class="kn">import</span> <span class="n">OWWidget</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtCore</span> <span class="kn">import</span> <span class="n">QSize</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtCore</span> <span class="kn">import</span> <span class="n">Qt</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtWidgets</span> <span class="kn">import</span> <span class="n">QFileDialog</span><span class="p">,</span> <span class="n">QInputDialog</span><span class="p">,</span> <span class="n">QSplitter</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtWidgets</span> <span class="kn">import</span> <span class="n">QSizePolicy</span> <span class="k">as</span> <span class="n">Policy</span>
+<span class="kn">from</span> <span class="nn">astropy</span> <span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
+<span class="kn">from</span> <span class="nn">astropy.units</span> <span class="kn">import</span> <span class="n">Quantity</span>
+<span class="kn">from</span> <span class="nn">orangewidget.settings</span> <span class="kn">import</span> <span class="n">Setting</span>
+<span class="kn">from</span> <span class="nn">orangewidget.widget</span> <span class="kn">import</span> <span class="n">Msg</span>
+<span class="kn">from</span> <span class="nn">silx.gui.plot</span> <span class="kn">import</span> <span class="n">Plot1D</span>
+
+<span class="kn">from</span> <span class="nn">pylost_widgets.util.MetrologyData</span> <span class="kn">import</span> <span class="n">MetrologyData</span>
+<span class="kn">from</span> <span class="nn">pylost_widgets.util.ow_filereaders</span> <span class="kn">import</span> <span class="n">AsciiReader</span>
+<span class="kn">from</span> <span class="nn">pylost_widgets.util.util_functions</span> <span class="kn">import</span> <span class="n">copy_items</span><span class="p">,</span> <span class="n">integrate_slopes</span><span class="p">,</span> <span class="n">differentiate_heights</span>
+<span class="kn">from</span> <span class="nn">pylost_widgets.util.util_plots</span> <span class="kn">import</span> <span class="n">OrangePlot1D</span>
+<span class="kn">from</span> <span class="nn">pylost_widgets.widgets._PylostBase</span> <span class="kn">import</span> <span class="n">PylostBase</span>
+
+
+<div class="viewcode-block" id="OWGravityCorrection"><a class="viewcode-back" href="../../../pylost_widgets.widgets.html#pylost_widgets.widgets.OWGravityCorrection.OWGravityCorrection">[docs]</a><span class="k">class</span> <span class="nc">OWGravityCorrection</span><span class="p">(</span><span class="n">OWWidget</span><span class="p">,</span> <span class="n">PylostBase</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;Gravity correction&#39;</span>
+    <span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;Gravity correction for stitched data.&#39;</span>
+    <span class="n">icon</span> <span class="o">=</span> <span class="s2">&quot;../icons/gravity.svg&quot;</span>
+    <span class="n">priority</span> <span class="o">=</span> <span class="mi">9</span>
+
+<div class="viewcode-block" id="OWGravityCorrection.Inputs"><a class="viewcode-back" href="../../../pylost_widgets.widgets.html#pylost_widgets.widgets.OWGravityCorrection.OWGravityCorrection.Inputs">[docs]</a>    <span class="k">class</span> <span class="nc">Inputs</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">auto_summary</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="OWGravityCorrection.Outputs"><a class="viewcode-back" href="../../../pylost_widgets.widgets.html#pylost_widgets.widgets.OWGravityCorrection.OWGravityCorrection.Outputs">[docs]</a>    <span class="k">class</span> <span class="nc">Outputs</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">Output</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">auto_summary</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">data_gravity</span> <span class="o">=</span> <span class="n">Output</span><span class="p">(</span><span class="s1">&#39;gravity_profile&#39;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">auto_summary</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+    <span class="n">want_main_area</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">module</span> <span class="o">=</span> <span class="n">Setting</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">schema_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">density</span> <span class="o">=</span> <span class="n">Setting</span><span class="p">(</span><span class="mf">2340.0</span><span class="p">,</span> <span class="n">schema_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">young_modulus</span> <span class="o">=</span> <span class="n">Setting</span><span class="p">(</span><span class="mf">1.3E+11</span><span class="p">,</span> <span class="n">schema_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">Setting</span><span class="p">(</span><span class="mf">9.81</span><span class="p">,</span> <span class="n">schema_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">mir_length</span> <span class="o">=</span> <span class="n">Setting</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">schema_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">mir_thickness</span> <span class="o">=</span> <span class="n">Setting</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">schema_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">cyl_distance</span> <span class="o">=</span> <span class="n">Setting</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">schema_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">file_path</span> <span class="o">=</span> <span class="n">Setting</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">schema_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">slopes_file</span> <span class="o">=</span> <span class="n">Setting</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">schema_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">units_file</span> <span class="o">=</span> <span class="n">Setting</span><span class="p">(</span><span class="s1">&#39;urad&#39;</span><span class="p">,</span> <span class="n">schema_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">along_y</span> <span class="o">=</span> <span class="n">Setting</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="n">schema_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="OWGravityCorrection.Error"><a class="viewcode-back" href="../../../pylost_widgets.widgets.html#pylost_widgets.widgets.OWGravityCorrection.OWGravityCorrection.Error">[docs]</a>    <span class="k">class</span> <span class="nc">Error</span><span class="p">(</span><span class="n">widget</span><span class="o">.</span><span class="n">OWWidget</span><span class="o">.</span><span class="n">Error</span><span class="p">):</span>
+        <span class="n">scans_not_found</span> <span class="o">=</span> <span class="n">Msg</span><span class="p">(</span><span class="s2">&quot;No scan data is available.&quot;</span><span class="p">)</span>
+        <span class="n">unknown</span> <span class="o">=</span> <span class="n">Msg</span><span class="p">(</span><span class="s2">&quot;Error:</span><span class="se">\n</span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="n">PylostBase</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gx</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;add&#39;</span>
+
+        <span class="n">box</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">init_info</span><span class="p">(</span><span class="n">module</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">gui</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="n">box</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;Subtract gravity&#39;</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="k">lambda</span> <span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;subtract&#39;</span><span class="p">),</span> <span class="n">autoDefault</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">stretch</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sizePolicy</span><span class="o">=</span><span class="p">(</span><span class="n">Policy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">,</span> <span class="n">Policy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">))</span>
+        <span class="n">gui</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="n">box</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;Add gravity (default)&#39;</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="k">lambda</span> <span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;add&#39;</span><span class="p">),</span> <span class="n">autoDefault</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">stretch</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sizePolicy</span><span class="o">=</span><span class="p">(</span><span class="n">Policy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">,</span> <span class="n">Policy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">))</span>
+
+        <span class="n">obox</span> <span class="o">=</span> <span class="n">gui</span><span class="o">.</span><span class="n">vBox</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">box</span> <span class="o">=</span> <span class="n">gui</span><span class="o">.</span><span class="n">vBox</span><span class="p">(</span><span class="n">obox</span><span class="p">,</span> <span class="s2">&quot;Settings&quot;</span><span class="p">,</span> <span class="n">stretch</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">gui</span><span class="o">.</span><span class="n">checkBox</span><span class="p">(</span><span class="n">box</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;along_y&#39;</span><span class="p">,</span> <span class="s1">&#39;Gravity along Y axis?&#39;</span><span class="p">)</span>
+
+        <span class="n">hbox</span> <span class="o">=</span> <span class="n">gui</span><span class="o">.</span><span class="n">hBox</span><span class="p">(</span><span class="n">obox</span><span class="p">)</span>
+        <span class="n">box</span> <span class="o">=</span> <span class="n">gui</span><span class="o">.</span><span class="n">vBox</span><span class="p">(</span><span class="n">hbox</span><span class="p">,</span> <span class="s2">&quot;Options&quot;</span><span class="p">,</span> <span class="n">stretch</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">gui</span><span class="o">.</span><span class="n">lineEdit</span><span class="p">(</span><span class="n">box</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;density&quot;</span><span class="p">,</span> <span class="s2">&quot;Density&quot;</span><span class="p">,</span> <span class="n">labelWidth</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="n">Qt</span><span class="o">.</span><span class="n">Horizontal</span><span class="p">,</span> <span class="n">sizePolicy</span><span class="o">=</span><span class="p">(</span><span class="n">Policy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">,</span> <span class="n">Policy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">))</span>
+        <span class="n">gui</span><span class="o">.</span><span class="n">lineEdit</span><span class="p">(</span><span class="n">box</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;young_modulus&quot;</span><span class="p">,</span> <span class="s2">&quot;Young modulus (elasticity)&quot;</span><span class="p">,</span> <span class="n">labelWidth</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="n">Qt</span><span class="o">.</span><span class="n">Horizontal</span><span class="p">,</span> <span class="n">sizePolicy</span><span class="o">=</span><span class="p">(</span><span class="n">Policy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">,</span> <span class="n">Policy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">))</span>
+        <span class="n">gui</span><span class="o">.</span><span class="n">lineEdit</span><span class="p">(</span><span class="n">box</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;g&quot;</span><span class="p">,</span> <span class="s2">&quot;Gravity of earth&quot;</span><span class="p">,</span> <span class="n">labelWidth</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="n">Qt</span><span class="o">.</span><span class="n">Horizontal</span><span class="p">,</span> <span class="n">sizePolicy</span><span class="o">=</span><span class="p">(</span><span class="n">Policy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">,</span> <span class="n">Policy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">))</span>
+
+        <span class="n">box</span> <span class="o">=</span> <span class="n">gui</span><span class="o">.</span><span class="n">vBox</span><span class="p">(</span><span class="n">hbox</span><span class="p">,</span> <span class="s2">&quot;Mirror options&quot;</span><span class="p">,</span> <span class="n">stretch</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">gui</span><span class="o">.</span><span class="n">lineEdit</span><span class="p">(</span><span class="n">box</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;mir_length&quot;</span><span class="p">,</span> <span class="s2">&quot;Mirror length (mm)&quot;</span><span class="p">,</span> <span class="n">labelWidth</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="n">Qt</span><span class="o">.</span><span class="n">Horizontal</span><span class="p">,</span> <span class="n">sizePolicy</span><span class="o">=</span><span class="p">(</span><span class="n">Policy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">,</span> <span class="n">Policy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">))</span>
+        <span class="n">gui</span><span class="o">.</span><span class="n">lineEdit</span><span class="p">(</span><span class="n">box</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;mir_thickness&quot;</span><span class="p">,</span> <span class="s2">&quot;Mirror thickness (mm)&quot;</span><span class="p">,</span> <span class="n">labelWidth</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="n">Qt</span><span class="o">.</span><span class="n">Horizontal</span><span class="p">,</span> <span class="n">sizePolicy</span><span class="o">=</span><span class="p">(</span><span class="n">Policy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">,</span> <span class="n">Policy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">))</span>
+        <span class="n">gui</span><span class="o">.</span><span class="n">lineEdit</span><span class="p">(</span><span class="n">box</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;cyl_distance&quot;</span><span class="p">,</span> <span class="s2">&quot;Distance between cylinders (mm)&quot;</span><span class="p">,</span> <span class="n">labelWidth</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="n">Qt</span><span class="o">.</span><span class="n">Horizontal</span><span class="p">,</span> <span class="n">sizePolicy</span><span class="o">=</span><span class="p">(</span><span class="n">Policy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">,</span> <span class="n">Policy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">))</span>
+
+        <span class="n">fbox</span> <span class="o">=</span> <span class="n">gui</span><span class="o">.</span><span class="n">vBox</span><span class="p">(</span><span class="n">obox</span><span class="p">,</span> <span class="s2">&quot;Load from file&quot;</span><span class="p">,</span> <span class="n">stretch</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">box</span> <span class="o">=</span> <span class="n">gui</span><span class="o">.</span><span class="n">hBox</span><span class="p">(</span><span class="n">fbox</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lbl_file</span> <span class="o">=</span> <span class="n">gui</span><span class="o">.</span><span class="n">lineEdit</span><span class="p">(</span><span class="n">box</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;file_path&#39;</span><span class="p">,</span> <span class="s1">&#39;Load from file: &#39;</span><span class="p">,</span> <span class="n">labelWidth</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="n">Qt</span><span class="o">.</span><span class="n">Horizontal</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lbl_file</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">btnFile</span> <span class="o">=</span> <span class="n">gui</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="n">box</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;...&#39;</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">load_file</span><span class="p">,</span> <span class="n">autoDefault</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">stretch</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sizePolicy</span><span class="o">=</span><span class="p">(</span><span class="n">Policy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">,</span> <span class="n">Policy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">))</span>
+        <span class="n">gui</span><span class="o">.</span><span class="n">checkBox</span><span class="p">(</span><span class="n">fbox</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;slopes_file&#39;</span><span class="p">,</span> <span class="s1">&#39;Check this if the file is slopes, uncheck if it is heights&#39;</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">check_file_data</span><span class="p">)</span>
+        <span class="n">gui</span><span class="o">.</span><span class="n">lineEdit</span><span class="p">(</span><span class="n">fbox</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;units_file&#39;</span><span class="p">,</span> <span class="s1">&#39;File data units: &#39;</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="n">Qt</span><span class="o">.</span><span class="n">Horizontal</span><span class="p">,</span> <span class="n">sizePolicy</span><span class="o">=</span><span class="p">(</span><span class="n">Policy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">,</span> <span class="n">Policy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">))</span>
+
+        <span class="n">gbox</span> <span class="o">=</span> <span class="n">gui</span><span class="o">.</span><span class="n">vBox</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Gravity profile&quot;</span><span class="p">,</span> <span class="n">stretch</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">sizePolicy</span><span class="o">=</span><span class="p">(</span><span class="n">Policy</span><span class="o">.</span><span class="n">MinimumExpanding</span><span class="p">,</span> <span class="mi">100</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot</span> <span class="o">=</span> <span class="n">OrangePlot1D</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="c1"># self.plot.setMinimumHeight(50)</span>
+        <span class="n">gbox</span><span class="o">.</span><span class="n">layout</span><span class="p">()</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="p">)</span>
+
+        <span class="n">splitter</span> <span class="o">=</span> <span class="n">QSplitter</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">Vertical</span><span class="p">)</span>
+        <span class="n">splitter</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">obox</span><span class="p">)</span>
+        <span class="n">splitter</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">gbox</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">controlArea</span><span class="o">.</span><span class="n">layout</span><span class="p">()</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">splitter</span><span class="p">)</span>
+
+<div class="viewcode-block" id="OWGravityCorrection.sizeHint"><a class="viewcode-back" href="../../../pylost_widgets.widgets.html#pylost_widgets.widgets.OWGravityCorrection.OWGravityCorrection.sizeHint">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">sizeHint</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">QSize</span><span class="p">(</span><span class="mi">700</span><span class="p">,</span> <span class="mi">500</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="OWGravityCorrection.set_data"><a class="viewcode-back" href="../../../pylost_widgets.widgets.html#pylost_widgets.widgets.OWGravityCorrection.OWGravityCorrection.set_data">[docs]</a>    <span class="nd">@Inputs</span><span class="o">.</span><span class="n">data</span>
+    <span class="k">def</span> <span class="nf">set_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">update_names</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Outputs</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Outputs</span><span class="o">.</span><span class="n">data_gravity</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="OWGravityCorrection.load_data"><a class="viewcode-back" href="../../../pylost_widgets.widgets.html#pylost_widgets.widgets.OWGravityCorrection.OWGravityCorrection.load_data">[docs]</a>    <span class="k">def</span> <span class="nf">load_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">load_data</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">apply</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="OWGravityCorrection.update_comment"><a class="viewcode-back" href="../../../pylost_widgets.widgets.html#pylost_widgets.widgets.OWGravityCorrection.OWGravityCorrection.update_comment">[docs]</a>    <span class="k">def</span> <span class="nf">update_comment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">comment</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">update_comment</span><span class="p">(</span><span class="n">comment</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;Applied gravity correction&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="OWGravityCorrection.check_file_data"><a class="viewcode-back" href="../../../pylost_widgets.widgets.html#pylost_widgets.widgets.OWGravityCorrection.OWGravityCorrection.check_file_data">[docs]</a>    <span class="k">def</span> <span class="nf">check_file_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">slopes_file</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">units_file</span> <span class="o">=</span> <span class="s1">&#39;urad&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">units_file</span> <span class="o">=</span> <span class="s1">&#39;nm&#39;</span></div>
+
+<div class="viewcode-block" id="OWGravityCorrection.load_file"><a class="viewcode-back" href="../../../pylost_widgets.widgets.html#pylost_widgets.widgets.OWGravityCorrection.OWGravityCorrection.load_file">[docs]</a>    <span class="k">def</span> <span class="nf">load_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">file_path</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">QFileDialog</span><span class="o">.</span><span class="n">getOpenFileName</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;Load gravity correction&#39;</span><span class="p">)</span>
+            <span class="n">reader</span> <span class="o">=</span> <span class="n">AsciiReader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file_path</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                <span class="n">text</span><span class="p">,</span> <span class="n">ok</span> <span class="o">=</span> <span class="n">QInputDialog</span><span class="o">.</span><span class="n">getItem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;Select gravity data:&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">ok</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">gx</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">text</span><span class="p">]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">set_output_summary</span><span class="p">(</span><span class="s1">&#39;Loaded file data&#39;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Error</span><span class="o">.</span><span class="n">unknown</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">e</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="OWGravityCorrection.apply"><a class="viewcode-back" href="../../../pylost_widgets.widgets.html#pylost_widgets.widgets.OWGravityCorrection.OWGravityCorrection.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;add&#39;</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">clear_messages</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mir_length</span><span class="o">&gt;</span><span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">mir_thickness</span><span class="o">&gt;</span><span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">cyl_distance</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+                <span class="n">has_data</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_path</span><span class="o">!=</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
+                <span class="n">has_data</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">has_data</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="n">has_data</span><span class="p">:</span>
+                <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">apply_scans</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">Outputs</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_out</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">set_output_summary</span><span class="p">(</span><span class="s1">&#39;No inputs loaded&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">setStatusMessage</span><span class="p">(</span><span class="s1">&#39;No inputs&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Error</span><span class="o">.</span><span class="n">unknown</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">e</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="OWGravityCorrection.apply_scan"><a class="viewcode-back" href="../../../pylost_widgets.widgets.html#pylost_widgets.widgets.OWGravityCorrection.OWGravityCorrection.apply_scan">[docs]</a>    <span class="k">def</span> <span class="nf">apply_scan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scan</span><span class="p">,</span> <span class="n">scan_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+        <span class="n">scan_fit</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">fit_comment</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">copy_items</span><span class="p">(</span><span class="n">scan</span><span class="p">,</span> <span class="n">scan_fit</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">DATA_NAMES</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">scan</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">item</span> <span class="o">==</span> <span class="s1">&#39;slopes_y&#39;</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">Z</span> <span class="o">=</span> <span class="n">scan</span><span class="p">[</span><span class="n">item</span><span class="p">]</span>
+                <span class="n">dims</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_detector_dimensions</span><span class="p">(</span><span class="n">Z</span><span class="p">)</span>
+                <span class="n">dims_num</span> <span class="o">=</span> <span class="n">dims</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+
+                <span class="n">axis</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">along_y</span> <span class="ow">and</span> <span class="n">Z</span><span class="o">.</span><span class="n">ndim</span><span class="o">&gt;=</span><span class="mi">2</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span>
+
+                <span class="n">scan_fit</span><span class="p">[</span><span class="n">item</span><span class="p">]</span> <span class="o">=</span> <span class="n">Z</span>
+                <span class="n">unit</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+                <span class="n">slc</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">Z</span><span class="o">.</span><span class="n">ndim</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">Z</span><span class="p">,</span> <span class="n">MetrologyData</span><span class="p">):</span>
+                    <span class="n">axis_vals</span> <span class="o">=</span> <span class="n">Z</span><span class="o">.</span><span class="n">get_axis_val_items_detector</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">axis_vals</span><span class="p">[</span><span class="n">axis</span><span class="p">],</span> <span class="n">Quantity</span><span class="p">)</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis_vals</span><span class="p">[</span><span class="n">axis</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">):</span>
+                        <span class="n">x</span> <span class="o">=</span> <span class="n">axis_vals</span><span class="p">[</span><span class="n">axis</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;mm&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+                        <span class="n">unit</span> <span class="o">=</span> <span class="s1">&#39;mm&#39;</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">Z</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">dims_num</span><span class="p">[</span><span class="n">axis</span><span class="p">]])</span> <span class="o">*</span> <span class="n">Z</span><span class="o">.</span><span class="n">pix_size_detector</span><span class="p">[</span><span class="n">axis</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;mm&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+                        <span class="n">unit</span> <span class="o">=</span> <span class="s1">&#39;mm&#39;</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dims_num</span><span class="p">)</span> <span class="o">&gt;</span> <span class="p">(</span><span class="mi">1</span> <span class="k">if</span> <span class="n">axis</span><span class="o">==-</span><span class="mi">2</span> <span class="k">else</span> <span class="mi">0</span><span class="p">):</span>
+                        <span class="n">slc</span><span class="p">[</span><span class="n">dims_num</span><span class="p">[</span><span class="n">axis</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">slc</span><span class="p">[</span><span class="n">axis</span><span class="p">]</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">Z</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">axis</span><span class="p">])</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">pix_size</span><span class="p">[</span><span class="n">axis</span><span class="p">]</span>
+                    <span class="n">slc</span><span class="p">[</span><span class="n">axis</span><span class="p">]</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+                <span class="c1"># gx is in urad</span>
+                <span class="n">gx</span><span class="p">,</span> <span class="n">is_slopes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gravity_correction</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">is_metrology_data</span><span class="o">=</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">Z</span><span class="p">,</span> <span class="n">MetrologyData</span><span class="p">))</span>
+
+                <span class="k">if</span> <span class="n">item</span><span class="o">==</span><span class="s1">&#39;height&#39;</span> <span class="ow">and</span> <span class="n">is_slopes</span><span class="p">:</span>
+                    <span class="c1"># gx in urad, x in mm</span>
+                    <span class="n">gx</span> <span class="o">=</span> <span class="n">integrate_slopes</span><span class="p">(</span><span class="n">gx</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;cumtrapz&#39;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">Z</span><span class="p">,</span> <span class="n">MetrologyData</span><span class="p">):</span>
+                        <span class="n">gx</span> <span class="o">=</span> <span class="n">Quantity</span><span class="p">(</span><span class="n">gx</span><span class="p">,</span> <span class="s1">&#39;nm&#39;</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">item</span><span class="o">==</span><span class="s1">&#39;slopes_x&#39;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_slopes</span><span class="p">:</span>
+                    <span class="n">gx</span> <span class="o">=</span> <span class="n">differentiate_heights</span><span class="p">(</span><span class="n">gx</span><span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">Outputs</span><span class="o">.</span><span class="n">data_gravity</span><span class="o">.</span><span class="n">send</span><span class="p">({</span><span class="n">item</span><span class="p">:</span><span class="n">gx</span><span class="p">})</span>
+                <span class="k">if</span> <span class="n">Z</span><span class="o">.</span><span class="n">ndim</span><span class="o">&lt;=</span><span class="mi">1</span><span class="p">:</span>
+                    <span class="n">slc</span> <span class="o">=</span> <span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)]</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;add&#39;</span><span class="p">:</span>
+                    <span class="n">scan_fit</span><span class="p">[</span><span class="n">item</span><span class="p">]</span> <span class="o">=</span> <span class="n">scan_fit</span><span class="p">[</span><span class="n">item</span><span class="p">]</span> <span class="o">+</span> <span class="n">gx</span><span class="p">[</span><span class="n">slc</span><span class="p">]</span>
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;subtract&#39;</span><span class="p">:</span>
+                    <span class="n">scan_fit</span><span class="p">[</span><span class="n">item</span><span class="p">]</span> <span class="o">=</span> <span class="n">scan_fit</span><span class="p">[</span><span class="n">item</span><span class="p">]</span> <span class="o">-</span> <span class="n">gx</span><span class="p">[</span><span class="n">slc</span><span class="p">]</span>
+                <span class="n">fit_comment</span> <span class="o">=</span> <span class="s1">&#39;gravity profile added&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">==</span><span class="s1">&#39;add&#39;</span> <span class="k">else</span> <span class="s1">&#39;gravity profile subtracted&#39;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">addCurve</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">gx</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">legend</span><span class="o">=</span><span class="s1">&#39;gravity&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">setGraphXLabel</span><span class="p">(</span><span class="s1">&#39;X (</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">unit</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">setGraphYLabel</span><span class="p">(</span><span class="s1">&#39;Gravity </span><span class="si">{}</span><span class="s1"> (</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">gx</span><span class="o">.</span><span class="n">unit</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">gx</span><span class="p">,</span> <span class="n">Quantity</span><span class="p">)</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">))</span>
+                <span class="c1"># self.mainArea.show()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">scan_fit</span><span class="p">,</span> <span class="n">fit_comment</span></div>
+
+
+<div class="viewcode-block" id="OWGravityCorrection.gravity_correction"><a class="viewcode-back" href="../../../pylost_widgets.widgets.html#pylost_widgets.widgets.OWGravityCorrection.OWGravityCorrection.gravity_correction">[docs]</a>    <span class="k">def</span> <span class="nf">gravity_correction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">is_metrology_data</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Correct gavity for a simple setup with two cylindes symmetrically supporting mirror seperated by half mirror length</span>
+
+<span class="sd">        :param x: mirror x positions in mm</span>
+<span class="sd">        :param t: thickness of mirror</span>
+<span class="sd">        :param L: length of mirror</span>
+<span class="sd">        :param d: seperation between cylinders, usually L/2</span>
+<span class="sd">        :param p: for si 2340</span>
+<span class="sd">        :param E:</span>
+<span class="sd">        :return: gravity correction vector in urad</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_path</span><span class="o">!=</span><span class="s1">&#39;&#39;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">gx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">gx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gx</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">gx</span><span class="p">)</span><span class="o">!=</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+                <span class="n">dx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+                <span class="n">xn</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gx</span><span class="p">))</span><span class="o">*</span><span class="n">dx</span>
+                <span class="n">xn</span> <span class="o">=</span> <span class="n">xn</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">xn</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+                <span class="n">q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">xn</span> <span class="o">&gt;=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">xn</span> <span class="o">&lt;=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+                <span class="n">gx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gx</span><span class="p">[</span><span class="n">q</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">Quantity</span><span class="p">(</span><span class="n">gx</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">units_file</span><span class="p">)</span> <span class="k">if</span> <span class="n">is_metrology_data</span> <span class="k">else</span> <span class="n">gx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">slopes_file</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">density</span>
+            <span class="n">E</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">young_modulus</span>
+            <span class="n">g</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span>
+            <span class="n">L</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mir_length</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mir_thickness</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cyl_distance</span>
+            <span class="n">gx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+
+            <span class="n">ind_i</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">d</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">ind_o</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="n">d</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">S</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">p</span> <span class="o">*</span> <span class="n">g</span> <span class="o">*</span> <span class="n">L</span> <span class="o">**</span> <span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1e-3</span> <span class="o">/</span> <span class="p">(</span><span class="n">E</span> <span class="o">*</span> <span class="n">t</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">gx</span><span class="p">[</span><span class="n">ind_i</span><span class="p">]</span> <span class="o">=</span> <span class="n">S</span> <span class="o">*</span> <span class="p">((</span><span class="n">x</span><span class="p">[</span><span class="n">ind_i</span><span class="p">]</span> <span class="o">/</span> <span class="n">L</span><span class="p">)</span> <span class="o">**</span> <span class="mi">3</span> <span class="o">+</span> <span class="p">(</span><span class="mi">3</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">-</span> <span class="p">(</span><span class="n">d</span> <span class="o">/</span> <span class="n">L</span><span class="p">))</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">ind_i</span><span class="p">]</span> <span class="o">/</span> <span class="n">L</span><span class="p">))</span> <span class="o">*</span> <span class="mf">1e6</span>
+            <span class="n">gx</span><span class="p">[</span><span class="n">ind_o</span><span class="p">]</span> <span class="o">=</span> <span class="n">S</span> <span class="o">*</span> <span class="p">(</span>
+                        <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">ind_o</span><span class="p">])</span> <span class="o">/</span> <span class="n">L</span><span class="p">)</span> <span class="o">**</span> <span class="mi">3</span> <span class="o">-</span> <span class="p">(</span><span class="mi">3</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">ind_o</span><span class="p">]</span> <span class="o">/</span> <span class="n">L</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="mi">3</span> <span class="o">/</span> <span class="mi">4</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">ind_o</span><span class="p">])</span> <span class="o">/</span> <span class="n">L</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="mi">3</span> <span class="o">/</span> <span class="mi">8</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span>
+                            <span class="n">d</span> <span class="o">/</span> <span class="n">L</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">ind_o</span><span class="p">])</span> <span class="o">*</span> <span class="mf">1e6</span>
+            <span class="k">return</span> <span class="n">gx</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">urad</span> <span class="k">if</span> <span class="n">is_metrology_data</span> <span class="k">else</span> <span class="n">gx</span><span class="p">,</span> <span class="kc">True</span></div></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">pylost_widgets</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../pylost_widgets.html">pylost_widgets package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

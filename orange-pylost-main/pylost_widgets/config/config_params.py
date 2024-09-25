@@ -1,0 +1,2 @@
+# coding=utf-8
+DEFAULT_CLOSE_WIDGETS_AFTER_APPLY = True

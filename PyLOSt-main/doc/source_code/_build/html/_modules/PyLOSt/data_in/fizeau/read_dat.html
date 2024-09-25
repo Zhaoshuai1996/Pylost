@@ -1,0 +1,328 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PyLOSt.data_in.fizeau.read_dat &#8212; PyLOSt  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/alabaster.css" />
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for PyLOSt.data_in.fizeau.read_dat</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">from</span> <span class="nn">builtins</span> <span class="kn">import</span> <span class="nb">filter</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">import</span> <span class="n">plot</span><span class="p">,</span> <span class="n">draw</span><span class="p">,</span> <span class="n">show</span><span class="p">,</span> <span class="n">figure</span><span class="p">,</span> <span class="n">imshow</span><span class="p">,</span> <span class="n">colorbar</span><span class="p">,</span> <span class="n">title</span>
+
+<div class="viewcode-block" id="readDatFile"><a class="viewcode-back" href="../../../../PyLOSt.data_in.fizeau.html#PyLOSt.data_in.fizeau.read_dat.readDatFile">[docs]</a><span class="k">def</span> <span class="nf">readDatFile</span><span class="p">(</span><span class="n">fileName</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function reads the binary files (.dat) of metropro.</span>
+<span class="sd">    Need to install the modules: numpy, PIL in the environment.</span>
+<span class="sd">    In python3.5, windows7</span>
+
+<span class="sd">    :param FileName: dat file path</span>
+<span class="sd">    :return: Raw data as dictionary</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">struct</span>
+    <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+    <span class="kn">import</span> <span class="nn">time</span>
+
+    <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1">#read the file</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fileName</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fid</span><span class="p">:</span>
+            <span class="n">badpixelValue</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span> <span class="c1">#2147483640</span>
+
+            <span class="c1">#Header file</span>
+            <span class="n">fid</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">magicNumber_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+            <span class="n">headerFormat_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">headerSize_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+            <span class="n">swinfoDate_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span>
+
+            <span class="c1">#Intensity file</span>
+            <span class="n">fid</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">48</span><span class="p">)</span>
+            <span class="n">ac_org_x_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">fid</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>
+            <span class="n">ac_org_y_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">ac_width_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">ac_height_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">ac_n_buckets_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">ac_range_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">ac_n_bytes_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+            <span class="n">fid</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">164</span><span class="p">)</span>
+            <span class="n">intf_scale_factor_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+
+            <span class="n">wavelength_in_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+            <span class="n">fid</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">176</span><span class="p">)</span>
+            <span class="n">obliquity_factor_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+            <span class="n">magnification_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+            <span class="n">CameraRes_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+
+            <span class="c1">#Phase Data Matrix</span>
+            <span class="n">fid</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">64</span><span class="p">)</span>
+            <span class="n">cn_org_x_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">cn_org_y_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">cn_width_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">cn_height_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">cn_n_bytes_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+            <span class="n">fid</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">76</span><span class="p">)</span>
+            <span class="n">date_measurement_encode</span> <span class="o">=</span><span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+
+            <span class="n">fid</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">80</span><span class="p">)</span>
+            <span class="n">comments</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">82</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># Current ESRF comments format &#39;Position= 1  X-coord= 32.75  X-shift= 0.929&#39;</span>
+                <span class="n">comments</span> <span class="o">=</span> <span class="n">comments</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+                <span class="n">comArr</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;[= ]&#39;</span><span class="p">,</span><span class="n">comments</span><span class="p">)</span>
+                <span class="n">comArrFilt</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="nb">bool</span><span class="p">,</span><span class="n">comArr</span><span class="p">))</span>
+                <span class="n">d</span><span class="p">[</span><span class="s1">&#39;motorX&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="n">comArrFilt</span><span class="p">[</span><span class="mi">3</span><span class="p">]))</span> <span class="k">if</span> <span class="n">comArrFilt</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;X-coord&#39;</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span> <span class="c1">#if comments format changes??</span>
+                <span class="n">d</span><span class="p">[</span><span class="s1">&#39;motorXShift&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="n">comArrFilt</span><span class="p">[</span><span class="mi">5</span><span class="p">]))</span> <span class="k">if</span> <span class="n">comArrFilt</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;X-shift&#39;</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span> <span class="c1">#if comments format changes??</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;comments section &lt;- readDat (Fizeau)&#39;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+            <span class="n">fid</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">218</span><span class="p">)</span>
+            <span class="n">phase_res_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+            <span class="n">fid</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">234</span><span class="p">)</span>
+            <span class="n">camera_width_encode</span> <span class="o">=</span><span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">camera_height_encode</span> <span class="o">=</span><span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+            <span class="n">fid</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">486</span><span class="p">)</span>
+            <span class="n">pixel_width_encode</span> <span class="o">=</span><span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+            <span class="n">pixel_height_encode</span> <span class="o">=</span><span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;camera_width&#39;</span><span class="p">]</span> <span class="o">=</span><span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&gt;h&quot;</span><span class="p">,</span><span class="n">camera_width_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;camera_height&#39;</span><span class="p">]</span> <span class="o">=</span><span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&gt;h&quot;</span><span class="p">,</span><span class="n">camera_height_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="c1">#Decode</span>
+            <span class="c1">#header file</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;magicNumber&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&gt;l&quot;</span><span class="p">,</span><span class="n">magicNumber_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;headerFormat&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&gt;h&quot;</span><span class="p">,</span><span class="n">headerFormat_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;headerSize&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&gt;l&quot;</span><span class="p">,</span><span class="n">headerSize_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="c1">#Intensity file</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;ac_org_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&gt;h&quot;</span><span class="p">,</span><span class="n">ac_org_x_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;ac_org_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&gt;h&quot;</span><span class="p">,</span><span class="n">ac_org_y_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;ac_width&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&gt;h&quot;</span><span class="p">,</span><span class="n">ac_width_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;ac_height&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&gt;h&quot;</span><span class="p">,</span><span class="n">ac_height_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;ac_n_buckets&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&gt;h&quot;</span><span class="p">,</span><span class="n">ac_n_buckets_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;ac_range&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&gt;h&quot;</span><span class="p">,</span><span class="n">ac_range_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;ac_n_bytes&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&gt;l&quot;</span><span class="p">,</span><span class="n">ac_n_bytes_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;intf_scale_factor&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&gt;f&quot;</span><span class="p">,</span><span class="n">intf_scale_factor_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;wavelength_in&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&gt;f&quot;</span><span class="p">,</span><span class="n">wavelength_in_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;obliquity_factor&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&gt;f&quot;</span><span class="p">,</span><span class="n">obliquity_factor_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;magnification&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&gt;f&quot;</span><span class="p">,</span><span class="n">magnification_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;CameraRes&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&gt;f&quot;</span><span class="p">,</span><span class="n">CameraRes_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="c1">#Phase Data Matrix</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;cn_org_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&gt;h&quot;</span><span class="p">,</span><span class="n">cn_org_x_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;cn_org_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&gt;h&quot;</span><span class="p">,</span><span class="n">cn_org_y_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;cn_width&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&gt;h&quot;</span><span class="p">,</span><span class="n">cn_width_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;cn_height&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&gt;h&quot;</span><span class="p">,</span><span class="n">cn_height_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;cn_n_bytes&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&gt;l&quot;</span><span class="p">,</span><span class="n">cn_n_bytes_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;phase_res&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&gt;h&quot;</span><span class="p">,</span><span class="n">phase_res_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;pixel_width&#39;</span><span class="p">]</span> <span class="o">=</span><span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&gt;f&quot;</span><span class="p">,</span><span class="n">pixel_width_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;pixel_height&#39;</span><span class="p">]</span> <span class="o">=</span><span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&gt;f&quot;</span><span class="p">,</span><span class="n">pixel_height_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;number_of_points&#39;</span><span class="p">]</span> <span class="o">=</span>  <span class="n">d</span><span class="p">[</span><span class="s1">&#39;ac_width&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;ac_height&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;ac_n_buckets&#39;</span><span class="p">]</span>
+
+            <span class="c1"># header size can be different</span>
+            <span class="n">fid</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;headerSize&#39;</span><span class="p">])</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;way&#39;</span><span class="p">]</span> <span class="o">=</span><span class="s2">&quot;&lt;&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;number_of_points&#39;</span><span class="p">])</span><span class="o">+</span><span class="s2">&quot;h&quot;</span>
+            <span class="c1"># only if intensity data present</span>
+            <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;number_of_points&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">data_intensity_encode</span> <span class="o">=</span><span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;number_of_points&#39;</span><span class="p">]</span><span class="o">*</span><span class="mi">2</span><span class="p">)</span> <span class="c1"># int16</span>
+                <span class="n">d</span><span class="p">[</span><span class="s1">&#39;data_intensity&#39;</span><span class="p">]</span> <span class="o">=</span><span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;way&#39;</span><span class="p">],</span><span class="n">data_intensity_encode</span><span class="p">)</span>
+                <span class="n">d</span><span class="p">[</span><span class="s1">&#39;data_intensity&#39;</span><span class="p">]</span> <span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;data_intensity&#39;</span><span class="p">])</span>
+                <span class="n">d</span><span class="p">[</span><span class="s1">&#39;data_intensity&#39;</span><span class="p">]</span> <span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;data_intensity&#39;</span><span class="p">],(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;ac_height&#39;</span><span class="p">],</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;ac_width&#39;</span><span class="p">]))</span>
+            <span class="k">else</span><span class="p">:</span> <span class="c1"># no intensity data, create empty matrix</span>
+                <span class="n">d</span><span class="p">[</span><span class="s1">&#39;data_intensity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([])</span>
+
+            <span class="c1"># header size can be different</span>
+            <span class="n">fid</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;headerSize&#39;</span><span class="p">]</span><span class="o">+</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;number_of_points&#39;</span><span class="p">]</span><span class="o">*</span><span class="mi">2</span><span class="p">)</span>
+            <span class="c1"># not reading full height # XXX: why?</span>
+            <span class="c1"># d[&#39;cn_height&#39;] = d[&#39;cn_height&#39;] - 1</span>
+            <span class="n">data_point_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;cn_width&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;cn_height&#39;</span><span class="p">]</span><span class="o">*</span><span class="mi">4</span><span class="p">)</span> <span class="c1"># float32</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;decode_way&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&gt;&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;cn_width&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;cn_height&#39;</span><span class="p">])</span><span class="o">+</span><span class="s2">&quot;i&quot;</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;data_point&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;decode_way&#39;</span><span class="p">],</span><span class="n">data_point_encode</span><span class="p">)</span>
+
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;data_pixel&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;data_point&#39;</span><span class="p">])</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;data_pixel&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;data_pixel&#39;</span><span class="p">],</span> <span class="p">[</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;cn_height&#39;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;cn_width&#39;</span><span class="p">]])</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;data_pixel&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;data_pixel&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span> <span class="c1"># in float32</span>
+
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;mask&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;data_pixel&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">2e9</span>
+
+            <span class="c1"># little comment: numpy as some optimized functions to perform the same test</span>
+            <span class="c1"># see: https://numpy.org/devdocs/reference/generated/numpy.where.html</span>
+            <span class="c1"># with this way we gain almost a speed factor 8 on large dataset (X4 without the test on negative values)</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;data_pixel&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;mask&#39;</span><span class="p">],</span>
+                                       <span class="n">d</span><span class="p">[</span><span class="s1">&#39;data_pixel&#39;</span><span class="p">],</span>
+                                       <span class="n">badpixelValue</span><span class="p">)</span>
+            <span class="c1"># for i in range(0,d[&#39;cn_height&#39;]):</span>
+            <span class="c1">#     for j in range(0,d[&#39;cn_width&#39;]):</span>
+            <span class="c1">#         if d[&#39;data_pixel&#39;][i][j]&gt;2e9: # invalid pixel is set at 2147483640</span>
+            <span class="c1">#             d[&#39;data_pixel&#39;][i][j] = badpixelValue</span>
+            <span class="c1">#             d[&#39;mask&#39;][i][j] = 0</span>
+
+            <span class="c1">#         # elif d[&#39;data_pixel&#39;][i][j]&lt;-2e9: # XXX: is this test necessary ?</span>
+            <span class="c1">#         #     d[&#39;data_pixel&#39;][i][j] =badpixelValue</span>
+            <span class="c1">#         #     d[&#39;mask&#39;][i][j] = 0</span>
+            <span class="c1">#         # else:</span>
+            <span class="c1">#         #     pass</span>
+
+
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;S&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;intf_scale_factor&#39;</span><span class="p">]</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;W&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;wavelength_in&#39;</span><span class="p">]</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;O&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;obliquity_factor&#39;</span><span class="p">]</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;R&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">32768</span> <span class="c1"># reduce to int16 scale</span>
+
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;number_of_points_phase&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;cn_width&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;cn_height&#39;</span><span class="p">]</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;waves&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;data_pixel&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;S&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;O&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;R&#39;</span><span class="p">]</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;height_m&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;waves&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;W&#39;</span><span class="p">]</span>
+
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;height_nm&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;height_m&#39;</span><span class="p">]</span><span class="o">*</span><span class="mf">1e+9</span>
+
+
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;date_measurement&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&gt;i&quot;</span><span class="p">,</span><span class="n">date_measurement_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;number_day&#39;</span><span class="p">]</span> <span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;date_measurement&#39;</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="mi">60</span><span class="o">*</span><span class="mi">60</span><span class="o">*</span><span class="mi">24</span><span class="p">)</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;rest&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;date_measurement&#39;</span><span class="p">]</span><span class="o">-</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;number_day&#39;</span><span class="p">]</span><span class="o">*</span><span class="mi">60</span><span class="o">*</span><span class="mi">60</span><span class="o">*</span><span class="mi">24</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;hour_mesurement&#39;</span><span class="p">]</span> <span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;rest&#39;</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="mi">60</span><span class="o">*</span><span class="mi">60</span><span class="p">)</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;rest&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;rest&#39;</span><span class="p">]</span><span class="o">-</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;hour_mesurement&#39;</span><span class="p">]</span><span class="o">*</span><span class="mi">60</span><span class="o">*</span><span class="mi">60</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;minute_mesurement&#39;</span><span class="p">]</span> <span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;rest&#39;</span><span class="p">]</span><span class="o">/</span><span class="mi">60</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;rest&#39;</span><span class="p">]</span> <span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;rest&#39;</span><span class="p">]</span><span class="o">-</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;minute_mesurement&#39;</span><span class="p">]</span><span class="o">*</span><span class="mi">60</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;second_mesurement&#39;</span><span class="p">]</span> <span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;rest&#39;</span><span class="p">]</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;time_format&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;date_measurement&#39;</span><span class="p">])</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;date_str&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;date_measurement&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">)</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;date_datToOpd&#39;</span><span class="p">]</span> <span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;time_format&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="mi">10</span><span class="p">]</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;time_datToOpd&#39;</span><span class="p">]</span> <span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;time_format&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">8</span><span class="p">:]</span>
+
+            <span class="c1">#np.savetxt(&quot;height_m_dat.txt&quot;,height_m)</span>
+            <span class="c1"># Save a txt file in the same Folder with the code, the file shows height(meter) of every pixel, open it with Notepad, otherwise it changes the shape of the matrix.</span>
+
+            <span class="c1">#np.savetxt(&quot;data_pixel_dat.txt&quot;,data_pixel)</span>
+            <span class="c1"># Save a txt file in the same Folder with the code, the file shows phase value(more information of phase data is in the official instruction) of every pixel, open it with Notepad, otherwise it changes the shape of the matrix.</span>
+
+            <span class="c1">#np.savetxt(&quot;intensity_dat.txt&quot;,data_intensity)</span>
+            <span class="c1"># Save a txt file in the same Folder with the code, the file shows intensity value(more information of intensity data is in the official instruction) of every pixel, open it with Notepad, otherwise it changes the shape of the matrix.</span>
+
+
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;Max_value&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;height_nm&#39;</span><span class="p">])</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;Min_value&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;height_nm&#39;</span><span class="p">])</span>
+
+            <span class="c1"># d[&#39;height_nm&#39;] = np.flip(d[&#39;height_nm&#39;], axis=-2)  # Flip along Y</span>
+            <span class="c1"># d[&#39;height_m&#39;] = np.flip(d[&#39;height_m&#39;], axis=-2)  # Flip along Y</span>
+            <span class="c1"># d[&#39;waves&#39;] = np.flip(d[&#39;waves&#39;], axis=-2)  # Flip along Y</span>
+            <span class="c1"># d[&#39;data_pixel&#39;] = np.flip(d[&#39;data_pixel&#39;], axis=-2)  # Flip along Y</span>
+            <span class="c1"># d[&#39;mask&#39;] = np.flip(d[&#39;mask&#39;], axis=-2)  # Flip along Y</span>
+            <span class="c1"># d[&#39;data_intensity&#39;] = np.flip(d[&#39;data_intensity&#39;], axis=-2) if d[&#39;data_intensity&#39;].ndim&gt;1 else d[&#39;data_intensity&#39;] # Flip along Y</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;readDatFile : &#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">d</span></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">readDatFile</span><span class="p">(</span><span class="s1">&#39;X:\Fizeau data\MoonPics\silja\J\J1-P1.dat&#39;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">):</span>
+        <span class="c1"># d=(readDatFile(&#39;X:\Fizeau data\MoonPics\sphere\AB-SPH-ST2\Ref-subtracted\Ref_sub-HZB-AB-Sph-ST2-R1-P&#39;+str(i)+&#39;.dat&#39;))</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">x</span><span class="o">!=</span><span class="s1">&#39;data_point&#39;</span><span class="p">:</span>        <span class="nb">print</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="s1">&#39;:&#39;</span><span class="p">,</span><span class="n">d</span><span class="p">[</span><span class="n">x</span><span class="p">],</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="n">imshow</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;height_nm&#39;</span><span class="p">])</span>
+    <span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../index.html">PyLOSt</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../PyLOSt.html">PyLOSt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quick_guide.html">Quick Guide</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

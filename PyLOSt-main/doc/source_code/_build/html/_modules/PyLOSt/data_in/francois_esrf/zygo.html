@@ -1,0 +1,395 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PyLOSt.data_in.francois_esrf.zygo &#8212; PyLOSt  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/alabaster.css" />
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for PyLOSt.data_in.francois_esrf.zygo</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Created on Mon Aug  3 12:05:38 2020</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># pylint: disable=C0103, C0115, C0116</span>
+<span class="c1"># pylint: disable=R0902, R0903, R0904</span>
+
+
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">datetime</span> <span class="k">as</span> <span class="nn">dt</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span>
+
+<span class="kn">from</span> <span class="nn">PyLOSt.data_in.francois_esrf.generic</span> <span class="kn">import</span> <span class="n">ESRFOpticsLabData</span><span class="p">,</span> <span class="n">Surface</span>
+
+
+<div class="viewcode-block" id="MetroProData"><a class="viewcode-back" href="../../../../PyLOSt.data_in.francois_esrf.html#PyLOSt.data_in.francois_esrf.zygo.MetroProData">[docs]</a><span class="k">class</span> <span class="nc">MetroProData</span><span class="p">(</span><span class="n">ESRFOpticsLabData</span><span class="p">,</span> <span class="n">Surface</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;MetroPro 9 data class.&#39;&#39;&#39;</span>
+    <span class="n">method</span> <span class="o">=</span> <span class="s1">&#39;Fizeau Interferometer&#39;</span>
+    <span class="n">instrument</span> <span class="o">=</span> <span class="s2">&quot;Zygo&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">header_format</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">header_size</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">note</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_raw_shape</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">intensity</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="p">{</span>
+                      <span class="s1">&#39;coords&#39;</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="p">,</span> <span class="s1">&#39;values&#39;</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="p">,</span>
+                      <span class="s1">&#39;height&#39;</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">nm</span><span class="p">,</span> <span class="s1">&#39;angle&#39;</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">urad</span><span class="p">,</span>
+                      <span class="s1">&#39;length&#39;</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span> <span class="s1">&#39;radius&#39;</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">km</span><span class="p">,</span> <span class="s1">&#39;curvature&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="o">/</span><span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="p">,</span>
+                      <span class="s1">&#39;pixel&#39;</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span>
+                      <span class="p">}</span>
+
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;Zygo surface map&#39;</span>
+
+
+    <span class="c1"># ----overriding----</span>
+<div class="viewcode-block" id="MetroProData.readfile"><a class="viewcode-back" href="../../../../PyLOSt.data_in.francois_esrf.html#PyLOSt.data_in.francois_esrf.zygo.MetroProData.readfile">[docs]</a>    <span class="k">def</span> <span class="nf">readfile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span> <span class="c1"># pylint: disable=unused-argument, R0914</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">zygo_file</span><span class="p">:</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">datetime</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getmtime</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">rpartition</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">name</span>
+
+            <span class="c1"># Header</span>
+            <span class="n">magic_number</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">zygo_file</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;&gt;u4&#39;</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">header_dict</span> <span class="o">=</span> <span class="n">header_from_txt</span><span class="p">()[</span><span class="n">magic_number</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">header_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">zygo_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="s1">&#39;pos&#39;</span><span class="p">])</span>
+                <span class="n">dtype</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="s1">&#39;dtype&#39;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">dtype</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">:</span>
+                    <span class="n">size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;size&#39;</span><span class="p">,</span> <span class="s1">&#39;1&#39;</span><span class="p">))</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">zygo_file</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">size</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">UnicodeDecodeError</span><span class="p">:</span>
+                        <span class="n">zygo_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="s1">&#39;pos&#39;</span><span class="p">])</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">zygo_file</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">size</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;latin1&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">zygo_file</span><span class="p">,</span>
+                                                   <span class="n">dtype</span><span class="o">=</span><span class="n">value</span><span class="p">[</span><span class="s1">&#39;dtype&#39;</span><span class="p">],</span>
+                                                   <span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                                                   <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="s1">&#39;f4&#39;</span> <span class="ow">in</span> <span class="n">value</span><span class="p">[</span><span class="s1">&#39;dtype&#39;</span><span class="p">]:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+
+            <span class="n">zygo_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;header_size&#39;</span><span class="p">])</span>
+            <span class="n">rows</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;ac_height&#39;</span><span class="p">])</span>
+            <span class="n">cols</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;ac_width&#39;</span><span class="p">])</span>
+            <span class="n">size</span> <span class="o">=</span> <span class="n">rows</span> <span class="o">*</span> <span class="n">cols</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;ac_n_buckets&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">intensity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span>
+                <span class="n">zygo_file</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;&gt;u2&#39;</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="n">size</span><span class="p">),</span>
+                <span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">intensity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">intensity</span><span class="o">&lt;</span><span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;ac_range&#39;</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span>
+                                      <span class="bp">self</span><span class="o">.</span><span class="n">intensity</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+
+            <span class="n">rows</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;cn_width&#39;</span><span class="p">])</span>
+            <span class="n">cols</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;cn_height&#39;</span><span class="p">])</span>
+            <span class="n">size</span> <span class="o">=</span> <span class="n">rows</span> <span class="o">*</span> <span class="n">cols</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">zygo_file</span><span class="p">,</span>
+                                          <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;&gt;i4&#39;</span><span class="p">,</span>
+                                          <span class="n">count</span><span class="o">=</span><span class="n">size</span><span class="p">),</span>
+                                   <span class="p">(</span><span class="n">cols</span><span class="p">,</span> <span class="n">rows</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phase</span><span class="o">&lt;</span><span class="mi">2147483640</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+
+            <span class="n">W</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;wavelength_in&#39;</span><span class="p">]</span>
+            <span class="n">S</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;intf_scale_factor&#39;</span><span class="p">]</span>
+            <span class="n">O</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;obliquity_factor&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;phase_res&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">R</span> <span class="o">=</span> <span class="mi">4096</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;phase_res&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">R</span> <span class="o">=</span> <span class="mi">32768</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;phase_res&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">R</span> <span class="o">=</span> <span class="mi">131072</span>
+            <span class="n">rawdata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">*</span> <span class="n">W</span> <span class="o">*</span> <span class="n">S</span> <span class="o">*</span> <span class="n">O</span> <span class="o">/</span> <span class="n">R</span>
+            <span class="n">rawdata</span> <span class="o">-=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">rawdata</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_raw_shape</span> <span class="o">=</span> <span class="n">rawdata</span><span class="o">.</span><span class="n">shape</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_raw_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;lateral_res&#39;</span><span class="p">],</span>
+                            <span class="n">num</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_raw_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_raw_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;lateral_res&#39;</span><span class="p">],</span>
+                            <span class="n">num</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_raw_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">initial</span> <span class="o">=</span> <span class="n">Surface</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">rawdata</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="MetroProData.writefile"><a class="viewcode-back" href="../../../../PyLOSt.data_in.francois_esrf.html#PyLOSt.data_in.francois_esrf.zygo.MetroProData.writefile">[docs]</a>    <span class="k">def</span> <span class="nf">writefile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="kn">import</span> <span class="nn">struct</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">zygo_file</span><span class="p">:</span>
+            <span class="n">header_dict</span> <span class="o">=</span> <span class="n">header_from_txt</span><span class="p">()[</span><span class="mi">2283471729</span><span class="p">]</span> <span class="c1"># last format version</span>
+            <span class="n">zygo_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">bytearray</span><span class="p">(</span><span class="mi">4096</span><span class="p">))</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;lateral_res&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pixel_res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">intensity</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;ac_org_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;ac_org_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;ac_width&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;ac_height&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;ac_n_buckets&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;ac_range&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;ac_n_bytes&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;cn_org_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;cn_org_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;cn_width&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;cn_height&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;cn_n_bytes&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;phase_res&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">header_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="c1"># print(key, value)</span>
+                <span class="n">zygo_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="s1">&#39;pos&#39;</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="s1">&#39;magic_number&#39;</span> <span class="ow">in</span> <span class="n">key</span><span class="p">:</span>
+                        <span class="n">val</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;&gt;i&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mi">2011495567</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="s1">&#39;header_format&#39;</span> <span class="ow">in</span> <span class="n">key</span><span class="p">:</span>
+                        <span class="n">val</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;&gt;h&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="s1">&#39;header_size&#39;</span> <span class="ow">in</span> <span class="n">key</span><span class="p">:</span>
+                        <span class="n">val</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;&gt;i&#39;</span><span class="p">,</span> <span class="mi">4096</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
+                        <span class="n">val</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">value</span><span class="p">[</span><span class="s1">&#39;fmt&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;c&#39;</span><span class="p">:</span>
+                        <span class="n">val</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="n">key</span><span class="p">]),</span> <span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">val</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="s1">&#39;fmt&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+                <span class="n">zygo_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+            <span class="n">zygo_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">1490</span><span class="p">)</span>
+            <span class="n">zygo_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">bytearray</span><span class="p">(</span><span class="mi">2606</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">intensity</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">intensity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">intensity</span><span class="p">),</span>
+                                     <span class="mi">65535</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">intensity</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+                <span class="n">intensity</span> <span class="o">=</span> <span class="n">intensity</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;&gt;u2&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span><span class="o">.</span><span class="n">tobytes</span><span class="p">()</span>
+                <span class="n">zygo_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;header_size&#39;</span><span class="p">])</span>
+                <span class="n">zygo_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">intensity</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">phase</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phase</span><span class="p">),</span>
+                                     <span class="mi">2147483641</span><span class="p">,</span>
+                                     <span class="bp">self</span><span class="o">.</span><span class="n">phase</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+                <span class="n">phase</span> <span class="o">=</span> <span class="n">phase</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;&gt;i4&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span><span class="o">.</span><span class="n">tobytes</span><span class="p">()</span>
+                <span class="n">zygo_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">phase</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+    <span class="c1"># ----properties----</span>
+    <span class="c1"># @property</span>
+    <span class="c1"># def datetime(self):</span>
+    <span class="c1">#     return dt.datetime.strptime(self.header[&#39;swinfo.date&#39;], &#39;%a %b %d %H:%M:%S %Y&#39;)</span>
+    <span class="c1"># @property</span>
+    <span class="c1"># def shape(self):</span>
+    <span class="c1">#     if self.values is None:</span>
+    <span class="c1">#         return self._raw_shape</span>
+    <span class="c1">#     return self.values.shape</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">title</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;comment&#39;</span><span class="p">]</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;PSI&#39;</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">objective</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;obj_name&#39;</span><span class="p">]</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">magnification</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;gpi_enc_zoom_mag&#39;</span><span class="p">,</span> <span class="s1">&#39;no encoded zoom&#39;</span><span class="p">)</span>
+        <span class="c1"># mag = self.header[&#39;Magnification&#39;]</span>
+        <span class="c1"># return f&#39;{mag:.1f} X&#39;</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">fov</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;obj_name&#39;</span><span class="p">]</span>
+        <span class="c1"># default = &#39;1 X&#39;</span>
+        <span class="c1"># return self.header.get(&#39;FOVLabel&#39;, default)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">stage_x</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;coords.x_pos&#39;</span><span class="p">]</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">stage_y</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;coords.y_pos&#39;</span><span class="p">]</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">average</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;phase_avg_cnt&#39;</span><span class="p">]</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">wavelength</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;wavelength_in&#39;</span><span class="p">]</span> <span class="c1"># m</span></div>
+
+    <span class="c1"># @property</span>
+    <span class="c1"># def histogram(self):</span>
+    <span class="c1">#     mask = self.masking()</span>
+    <span class="c1">#     return np.histogram(self.values[mask], bins=512, density=False)</span>
+    <span class="c1">#     # plt.plot(histo[1][:-1], histo[0])</span>
+
+
+<div class="viewcode-block" id="header_from_txt"><a class="viewcode-back" href="../../../../PyLOSt.data_in.francois_esrf.html#PyLOSt.data_in.francois_esrf.zygo.header_from_txt">[docs]</a><span class="k">def</span> <span class="nf">header_from_txt</span><span class="p">():</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span><span class="o">+</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">metropro_headers.txt&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">header_file</span><span class="p">:</span>
+    <span class="c1"># with open(__file__.rpartition(&#39;\\&#39;)[0] + &#39;\\metropro_headers.txt&#39;) as header_file:</span>
+        <span class="n">dico</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">fmt</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">l</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">header_file</span><span class="o">.</span><span class="n">readlines</span><span class="p">()):</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="n">l</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="k">if</span> <span class="s1">&#39;magic_number&#39;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="n">fmt</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="mi">16</span><span class="p">)</span>
+                <span class="n">dico</span><span class="p">[</span><span class="n">fmt</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">if</span> <span class="n">fmt</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">try</span> <span class="p">:</span>
+                <span class="n">size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                <span class="k">if</span> <span class="s1">&#39;I&#39;</span> <span class="ow">in</span> <span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                    <span class="n">dtype</span> <span class="o">=</span> <span class="s1">&#39;i&#39;</span> <span class="o">+</span> <span class="n">l</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">size</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="n">struct</span> <span class="o">=</span> <span class="s1">&#39;b&#39;</span>
+                    <span class="k">elif</span> <span class="n">size</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                        <span class="n">struct</span> <span class="o">=</span> <span class="s1">&#39;h&#39;</span>
+                    <span class="k">elif</span> <span class="n">size</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+                        <span class="n">struct</span> <span class="o">=</span> <span class="s1">&#39;i&#39;</span>
+                <span class="k">elif</span> <span class="s1">&#39;F&#39;</span> <span class="ow">in</span> <span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                    <span class="n">dtype</span> <span class="o">=</span> <span class="s1">&#39;f&#39;</span> <span class="o">+</span> <span class="n">l</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">size</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                        <span class="n">struct</span> <span class="o">=</span> <span class="s1">&#39;e&#39;</span>
+                    <span class="k">elif</span> <span class="n">size</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+                        <span class="n">struct</span> <span class="o">=</span> <span class="s1">&#39;f&#39;</span>
+                    <span class="k">elif</span> <span class="n">size</span> <span class="o">==</span> <span class="mi">8</span><span class="p">:</span>
+                        <span class="n">struct</span> <span class="o">=</span> <span class="s1">&#39;d&#39;</span>
+                <span class="k">elif</span> <span class="s1">&#39;S&#39;</span> <span class="ow">in</span> <span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                    <span class="n">dtype</span> <span class="o">=</span> <span class="nb">str</span>
+                    <span class="n">struct</span> <span class="o">=</span> <span class="n">l</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;s&#39;</span>
+                <span class="k">elif</span> <span class="s1">&#39;C&#39;</span> <span class="ow">in</span> <span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                    <span class="n">dtype</span> <span class="o">=</span> <span class="s1">&#39;B&#39;</span>
+                    <span class="n">struct</span> <span class="o">=</span> <span class="s1">&#39;B&#39;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="s1">&#39;B&#39;</span> <span class="ow">in</span> <span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                    <span class="n">dtype</span> <span class="o">=</span> <span class="s1">&#39;&gt;&#39;</span> <span class="o">+</span> <span class="n">dtype</span>
+                    <span class="n">struct</span> <span class="o">=</span> <span class="s1">&#39;&gt;&#39;</span> <span class="o">+</span> <span class="n">struct</span>
+                <span class="k">elif</span> <span class="s1">&#39;L&#39;</span> <span class="ow">in</span> <span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                    <span class="n">dtype</span> <span class="o">=</span> <span class="s1">&#39;&lt;&#39;</span> <span class="o">+</span> <span class="n">dtype</span>
+                    <span class="n">struct</span> <span class="o">=</span> <span class="s1">&#39;&lt;&#39;</span> <span class="o">+</span> <span class="n">struct</span>
+                <span class="n">dico</span><span class="p">[</span><span class="n">fmt</span><span class="p">][</span><span class="n">l</span><span class="p">[</span><span class="mi">3</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+                        <span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">dtype</span><span class="p">,</span>
+                        <span class="s1">&#39;fmt&#39;</span><span class="p">:</span> <span class="n">struct</span><span class="p">,</span>
+                        <span class="s1">&#39;pos&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+                        <span class="s1">&#39;size&#39;</span><span class="p">:</span> <span class="n">l</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+                        <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="n">l</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span>
+                        <span class="p">}</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="k">return</span> <span class="n">dico</span></div>
+
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../index.html">PyLOSt</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../PyLOSt.html">PyLOSt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quick_guide.html">Quick Guide</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

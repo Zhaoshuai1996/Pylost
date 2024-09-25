@@ -1,0 +1,171 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pylost_widgets.learning.net.CNNNetwork &#8212; pylost_widgets  documentation</title>
+    <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for pylost_widgets.learning.net.CNNNetwork</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">pylost_widgets.learning.net.SimpleNetwork</span> <span class="k">import</span> <span class="n">SimpleNetwork</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
+
+<div class="viewcode-block" id="CNNNetwork"><a class="viewcode-back" href="../../../../pylost_widgets.learning.net.html#pylost_widgets.learning.net.CNNNetwork.CNNNetwork">[docs]</a><span class="k">class</span> <span class="nc">CNNNetwork</span><span class="p">(</span><span class="n">SimpleNetwork</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer_names</span><span class="p">,</span> <span class="n">layer_shapes</span><span class="p">,</span> <span class="n">activations</span><span class="p">,</span> <span class="n">scale_cnn_to_linear</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">layer_names</span><span class="p">,</span> <span class="n">layer_shapes</span><span class="p">,</span> <span class="n">activations</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">conv_names</span> <span class="o">=</span> <span class="n">layer_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">linear_names</span> <span class="o">=</span> <span class="n">layer_names</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">layers1</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">layers2</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">conv_names</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">linear_names</span><span class="p">):</span>
+            <span class="n">layers1</span> <span class="o">+=</span> <span class="p">[</span><span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+                        <span class="c1"># nn.BatchNorm2d(64),</span>
+                        <span class="c1"># nn.Dropout(),</span>
+                        <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+                        <span class="c1"># nn.MaxPool2d(kernel_size=2, stride=2),</span>
+                        <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+                        <span class="c1"># nn.Dropout(),</span>
+                        <span class="c1"># nn.BatchNorm2d(64),</span>
+                        <span class="c1"># nn.ReLU(inplace=True),</span>
+                        <span class="c1"># nn.MaxPool2d(kernel_size=2, stride=2)</span>
+                        <span class="p">]</span>
+            <span class="n">layers2</span> <span class="o">+=</span> <span class="p">[</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">64</span><span class="o">*</span><span class="mi">2</span><span class="o">*</span><span class="mi">2</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
+                        <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+                        <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
+                        <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+                        <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">)]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Conv</span>
+            <span class="n">i</span><span class="o">=</span><span class="mi">0</span>
+            <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">conv_names</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">nn</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span><span class="n">layer_shapes</span><span class="p">[</span><span class="n">i</span><span class="p">]):</span>
+                    <span class="n">options</span> <span class="o">=</span> <span class="p">{}</span>
+                    <span class="k">if</span> <span class="n">a</span><span class="o">==</span><span class="s1">&#39;Conv2d&#39;</span><span class="p">:</span>
+                        <span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;kernel_size&#39;</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;stride&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;padding&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">}</span>
+                    <span class="n">layers1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">nn</span><span class="p">,</span> <span class="n">a</span><span class="p">)(</span><span class="o">*</span><span class="n">layer_shapes</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="o">**</span><span class="n">options</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">activations</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
+                        <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">activations</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">nn</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+                                <span class="n">args</span> <span class="o">=</span> <span class="p">[]</span>
+                                <span class="n">options</span> <span class="o">=</span> <span class="p">{}</span>
+                                <span class="k">if</span> <span class="n">b</span><span class="o">==</span><span class="s1">&#39;BatchNorm2d&#39;</span><span class="p">:</span>
+                                    <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">layer_shapes</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]]</span>
+                                <span class="k">elif</span> <span class="n">b</span><span class="o">==</span><span class="s1">&#39;MaxPool2d&#39;</span><span class="p">:</span>
+                                    <span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;kernel_size&#39;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;stride&#39;</span><span class="p">:</span><span class="mi">2</span><span class="p">}</span>
+                                <span class="n">layers1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">nn</span><span class="p">,</span> <span class="n">b</span><span class="p">)(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">))</span>
+                    <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">nn</span><span class="p">,</span> <span class="n">activations</span><span class="p">[</span><span class="n">i</span><span class="p">]):</span>
+                        <span class="n">layers1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">nn</span><span class="p">,</span> <span class="n">activations</span><span class="p">[</span><span class="n">i</span><span class="p">])())</span>
+                <span class="n">i</span><span class="o">+=</span><span class="mi">1</span>
+            <span class="c1"># resize conv to linear shape</span>
+            <span class="k">if</span> <span class="n">scale_cnn_to_linear</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">:</span>
+                <span class="n">layer_shapes</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">layer_shapes</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">scale_cnn_to_linear</span>
+            <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">linear_names</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">nn</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span><span class="n">layer_shapes</span><span class="p">[</span><span class="n">i</span><span class="p">]):</span>
+                    <span class="n">layers2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">nn</span><span class="p">,</span> <span class="n">a</span><span class="p">)(</span><span class="o">*</span><span class="n">layer_shapes</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+                    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">nn</span><span class="p">,</span> <span class="n">activations</span><span class="p">[</span><span class="n">i</span><span class="p">]):</span>
+                        <span class="n">layers2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">nn</span><span class="p">,</span> <span class="n">activations</span><span class="p">[</span><span class="n">i</span><span class="p">])())</span>
+                <span class="n">i</span><span class="o">+=</span><span class="mi">1</span>
+
+            <span class="c1"># Add output layer (linear)</span>
+            <span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;kernel_size&#39;</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;stride&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;padding&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">}</span>
+            <span class="n">layers1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="o">*</span><span class="n">layer_shapes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="o">**</span><span class="n">options</span><span class="p">))</span>
+            <span class="c1"># layers2.append(nn.Linear(*layer_shapes[-1]))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">cnn_layers</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="o">*</span><span class="n">layers1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">linear_layers</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="o">*</span><span class="n">layers2</span><span class="p">)</span>
+
+    <span class="c1"># Defining the forward pass</span>
+<div class="viewcode-block" id="CNNNetwork.forward"><a class="viewcode-back" href="../../../../pylost_widgets.learning.net.html#pylost_widgets.learning.net.CNNNetwork.CNNNetwork.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cnn_layers</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="c1"># x = x.view(x.size(0), -1)</span>
+        <span class="c1"># x = self.linear_layers(x)</span>
+        <span class="k">return</span> <span class="n">x</span></div></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../index.html">pylost_widgets</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../pylost_widgets.html">pylost_widgets package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

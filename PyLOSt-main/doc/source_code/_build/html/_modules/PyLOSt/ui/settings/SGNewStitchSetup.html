@@ -1,0 +1,337 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PyLOSt.ui.settings.SGNewStitchSetup &#8212; PyLOSt  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/alabaster.css" />
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for PyLOSt.ui.settings.SGNewStitchSetup</h1><div class="highlight"><pre>
+<span></span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Created on Jul 16, 2018</span>
+
+<span class="sd">Retrieve stitch setup options for the instrument and selected algorithm options from database and display in GUI.</span>
+<span class="sd">Save the setup to the h5 file</span>
+
+<span class="sd">@author: adapa</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="kn">import</span> <span class="nn">PyQt5</span>
+<span class="kn">from</span> <span class="nn">PyQt5</span> <span class="kn">import</span> <span class="n">uic</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtWidgets</span> <span class="kn">import</span> <span class="n">QMainWindow</span><span class="p">,</span> <span class="n">QGroupBox</span><span class="p">,</span> <span class="n">QFormLayout</span><span class="p">,</span> <span class="n">QLabel</span><span class="p">,</span> \
+    <span class="n">QLineEdit</span><span class="p">,</span> <span class="n">QComboBox</span><span class="p">,</span> <span class="n">QCheckBox</span><span class="p">,</span> <span class="n">QScrollArea</span><span class="p">,</span> <span class="n">QPushButton</span><span class="p">,</span> <span class="n">QDialog</span>
+
+<span class="kn">from</span> <span class="nn">PyLOSt.databases.gs_table_classes</span> <span class="kn">import</span> <span class="n">StitchSetupOptionsCommon</span><span class="p">,</span> <span class="n">Instruments</span><span class="p">,</span>\
+    <span class="n">StitchSetupOptionsInstr</span><span class="p">,</span> <span class="n">Algorithms</span><span class="p">,</span> <span class="n">StitchSetupAlgoOptions</span><span class="p">,</span> <span class="n">InputDispTypes</span>
+<span class="kn">from</span> <span class="nn">PyLOSt.util.commons</span> <span class="kn">import</span> <span class="n">alertMsg</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="kn">from</span> <span class="nn">PyLOSt.util.resource_path</span> <span class="kn">import</span> <span class="n">resource_path</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="n">ui</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;ui&quot;</span><span class="p">,</span> <span class="s2">&quot;settings&quot;</span><span class="p">,</span> <span class="s2">&quot;add_new_setup.ui&quot;</span><span class="p">)</span>
+<span class="n">qtCreatorFile</span> <span class="o">=</span> <span class="n">resource_path</span><span class="p">(</span><span class="n">ui</span><span class="p">)</span> <span class="c1"># Enter file here.</span>
+
+<span class="n">Ui_MainWindow</span><span class="p">,</span> <span class="n">QtBaseClass</span> <span class="o">=</span> <span class="n">uic</span><span class="o">.</span><span class="n">loadUiType</span><span class="p">(</span><span class="n">qtCreatorFile</span><span class="p">)</span>
+ 
+<div class="viewcode-block" id="SGNewStitchSetup"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGNewStitchSetup.SGNewStitchSetup">[docs]</a><span class="k">class</span> <span class="nc">SGNewStitchSetup</span><span class="p">(</span><span class="n">QMainWindow</span><span class="p">,</span> <span class="n">Ui_MainWindow</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">insTxtId</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">msrEntry</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+        <span class="n">QMainWindow</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">parent</span><span class="p">)</span>
+        <span class="n">Ui_MainWindow</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setupUi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iID</span> <span class="o">=</span> <span class="n">insTxtId</span> <span class="c1">#instrument id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h5Objs</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">h5Objs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">msrEntry</span> <span class="o">=</span> <span class="n">msrEntry</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">curAlgoId</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loadForm</span><span class="p">()</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">btnSave</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">addSetup</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">btnHelpStitch</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">openHelpStitch</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">btnHelpAlgo</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">openHelpAlgo</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SGNewStitchSetup.loadForm"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGNewStitchSetup.SGNewStitchSetup.loadForm">[docs]</a>    <span class="k">def</span> <span class="nf">loadForm</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qinsopts</span> <span class="o">=</span> <span class="n">StitchSetupOptionsInstr</span><span class="o">.</span><span class="n">selectBy</span><span class="p">(</span><span class="n">instrID</span><span class="o">=</span><span class="n">Instruments</span><span class="o">.</span><span class="n">selectBy</span><span class="p">(</span><span class="n">instrId</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">iID</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">formGroupBox</span>   <span class="o">=</span> <span class="n">QGroupBox</span><span class="p">(</span><span class="s2">&quot;Stitching Options&quot;</span><span class="p">)</span>
+        <span class="n">layout</span>              <span class="o">=</span> <span class="n">QFormLayout</span><span class="p">()</span>
+        <span class="n">lbl</span>                 <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="s1">&#39;Setup Name&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">leSetupName</span>    <span class="o">=</span> <span class="n">QLineEdit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">msrEntry</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;_xx&#39;</span><span class="p">)</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addRow</span><span class="p">(</span><span class="n">lbl</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">leSetupName</span><span class="p">)</span>
+        <span class="n">lbl</span>                 <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="s1">&#39;Measurement Data&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">leMsrEntry</span>    <span class="o">=</span> <span class="n">QLineEdit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">msrEntry</span><span class="p">)</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addRow</span><span class="p">(</span><span class="n">lbl</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">leMsrEntry</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eArr</span><span class="o">=</span><span class="p">[]</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">qinsopts</span><span class="p">:</span>
+            <span class="n">copt</span> <span class="o">=</span> <span class="n">StitchSetupOptionsCommon</span><span class="o">.</span><span class="n">selectBy</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">item</span><span class="o">.</span><span class="n">optionID</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">lblTxt</span> <span class="o">=</span> <span class="n">copt</span><span class="o">.</span><span class="n">option</span>
+            <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">defValUnit</span><span class="o">!=</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
+                <span class="n">lblTxt</span> <span class="o">+=</span> <span class="s1">&#39;(&#39;</span><span class="o">+</span><span class="n">item</span><span class="o">.</span><span class="n">defValUnit</span><span class="o">+</span><span class="s1">&#39;)&#39;</span>
+            <span class="n">lblDesc</span> <span class="o">=</span> <span class="n">copt</span><span class="o">.</span><span class="n">optionDesc</span>
+            
+            <span class="n">lbl</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="n">lblTxt</span><span class="p">)</span>
+            <span class="n">lbl</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span><span class="n">lblDesc</span><span class="p">)</span>
+            
+            <span class="n">leditTxt</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">defVal</span>
+            <span class="k">if</span> <span class="n">copt</span><span class="o">.</span><span class="n">option</span><span class="o">==</span><span class="s1">&#39;stitch_algorithm&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">algos</span> <span class="o">=</span> <span class="n">QComboBox</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">qalgos</span> <span class="o">=</span> <span class="n">Algorithms</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
+                
+                <span class="bp">self</span><span class="o">.</span><span class="n">curAlgoId</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">algos</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="s1">&#39;Select algorithm&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">curAlgoId</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">qalgos</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">algos</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="n">it</span><span class="o">.</span><span class="n">algoName</span><span class="p">,</span> <span class="n">it</span><span class="o">.</span><span class="n">id</span><span class="p">)</span> <span class="c1">#+&#39; [ &#39;+it.algoDesc+&#39; ]&#39;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">algos</span><span class="o">.</span><span class="n">currentIndexChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">algoChange</span><span class="p">)</span>
+                
+                <span class="c1">#le = QLineEdit(leditTxt)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">eArr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">algos</span><span class="p">)</span>
+                <span class="n">layout</span><span class="o">.</span><span class="n">addRow</span><span class="p">(</span><span class="n">lbl</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">algos</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">copt</span><span class="o">.</span><span class="n">option</span> <span class="o">==</span> <span class="s1">&#39;stitch_step&#39;</span><span class="p">:</span>
+                        <span class="n">mX</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+                        <span class="k">if</span> <span class="s1">&#39;Data/Scan_1/motor_X&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">h5Objs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">msrEntry</span><span class="p">]:</span>
+                            <span class="n">mX</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">h5Objs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">msrEntry</span><span class="p">][</span><span class="s1">&#39;Data/Scan_1/motor_X&#39;</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="s1">&#39;Data/Scan_f1/motor_X&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">h5Objs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">msrEntry</span><span class="p">]:</span>
+                            <span class="n">mX</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">h5Objs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">msrEntry</span><span class="p">][</span><span class="s1">&#39;Data/Scan_f1/motor_X&#39;</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">mX</span><span class="p">):</span>
+                            <span class="n">leditTxt</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">mX</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">())))</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Exception while retrieving step from motor_X&quot;</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+                <span class="n">le</span> <span class="o">=</span> <span class="n">QLineEdit</span><span class="p">(</span><span class="n">leditTxt</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">eArr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">le</span><span class="p">)</span>
+                <span class="n">layout</span><span class="o">.</span><span class="n">addRow</span><span class="p">(</span><span class="n">lbl</span><span class="p">,</span> <span class="n">le</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">formGroupBox</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">layout</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">formBoxLayout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">formGroupBox</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">formAlgoOptions</span> <span class="o">=</span> <span class="n">QGroupBox</span><span class="p">(</span><span class="s2">&quot;Algorithm Options&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layoutAlgoOptions</span> <span class="o">=</span> <span class="n">QFormLayout</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">formAlgoOptions</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layoutAlgoOptions</span><span class="p">)</span>
+        <span class="n">scroll</span> <span class="o">=</span> <span class="n">QScrollArea</span><span class="p">()</span>
+        <span class="n">scroll</span><span class="o">.</span><span class="n">setWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">formAlgoOptions</span><span class="p">)</span>
+        <span class="n">scroll</span><span class="o">.</span><span class="n">setWidgetResizable</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">formBoxLayout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">scroll</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="SGNewStitchSetup.addSetup"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGNewStitchSetup.SGNewStitchSetup.addSetup">[docs]</a>    <span class="k">def</span> <span class="nf">addSetup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># valiation</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">curAlgoId</span><span class="o">==-</span><span class="mi">1</span><span class="p">:</span> <span class="n">alertMsg</span><span class="p">(</span><span class="s1">&#39;Add Stitch Setup&#39;</span><span class="p">,</span> <span class="s1">&#39;Please select an algorithm&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">it</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">qalgoopts</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">it</span><span class="o">.</span><span class="n">option</span><span class="o">==</span><span class="s1">&#39;data_type&#39;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">aArr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">currentText</span><span class="p">()</span><span class="o">==</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
+                <span class="n">alertMsg</span><span class="p">(</span><span class="s1">&#39;Algorithm options&#39;</span><span class="p">,</span> <span class="s1">&#39;Please select data_type&#39;</span><span class="p">)</span>
+                <span class="k">return</span>
+
+        <span class="n">stitchPath</span> <span class="o">=</span> <span class="s1">&#39;StitchResults/&#39;</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">leSetupName</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+        <span class="k">while</span> <span class="n">stitchPath</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">h5Objs</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="n">alertMsg</span><span class="p">(</span><span class="s1">&#39;Setup name already exist&#39;</span><span class="p">,</span> <span class="s1">&#39;Please change setup name&#39;</span><span class="p">)</span>
+            <span class="k">return</span>
+        
+        <span class="n">setup</span>                                                                   <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">h5Objs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">create_group</span><span class="p">(</span><span class="n">stitchPath</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h5Objs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;StitchResults&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="sa">u</span><span class="s1">&#39;NX_class&#39;</span><span class="p">]</span>                      <span class="o">=</span> <span class="sa">u</span><span class="s1">&#39;NXentry&#39;</span>
+        <span class="n">setup</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="sa">u</span><span class="s1">&#39;NX_class&#39;</span><span class="p">]</span>                                                <span class="o">=</span> <span class="sa">u</span><span class="s1">&#39;NXprocess&#39;</span>
+        <span class="n">setup</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="sa">u</span><span class="s1">&#39;measurement_entry&#39;</span><span class="p">]</span>                                       <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">leMsrEntry</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+        <span class="n">setup</span><span class="p">[</span><span class="sa">u</span><span class="s1">&#39;measurement_entry&#39;</span><span class="p">]</span>                                             <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">leMsrEntry</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+        
+<span class="c1">#         qinsopts        = StitchSetupOptionsInstr.selectBy(instrID=Instruments.selectBy(instrId=self.iID)[0].id)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">it</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">qinsopts</span><span class="p">):</span>
+            <span class="n">copt</span>                                       <span class="o">=</span> <span class="n">StitchSetupOptionsCommon</span><span class="o">.</span><span class="n">selectBy</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">it</span><span class="o">.</span><span class="n">optionID</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">copt</span><span class="o">.</span><span class="n">option</span><span class="o">==</span><span class="s1">&#39;stitch_algorithm&#39;</span><span class="p">:</span>
+                <span class="n">calgo</span>                                  <span class="o">=</span> <span class="n">Algorithms</span><span class="o">.</span><span class="n">selectBy</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">curAlgoId</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">setup</span><span class="p">[</span><span class="n">copt</span><span class="o">.</span><span class="n">option</span><span class="p">]</span>                     <span class="o">=</span> <span class="n">calgo</span><span class="o">.</span><span class="n">algoName</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">setup</span><span class="p">[</span><span class="n">copt</span><span class="o">.</span><span class="n">option</span><span class="p">]</span>                     <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eArr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">()</span> <span class="c1">#copt.defVal</span>
+            <span class="n">setup</span><span class="p">[</span><span class="n">copt</span><span class="o">.</span><span class="n">option</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="sa">u</span><span class="s1">&#39;units&#39;</span><span class="p">]</span>         <span class="o">=</span> <span class="n">copt</span><span class="o">.</span><span class="n">defValUnit</span>
+        
+        <span class="c1"># Algorithms options</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">it</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">qalgoopts</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">aArrType</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;E&#39;</span><span class="p">:</span>         <span class="n">setup</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">it</span><span class="o">.</span><span class="n">option</span><span class="p">]</span>                 <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aArr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">aArrType</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;C&#39;</span><span class="p">:</span>       <span class="n">setup</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">it</span><span class="o">.</span><span class="n">option</span><span class="p">]</span>                 <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aArr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">isChecked</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">aArrType</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;S&#39;</span><span class="p">:</span>       <span class="n">setup</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">it</span><span class="o">.</span><span class="n">option</span><span class="p">]</span>                 <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aArr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">currentText</span><span class="p">()</span>
+            <span class="k">else</span> <span class="p">:</span>                              <span class="n">setup</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">it</span><span class="o">.</span><span class="n">option</span><span class="p">]</span>                 <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aArr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">syncH5Obj</span><span class="p">(</span><span class="n">setup</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">leSaveMask</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="o">+</span><span class="n">stitchPath</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+    
+<div class="viewcode-block" id="SGNewStitchSetup.algoChange"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGNewStitchSetup.SGNewStitchSetup.algoChange">[docs]</a>    <span class="k">def</span> <span class="nf">algoChange</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">i</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">curAlgoId</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">algos</span><span class="o">.</span><span class="n">itemData</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="c1">#.toInt()[0]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">updateAlgoLayout</span><span class="p">()</span></div>
+    
+<div class="viewcode-block" id="SGNewStitchSetup.updateAlgoLayout"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGNewStitchSetup.SGNewStitchSetup.updateAlgoLayout">[docs]</a>    <span class="k">def</span> <span class="nf">updateAlgoLayout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clearLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layoutAlgoOptions</span><span class="p">)</span>
+        <span class="c1">#self.qalgoopts = StitchSetupAlgoOptions.selectBy(algoID=self.curAlgoId)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qalgoopts</span> <span class="o">=</span> <span class="n">StitchSetupAlgoOptions</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">StitchSetupAlgoOptions</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">algoID</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">curAlgoId</span><span class="p">,</span> <span class="n">orderBy</span><span class="o">=</span><span class="n">StitchSetupAlgoOptions</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">aArr</span><span class="o">=</span><span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">aArrType</span><span class="o">=</span><span class="p">[]</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">qalgoopts</span><span class="p">:</span>
+            <span class="n">lblTxt</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">option</span>
+            <span class="n">lblDesc</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">optionDesc</span>
+            <span class="n">leditTxt</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">defVal</span>
+            
+            <span class="n">lbl</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="n">lblTxt</span><span class="p">)</span>
+            <span class="n">lbl</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span><span class="n">lblDesc</span><span class="p">)</span>
+            
+            <span class="n">disp_item</span> <span class="o">=</span> <span class="n">InputDispTypes</span><span class="o">.</span><span class="n">selectBy</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">item</span><span class="o">.</span><span class="n">dispTypeID</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">disp_item</span><span class="o">.</span><span class="n">dispType</span><span class="o">==</span><span class="s1">&#39;E&#39;</span><span class="p">:</span> <span class="c1">#Lineedit</span>
+                <span class="n">le</span> <span class="o">=</span> <span class="n">QLineEdit</span><span class="p">(</span><span class="n">leditTxt</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">layoutAlgoOptions</span><span class="o">.</span><span class="n">addRow</span><span class="p">(</span><span class="n">lbl</span><span class="p">,</span> <span class="n">le</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">disp_item</span><span class="o">.</span><span class="n">dispType</span><span class="o">==</span><span class="s1">&#39;C&#39;</span><span class="p">:</span> <span class="c1">#Checkbox</span>
+                <span class="n">le</span> <span class="o">=</span> <span class="n">QCheckBox</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+                <span class="n">le</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="kc">True</span> <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">defVal</span><span class="o">==</span><span class="s1">&#39;Y&#39;</span> <span class="k">else</span> <span class="kc">False</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">layoutAlgoOptions</span><span class="o">.</span><span class="n">addRow</span><span class="p">(</span><span class="n">lbl</span><span class="p">,</span> <span class="n">le</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">disp_item</span><span class="o">.</span><span class="n">dispType</span><span class="o">==</span><span class="s1">&#39;S&#39;</span><span class="p">:</span> <span class="c1">#Selectbox</span>
+                <span class="n">le</span> <span class="o">=</span> <span class="n">QComboBox</span><span class="p">()</span>
+                <span class="n">le</span><span class="o">.</span><span class="n">addItems</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span><span class="n">item</span><span class="o">.</span><span class="n">allVals</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">layoutAlgoOptions</span><span class="o">.</span><span class="n">addRow</span><span class="p">(</span><span class="n">lbl</span><span class="p">,</span> <span class="n">le</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">le</span> <span class="o">=</span> <span class="n">QLineEdit</span><span class="p">(</span><span class="n">leditTxt</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">layoutAlgoOptions</span><span class="o">.</span><span class="n">addRow</span><span class="p">(</span><span class="n">lbl</span><span class="p">,</span> <span class="n">le</span><span class="p">)</span>
+        
+            <span class="bp">self</span><span class="o">.</span><span class="n">aArr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">le</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">aArrType</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">disp_item</span><span class="o">.</span><span class="n">dispType</span><span class="p">)</span></div>
+            
+<div class="viewcode-block" id="SGNewStitchSetup.clearLayout"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGNewStitchSetup.SGNewStitchSetup.clearLayout">[docs]</a>    <span class="k">def</span> <span class="nf">clearLayout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">layout</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">layout</span><span class="o">.</span><span class="n">count</span><span class="p">())):</span> 
+            <span class="n">layout</span><span class="o">.</span><span class="n">itemAt</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">widget</span><span class="p">()</span><span class="o">.</span><span class="n">setParent</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SGNewStitchSetup.openHelpStitch"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGNewStitchSetup.SGNewStitchSetup.openHelpStitch">[docs]</a>    <span class="k">def</span> <span class="nf">openHelpStitch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">QDialog</span><span class="p">()</span>
+        <span class="n">formGroupBox</span>    <span class="o">=</span> <span class="n">QGroupBox</span><span class="p">(</span><span class="s2">&quot;Stitching Options&quot;</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+        <span class="n">layout</span>          <span class="o">=</span> <span class="n">QFormLayout</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">qinsopts</span><span class="p">:</span>
+            <span class="n">copt</span> <span class="o">=</span> <span class="n">StitchSetupOptionsCommon</span><span class="o">.</span><span class="n">selectBy</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">item</span><span class="o">.</span><span class="n">optionID</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">lblTxt</span> <span class="o">=</span> <span class="n">copt</span><span class="o">.</span><span class="n">option</span>
+            <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">defValUnit</span><span class="o">!=</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
+                <span class="n">lblTxt</span> <span class="o">+=</span> <span class="s1">&#39; (&#39;</span><span class="o">+</span><span class="n">item</span><span class="o">.</span><span class="n">defValUnit</span><span class="o">+</span><span class="s1">&#39;)&#39;</span>
+            <span class="n">lblTxt</span> <span class="o">+=</span> <span class="s1">&#39; : &#39;</span>
+            <span class="n">lblDesc</span> <span class="o">=</span> <span class="n">copt</span><span class="o">.</span><span class="n">optionDesc</span>
+            <span class="n">lbl1</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="n">lblTxt</span><span class="p">)</span>
+            <span class="n">lbl2</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="n">lblDesc</span><span class="p">)</span>
+            <span class="n">layout</span><span class="o">.</span><span class="n">addRow</span><span class="p">(</span><span class="n">lbl1</span><span class="p">,</span> <span class="n">lbl2</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">copt</span><span class="o">.</span><span class="n">option</span><span class="o">==</span><span class="s1">&#39;stitch_algorithm&#39;</span><span class="p">:</span>
+                <span class="n">qalgos</span> <span class="o">=</span> <span class="n">Algorithms</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="n">qalgos</span><span class="p">:</span>
+                    <span class="n">lbl3</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="s1">&#39; - &#39;</span><span class="o">+</span><span class="n">it</span><span class="o">.</span><span class="n">algoName</span><span class="p">)</span>
+                    <span class="n">lbl4</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="n">it</span><span class="o">.</span><span class="n">algoDesc</span><span class="p">)</span>
+                    <span class="n">layout</span><span class="o">.</span><span class="n">addRow</span><span class="p">(</span><span class="n">lbl3</span><span class="p">,</span> <span class="n">lbl4</span><span class="p">)</span>
+
+        <span class="n">formGroupBox</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">layout</span><span class="p">)</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="s2">&quot;Stitching options dialog&quot;</span><span class="p">)</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="mi">800</span><span class="p">,</span><span class="mi">400</span><span class="p">)</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="SGNewStitchSetup.openHelpAlgo"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGNewStitchSetup.SGNewStitchSetup.openHelpAlgo">[docs]</a>    <span class="k">def</span> <span class="nf">openHelpAlgo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">curAlgoId</span><span class="o">==-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">alertMsg</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;Select algorithm&#39;</span><span class="p">,</span><span class="n">msg</span><span class="o">=</span><span class="s1">&#39;Please select an algorithm in the stitching options&#39;</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">QDialog</span><span class="p">()</span>
+        <span class="n">formGroupBox</span>    <span class="o">=</span> <span class="n">QGroupBox</span><span class="p">(</span><span class="s2">&quot;Algorithm Options&quot;</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+        <span class="n">layout</span>          <span class="o">=</span> <span class="n">QFormLayout</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">qalgoopts</span><span class="p">:</span>
+            <span class="n">lblTxt</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">option</span><span class="o">+</span><span class="s1">&#39; : &#39;</span>
+            <span class="n">lblDesc</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">optionDesc</span>
+            <span class="n">lbl1</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="n">lblTxt</span><span class="p">)</span>
+            <span class="n">lbl2</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="n">lblDesc</span><span class="p">)</span>
+            <span class="n">layout</span><span class="o">.</span><span class="n">addRow</span><span class="p">(</span><span class="n">lbl1</span><span class="p">,</span> <span class="n">lbl2</span><span class="p">)</span>
+
+        <span class="n">formGroupBox</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">layout</span><span class="p">)</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="s2">&quot;Algorithm options dialog&quot;</span><span class="p">)</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="mi">800</span><span class="p">,</span><span class="mi">800</span><span class="p">)</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span></div></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../index.html">PyLOSt</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../PyLOSt.html">PyLOSt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quick_guide.html">Quick Guide</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

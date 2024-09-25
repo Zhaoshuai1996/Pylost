@@ -1,0 +1,390 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PyLOSt.data_in.francois_esrf.veeco &#8212; PyLOSt  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/alabaster.css" />
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for PyLOSt.data_in.francois_esrf.veeco</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Created on Mon Aug  3 12:05:38 2020</span>
+
+<span class="sd">https://scipython.com/blog/non-linear-least-squares-fitting-of-a-two-dimensional-data/</span>
+
+<span class="sd">http://research.endlessfernweh.com/wp-content/uploads/week4_fitting.pdf</span>
+
+<span class="sd">http://logical.ai/conic/org/fitting.html</span>
+
+<span class="sd">https://core.ac.uk/download/pdf/82101893.pdf</span>
+
+<span class="sd">https://www.sciencedirect.com/science/article/pii/S0024379503007535</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># pylint: disable=C0103, C0115, C0116</span>
+<span class="c1"># pylint: disable=R0902, R0903, R0904</span>
+
+<span class="kn">import</span> <span class="nn">datetime</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span>
+
+<span class="kn">from</span> <span class="nn">PyLOSt.data_in.francois_esrf.generic</span> <span class="kn">import</span> <span class="n">ESRFOpticsLabData</span><span class="p">,</span> <span class="n">Surface</span>
+
+
+
+<span class="n">BPF</span> <span class="o">=</span> <span class="mf">1e+38</span>
+<span class="n">BLCK_SIZE</span> <span class="o">=</span> <span class="mi">24</span>
+
+
+<div class="viewcode-block" id="OpdData"><a class="viewcode-back" href="../../../../PyLOSt.data_in.francois_esrf.html#PyLOSt.data_in.francois_esrf.veeco.OpdData">[docs]</a><span class="k">class</span> <span class="nc">OpdData</span><span class="p">(</span><span class="n">ESRFOpticsLabData</span><span class="p">,</span> <span class="n">Surface</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Vision32 data class.&#39;&#39;&#39;</span>
+    <span class="n">kind</span> <span class="o">=</span> <span class="s1">&#39;heights map&#39;</span>
+    <span class="n">method</span> <span class="o">=</span> <span class="s1">&#39;White Light Interferometry&#39;</span>
+    <span class="n">instrument</span> <span class="o">=</span> <span class="s2">&quot;WYKO NT 9300 (Veeco)&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">header_size</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">note</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_raw_shape</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">piston</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tilt_x</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tilt_y</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rot_xy</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">majcyl</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mincyl</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="p">{</span>
+                      <span class="s1">&#39;coords&#39;</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span> <span class="s1">&#39;values&#39;</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">nm</span><span class="p">,</span>
+                      <span class="s1">&#39;height&#39;</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">nm</span><span class="p">,</span> <span class="s1">&#39;angle&#39;</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">urad</span><span class="p">,</span>
+                      <span class="s1">&#39;length&#39;</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span> <span class="s1">&#39;radius&#39;</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">km</span><span class="p">,</span>
+                      <span class="s1">&#39;pixel&#39;</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span>
+                      <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">terms</span> <span class="o">=</span> <span class="s1">&#39;No terms&#39;</span>
+
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;Veeco 2D surface map&#39;</span>
+
+
+    <span class="c1"># ----overriding----</span>
+<div class="viewcode-block" id="OpdData.readfile"><a class="viewcode-back" href="../../../../PyLOSt.data_in.francois_esrf.html#PyLOSt.data_in.francois_esrf.veeco.OpdData.readfile">[docs]</a>    <span class="k">def</span> <span class="nf">readfile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span> <span class="c1"># pylint: disable=unused-argument</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">opd_file</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">rpartition</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">name</span>
+
+            <span class="n">block_ppos</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">directory</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">opd_block</span><span class="p">(</span><span class="n">opd_file</span><span class="p">,</span> <span class="n">block_ppos</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s1">&#39;Directory&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">directory</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Unable to read Directory entry, aborting...&#39;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="bp">self</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">header_size</span> <span class="o">=</span> <span class="n">directory</span><span class="o">.</span><span class="n">len</span>
+            <span class="n">num_block_max</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">header_size</span> <span class="o">/</span> <span class="p">(</span><span class="n">BLCK_SIZE</span><span class="o">+</span><span class="mi">2</span><span class="p">))</span>
+
+            <span class="n">blocks</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_block_max</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span> <span class="c1"># pylint: disable=unused-variable</span>
+                <span class="n">block_ppos</span> <span class="o">+=</span> <span class="n">BLCK_SIZE</span>
+                <span class="n">block</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">opd_block</span><span class="p">(</span><span class="n">opd_file</span><span class="p">,</span> <span class="n">block_ppos</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">block</span><span class="o">.</span><span class="n">signature</span> <span class="o">!=</span><span class="mi">0</span><span class="p">:</span>
+                    <span class="n">blocks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">block</span><span class="p">)</span>
+
+            <span class="n">opd_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">header_size</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">blocks</span><span class="p">:</span>
+                <span class="n">block</span><span class="o">.</span><span class="n">decode_value</span><span class="p">(</span><span class="n">opd_file</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">block</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;RAW_DATA&#39;</span><span class="p">:</span>
+                    <span class="n">rawdata</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">block</span><span class="o">.</span><span class="n">value</span><span class="o">&lt;</span><span class="n">BPF</span><span class="p">,</span> <span class="n">block</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">block</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;Raw&#39;</span><span class="p">:</span> <span class="c1">######### Bruker GTX </span>
+                    <span class="n">rawdata</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">block</span><span class="o">.</span><span class="n">value</span><span class="o">&lt;</span><span class="n">BPF</span><span class="p">,</span> <span class="n">block</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="n">block</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">block</span><span class="o">.</span><span class="n">value</span>
+
+            <span class="c1"># stage positions: inches to mm</span>
+            <span class="k">if</span> <span class="s1">&#39;StageX&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;StageX&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;StageX&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mf">25.4</span>
+            <span class="k">if</span> <span class="s1">&#39;StageY&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;StageY&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;StageY&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mf">25.4</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;Pixel_size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;Pixel_size&#39;</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;Wavelength&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;Wavelength&#39;</span><span class="p">])</span>
+
+            <span class="c1"># nanometers</span>
+            <span class="n">rawdata</span> <span class="o">=</span> <span class="n">rawdata</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;Wavelength&#39;</span><span class="p">]</span>
+            <span class="n">rawdata</span> <span class="o">-=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">rawdata</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_raw_shape</span> <span class="o">=</span> <span class="n">rawdata</span><span class="o">.</span><span class="n">shape</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">initial</span> <span class="o">=</span> <span class="n">Surface</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">),</span> <span class="n">rawdata</span><span class="p">,</span>
+                                   <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+    <span class="c1"># ----properties----</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">datetime</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">]</span>
+        <span class="n">time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">date</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">time</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;%m/</span><span class="si">%d</span><span class="s1">/%Y %H:%M:%S&#39;</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_raw_shape</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">shape</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">pixel_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;Pixel_size&#39;</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">[</span><span class="s1">&#39;coords&#39;</span><span class="p">]</span>
+        <span class="c1"># return self.units[&#39;coords&#39;](self.header[&#39;Pixel_size&#39;], u.mm)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">x</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">pixel_size</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                           <span class="n">endpoint</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">y</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">pixel_size</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                           <span class="n">endpoint</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">title</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">]</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;MeasMode&#39;</span><span class="p">]</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">objective</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ObjectiveLabel&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">magnification</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">magnification</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">mag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;Magnification&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mag</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1"> X&#39;</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">fov</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">default</span> <span class="o">=</span> <span class="s1">&#39;1 X&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;FOVLabel&#39;</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">stage_x</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;StageX&#39;</span><span class="p">]</span> <span class="c1"># mm</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">0.0</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">stage_y</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;StageY&#39;</span><span class="p">]</span> <span class="c1"># mm</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">0.0</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">average</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;Averages&#39;</span><span class="p">]</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">wavelength</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;Wavelength&#39;</span><span class="p">]</span> <span class="c1"># nm</span>
+
+
+    <span class="c1"># ----analysis----</span>
+<div class="viewcode-block" id="OpdData.remove_plane"><a class="viewcode-back" href="../../../../PyLOSt.data_in.francois_esrf.html#PyLOSt.data_in.francois_esrf.veeco.OpdData.remove_plane">[docs]</a>    <span class="k">def</span> <span class="nf">remove_plane</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reload</span><span class="p">()</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plane_removal</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">auto_units</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">piston</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">[</span><span class="s1">&#39;height&#39;</span><span class="p">](</span><span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">u</span><span class="o">.</span><span class="n">nm</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tilt_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">[</span><span class="s1">&#39;angle&#39;</span><span class="p">](</span><span class="n">res</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">u</span><span class="o">.</span><span class="n">urad</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tilt_y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">[</span><span class="s1">&#39;angle&#39;</span><span class="p">](</span><span class="n">res</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">u</span><span class="o">.</span><span class="n">urad</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rot_xy</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">majcyl</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mincyl</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit</span> <span class="o">=</span> <span class="s1">&#39;plane&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">terms</span> <span class="o">=</span> <span class="s1">&#39;Tilt&#39;</span></div>
+
+<div class="viewcode-block" id="OpdData.remove_cylinder"><a class="viewcode-back" href="../../../../PyLOSt.data_in.francois_esrf.html#PyLOSt.data_in.francois_esrf.veeco.OpdData.remove_cylinder">[docs]</a>    <span class="k">def</span> <span class="nf">remove_cylinder</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reload</span><span class="p">()</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cylinder_removal</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">piston</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">[</span><span class="s1">&#39;height&#39;</span><span class="p">](</span><span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">u</span><span class="o">.</span><span class="n">nm</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tilt_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">[</span><span class="s1">&#39;angle&#39;</span><span class="p">](</span><span class="n">res</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">u</span><span class="o">.</span><span class="n">urad</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tilt_y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">[</span><span class="s1">&#39;angle&#39;</span><span class="p">](</span><span class="n">res</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">u</span><span class="o">.</span><span class="n">urad</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rot_xy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">[</span><span class="s1">&#39;angle&#39;</span><span class="p">](</span><span class="n">res</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">u</span><span class="o">.</span><span class="n">urad</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">majcyl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">[</span><span class="s1">&#39;radius&#39;</span><span class="p">](</span><span class="n">res</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">u</span><span class="o">.</span><span class="n">km</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mincyl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">[</span><span class="s1">&#39;radius&#39;</span><span class="p">](</span><span class="n">res</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span> <span class="n">u</span><span class="o">.</span><span class="n">km</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit</span> <span class="o">=</span> <span class="s1">&#39;conic&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">terms</span> <span class="o">=</span> <span class="s1">&#39;Cylinder &amp; Tilt&#39;</span></div>
+
+<div class="viewcode-block" id="OpdData.remove_sphere"><a class="viewcode-back" href="../../../../PyLOSt.data_in.francois_esrf.html#PyLOSt.data_in.francois_esrf.veeco.OpdData.remove_sphere">[docs]</a>    <span class="k">def</span> <span class="nf">remove_sphere</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reload</span><span class="p">()</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sphere_removal</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">piston</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">[</span><span class="s1">&#39;height&#39;</span><span class="p">](</span><span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tilt_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">[</span><span class="s1">&#39;angle&#39;</span><span class="p">](</span><span class="n">res</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="mf">10e3</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tilt_y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">[</span><span class="s1">&#39;angle&#39;</span><span class="p">](</span><span class="n">res</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="mf">10e3</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">curvature</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">[</span><span class="s1">&#39;curvature&#39;</span><span class="p">](</span><span class="n">res</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">u</span><span class="o">.</span><span class="n">m_inv</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit</span> <span class="o">=</span> <span class="s1">&#39;sphere&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">terms</span> <span class="o">=</span> <span class="s1">&#39;Sphere &amp; Tilt&#39;</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">histogram</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">masking</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="c1"># plt.plot(histo[1][:-1], histo[0])</span>
+
+<div class="viewcode-block" id="OpdData.opd_block"><a class="viewcode-back" href="../../../../PyLOSt.data_in.francois_esrf.html#PyLOSt.data_in.francois_esrf.veeco.OpdData.opd_block">[docs]</a>    <span class="k">class</span> <span class="nc">opd_block</span><span class="p">():</span>
+        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">ppos</span><span class="p">):</span>
+            <span class="n">file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">ppos</span><span class="p">)</span>
+            <span class="n">block</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">BLCK_SIZE</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">signature</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">block</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">short</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">signature</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">block</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">18</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">errors</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">block</span><span class="p">[</span><span class="mi">18</span><span class="p">:</span><span class="mi">20</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">short</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">len</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">block</span><span class="p">[</span><span class="mi">20</span><span class="p">:</span><span class="mi">24</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">long</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">attr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">block</span><span class="p">[</span><span class="mi">24</span><span class="p">:</span><span class="mi">26</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ushort</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="OpdData.opd_block.decode_value"><a class="viewcode-back" href="../../../../PyLOSt.data_in.francois_esrf.html#PyLOSt.data_in.francois_esrf.veeco.OpdData.opd_block.decode_value">[docs]</a>        <span class="k">def</span> <span class="nf">decode_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">):</span>
+            <span class="n">buf</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">len</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span> <span class="c1"># array of data</span>
+                <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">elsize</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">buf</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">6</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ushort</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span>
+                <span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">single</span>
+                <span class="k">if</span> <span class="n">elsize</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">short</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">buf</span><span class="p">[</span><span class="mi">6</span><span class="p">:],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">),</span>
+                                       <span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span> <span class="c1"># string</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">buf</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="mi">6</span><span class="p">:</span> <span class="c1"># short</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">short</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="mi">7</span><span class="p">:</span> <span class="c1"># float</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">single</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span><span class="o">==</span> <span class="mi">2</span> <span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">half</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="mi">8</span><span class="p">:</span> <span class="c1"># double</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="mi">12</span><span class="p">:</span> <span class="c1"># long</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">long</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div></div></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="c1"># data = OpdData.read(r&#39;..\..\tests\veeco\CO3729_beforeML_pt_5X1_1.opd&#39;)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">OpdData</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;..\..\tests\PyLOSt\VF2_ST-Vision-ave32-80%_25X1_S4-ave10.opd&#39;</span><span class="p">)</span>
+    <span class="c1"># data.remove_plane()</span>
+    <span class="c1"># data.remove_sphere()</span>
+    <span class="c1"># data.remove_cylinder()</span>
+    <span class="c1"># data.remove_ellipse()</span>
+
+    <span class="c1"># data.ellipse_removal(51.5, 0.15, 6)</span>
+    <span class="c1"># data.plot()</span>
+    <span class="c1"># print(data.pv, data.rms)</span>
+
+    <span class="n">data</span><span class="o">.</span><span class="n">set_ellipse</span><span class="p">(</span><span class="mf">51.5</span><span class="p">,</span> <span class="mf">0.150</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+    <span class="n">opt</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">ellipse</span><span class="o">.</span><span class="n">optimize</span><span class="p">()</span>
+    <span class="n">opt</span><span class="o">.</span><span class="n">residues</span><span class="o">.</span><span class="n">mean_removal</span><span class="p">()</span>
+
+    <span class="c1"># from esrf.data.generic import Profile</span>
+    <span class="c1"># center = Profile(opt.residues.coords[0], opt.residues.values[:, 62], opt.residues.units, kind=&#39;heights&#39;)</span>
+
+    <span class="c1"># center = Profile(data.coords[0], data.values[:, 62], data.units, kind=&#39;heights&#39;)</span>
+    <span class="c1"># center.set_ellipse(51.5, 0.150, 6)</span>
+    <span class="c1"># optcenter = center.ellipse.optimize()</span>
+    <span class="c1"># optcenter.residues.plot()</span>
+
+    <span class="c1"># data.plot()</span>
+    <span class="n">opt</span><span class="o">.</span><span class="n">residues</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">residues</span><span class="o">.</span><span class="n">pv</span><span class="p">,</span> <span class="n">opt</span><span class="o">.</span><span class="n">residues</span><span class="o">.</span><span class="n">rms</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../index.html">PyLOSt</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../PyLOSt.html">PyLOSt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quick_guide.html">Quick Guide</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

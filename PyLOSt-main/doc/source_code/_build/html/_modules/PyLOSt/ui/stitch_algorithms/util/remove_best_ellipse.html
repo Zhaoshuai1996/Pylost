@@ -1,0 +1,361 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PyLOSt.ui.stitch_algorithms.util.remove_best_ellipse &#8212; PyLOSt  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/alabaster.css" />
+    <script data-url_root="../../../../../" id="documentation_options" src="../../../../../_static/documentation_options.js"></script>
+    <script src="../../../../../_static/jquery.js"></script>
+    <script src="../../../../../_static/underscore.js"></script>
+    <script src="../../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for PyLOSt.ui.stitch_algorithms.util.remove_best_ellipse</h1><div class="highlight"><pre>
+<span></span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Created on Nov 6, 2018</span>
+
+<span class="sd">1. Fit p,q,theta for all lines, avg them</span>
+<span class="sd">2. Use p,q,theta of central line</span>
+<span class="sd">3. Find p,q,theta to minimize total elliptical fit residual of all lines</span>
+
+<span class="sd">@author: ADAPA</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">PyLOSt.algorithms.util.util_fit</span> <span class="kn">import</span> <span class="n">fit2D</span><span class="p">,</span> <span class="n">getXYGrid</span>
+<span class="kn">from</span> <span class="nn">scipy.optimize.minpack</span> <span class="kn">import</span> <span class="n">curve_fit</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">integrate</span>
+
+
+<div class="viewcode-block" id="remEllipseData"><a class="viewcode-back" href="../../../../../PyLOSt.ui.stitch_algorithms.util.html#PyLOSt.ui.stitch_algorithms.util.remove_best_ellipse.remEllipseData">[docs]</a><span class="k">def</span> <span class="nf">remEllipseData</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">mirType</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">theta</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">pixSize</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">useGravityCor</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dataType</span><span class="o">=</span><span class="s1">&#39;h&#39;</span><span class="p">,</span><span class="n">optimizeType</span><span class="o">=</span><span class="s1">&#39;h_fit&#39;</span><span class="p">,</span> <span class="n">line</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Remove best ellipse from 2D slopes/height</span>
+
+<span class="sd">    :param data: Slope/height data</span>
+<span class="sd">    :param mirType: Saved mirror type</span>
+<span class="sd">    :param p: Distance from source</span>
+<span class="sd">    :param q: Distance to sample</span>
+<span class="sd">    :param theta: Beam angle</span>
+<span class="sd">    :param pixSize: Pixel size</span>
+<span class="sd">    :param mask: Mask of input data</span>
+<span class="sd">    :param useGravityCor: Correct for gravity flag</span>
+<span class="sd">    :param dataType: Data type slope/height</span>
+<span class="sd">    :param optimizeType: Optimize for best ellipse in slopes or height</span>
+<span class="sd">    :return: Dictionary of ellipse params (p,q,theta) and residuals</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">mirType</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># TODO</span>
+        <span class="n">mirData</span> <span class="o">=</span> <span class="n">getMirSpecificData</span><span class="p">(</span><span class="n">mirType</span><span class="p">)</span>
+        <span class="n">mask</span>    <span class="o">=</span> <span class="n">mirData</span><span class="p">[</span><span class="s1">&#39;mask&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">mask</span><span class="o">==</span><span class="kc">None</span> <span class="k">else</span> <span class="n">mask</span>
+        <span class="n">p</span>       <span class="o">=</span> <span class="n">mirData</span><span class="p">[</span><span class="s1">&#39;p&#39;</span><span class="p">]</span> 
+        <span class="n">q</span>       <span class="o">=</span> <span class="n">mirData</span><span class="p">[</span><span class="s1">&#39;q&#39;</span><span class="p">]</span>
+        <span class="n">theta</span>   <span class="o">=</span> <span class="n">mirData</span><span class="p">[</span><span class="s1">&#39;theta&#39;</span><span class="p">]</span>
+        
+    <span class="n">mask</span>            <span class="o">=</span> <span class="n">mask</span><span class="o">*~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span> <span class="k">else</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">xx</span><span class="p">,</span><span class="n">yy</span>           <span class="o">=</span> <span class="n">getXYGrid</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">pixSize</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">)</span>
+
+    <span class="c1"># fit for central line</span>
+    <span class="n">c</span>               <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="k">if</span> <span class="n">line</span><span class="o">==-</span><span class="mi">1</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+    <span class="n">xc</span>              <span class="o">=</span> <span class="n">xx</span><span class="p">[</span><span class="n">c</span><span class="p">][</span><span class="n">mask</span><span class="p">[</span><span class="n">c</span><span class="p">]]</span>
+    <span class="k">if</span> <span class="n">dataType</span><span class="o">==</span><span class="s1">&#39;h&#39;</span><span class="p">:</span>
+        <span class="n">sx</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">c</span><span class="p">][</span><span class="n">mask</span><span class="p">[</span><span class="n">c</span><span class="p">]]</span>
+    <span class="k">elif</span> <span class="n">dataType</span><span class="o">==</span><span class="s1">&#39;s&#39;</span><span class="p">:</span>
+        <span class="n">sx</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">c</span><span class="p">][</span><span class="n">mask</span><span class="p">[</span><span class="n">c</span><span class="p">]]</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">S</span> <span class="o">=</span> <span class="n">remEllipseLine</span><span class="p">(</span><span class="n">xc</span><span class="p">,</span> <span class="n">sx</span><span class="o">=</span><span class="n">sx</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="n">z</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="n">q</span><span class="p">,</span> <span class="n">theta</span><span class="o">=</span><span class="n">theta</span><span class="p">,</span> <span class="n">dataType</span><span class="o">=</span><span class="n">dataType</span><span class="p">,</span> <span class="n">optimizeType</span><span class="o">=</span><span class="n">optimizeType</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">dataType</span> <span class="o">==</span> <span class="s1">&#39;s&#39;</span><span class="p">:</span>
+        <span class="n">sf</span> <span class="o">=</span> <span class="n">sfit_fn</span><span class="p">((</span><span class="n">xx</span> <span class="o">*</span> <span class="mf">1e-3</span><span class="p">,</span> <span class="n">p</span><span class="p">),</span> <span class="n">S</span><span class="p">[</span><span class="s1">&#39;q&#39;</span><span class="p">],</span> <span class="n">S</span><span class="p">[</span><span class="s1">&#39;theta&#39;</span><span class="p">],</span> <span class="n">S</span><span class="p">[</span><span class="s1">&#39;tilt&#39;</span><span class="p">])</span>
+        <span class="n">se</span> <span class="o">=</span> <span class="n">data</span> <span class="o">-</span> <span class="n">sf</span>
+        <span class="n">S</span><span class="p">[</span><span class="s1">&#39;se&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">se</span>
+    <span class="k">elif</span> <span class="n">dataType</span> <span class="o">==</span> <span class="s1">&#39;h&#39;</span><span class="p">:</span>
+        <span class="n">zf</span> <span class="o">=</span> <span class="n">zfit_fn</span><span class="p">((</span><span class="n">xx</span> <span class="o">*</span> <span class="mf">1e-3</span><span class="p">,</span> <span class="n">p</span><span class="p">),</span> <span class="n">S</span><span class="p">[</span><span class="s1">&#39;q&#39;</span><span class="p">],</span> <span class="n">S</span><span class="p">[</span><span class="s1">&#39;theta&#39;</span><span class="p">],</span> <span class="n">S</span><span class="p">[</span><span class="s1">&#39;tilt&#39;</span><span class="p">])</span>
+        <span class="n">ze</span> <span class="o">=</span> <span class="n">data</span> <span class="o">-</span> <span class="n">zf</span>
+        <span class="n">S</span><span class="p">[</span><span class="s1">&#39;ze&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ze</span>
+        <span class="n">cf</span><span class="p">,</span><span class="n">S</span><span class="p">[</span><span class="s1">&#39;ze_def&#39;</span><span class="p">],</span><span class="n">lfit</span> <span class="o">=</span> <span class="n">fit2D</span><span class="p">(</span><span class="n">data</span><span class="o">-</span><span class="n">zfit_fn</span><span class="p">((</span><span class="n">xx</span> <span class="o">*</span> <span class="mf">1e-3</span><span class="p">,</span> <span class="n">p</span><span class="p">),</span> <span class="n">q</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">pix_size</span><span class="o">=</span><span class="n">pixSize</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">S</span></div>
+
+<div class="viewcode-block" id="remEllipseLine"><a class="viewcode-back" href="../../../../../PyLOSt.ui.stitch_algorithms.util.html#PyLOSt.ui.stitch_algorithms.util.remove_best_ellipse.remEllipseLine">[docs]</a><span class="k">def</span> <span class="nf">remEllipseLine</span><span class="p">(</span><span class="n">xc</span><span class="p">,</span> <span class="n">sx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">theta</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">pixSize</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">useGravityCor</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dataType</span><span class="o">=</span><span class="s1">&#39;h&#39;</span><span class="p">,</span><span class="n">optimizeType</span><span class="o">=</span><span class="s1">&#39;h_fit&#39;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">dataType</span><span class="o">==</span><span class="s1">&#39;h&#39;</span><span class="p">:</span>
+        <span class="n">sx</span> <span class="o">=</span> <span class="n">hgtToSlp1D</span><span class="p">(</span><span class="n">xc</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">diffType</span><span class="o">=</span><span class="s1">&#39;grad&#39;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">dataType</span><span class="o">==</span><span class="s1">&#39;s&#39;</span><span class="p">:</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">slpToHgt1D</span><span class="p">(</span><span class="n">xc</span><span class="p">,</span> <span class="n">sx</span><span class="p">,</span> <span class="n">intType</span><span class="o">=</span><span class="s1">&#39;cumtrapz&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">optimizeType</span><span class="o">==</span><span class="s1">&#39;h_fit&#39;</span><span class="p">:</span>
+        <span class="n">idx</span>                         <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">absolute</span><span class="p">(</span><span class="n">xc</span><span class="p">))</span>
+        <span class="n">xc</span>                          <span class="o">=</span> <span class="n">xc</span> <span class="o">-</span> <span class="n">xc</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+        <span class="n">z</span>                           <span class="o">=</span> <span class="n">z</span> <span class="o">-</span> <span class="n">z</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+        <span class="n">S</span>                           <span class="o">=</span> <span class="n">fitBestEllipse</span><span class="p">(</span><span class="n">xc</span><span class="o">*</span><span class="mf">1e-3</span><span class="p">,</span><span class="kc">None</span><span class="p">,</span><span class="n">z</span><span class="p">,</span><span class="n">p</span><span class="p">,</span><span class="n">q</span><span class="p">,</span><span class="n">theta</span><span class="p">,</span><span class="n">mode</span><span class="o">=</span><span class="n">optimizeType</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">optimizeType</span><span class="o">==</span><span class="s1">&#39;s_fit&#39;</span><span class="p">:</span>
+        <span class="n">idx</span>                         <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">absolute</span><span class="p">(</span><span class="n">xc</span><span class="p">))</span>
+        <span class="n">sx</span>                          <span class="o">=</span> <span class="n">sx</span> <span class="o">-</span> <span class="n">sx</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+        <span class="n">S</span>                           <span class="o">=</span> <span class="n">fitBestEllipse</span><span class="p">(</span><span class="n">xc</span><span class="o">*</span><span class="mf">1e-3</span><span class="p">,</span><span class="n">sx</span><span class="p">,</span><span class="kc">None</span><span class="p">,</span><span class="n">p</span><span class="p">,</span><span class="n">q</span><span class="p">,</span><span class="n">theta</span><span class="p">,</span><span class="n">mode</span><span class="o">=</span><span class="n">optimizeType</span><span class="p">)</span>
+    <span class="n">lse</span> <span class="o">=</span> <span class="n">sx</span> <span class="o">-</span> <span class="n">sfit_fn</span><span class="p">((</span><span class="n">xc</span><span class="o">*</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">p</span><span class="p">),</span> <span class="n">S</span><span class="p">[</span><span class="s1">&#39;q&#39;</span><span class="p">],</span> <span class="n">S</span><span class="p">[</span><span class="s1">&#39;theta&#39;</span><span class="p">],</span> <span class="n">S</span><span class="p">[</span><span class="s1">&#39;tilt&#39;</span><span class="p">])</span>
+    <span class="n">lhe</span> <span class="o">=</span> <span class="n">z</span> <span class="o">-</span> <span class="n">zfit_fn</span><span class="p">((</span><span class="n">xc</span><span class="o">*</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">p</span><span class="p">),</span> <span class="n">S</span><span class="p">[</span><span class="s1">&#39;q&#39;</span><span class="p">],</span> <span class="n">S</span><span class="p">[</span><span class="s1">&#39;theta&#39;</span><span class="p">],</span> <span class="n">S</span><span class="p">[</span><span class="s1">&#39;tilt&#39;</span><span class="p">])</span>
+    <span class="n">qf</span> <span class="o">=</span> <span class="n">S</span><span class="p">[</span><span class="s1">&#39;q&#39;</span><span class="p">]</span>
+    <span class="n">theta_f</span> <span class="o">=</span> <span class="n">S</span><span class="p">[</span><span class="s1">&#39;theta&#39;</span><span class="p">]</span>
+    <span class="n">tilt</span> <span class="o">=</span> <span class="n">S</span><span class="p">[</span><span class="s1">&#39;tilt&#39;</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;q&#39;</span><span class="p">:</span> <span class="n">qf</span><span class="p">,</span> <span class="s1">&#39;theta&#39;</span><span class="p">:</span> <span class="n">theta_f</span><span class="p">,</span> <span class="s1">&#39;dq&#39;</span><span class="p">:</span> <span class="n">q</span> <span class="o">-</span> <span class="n">qf</span><span class="p">,</span> <span class="s1">&#39;dtheta&#39;</span><span class="p">:</span> <span class="n">theta</span> <span class="o">-</span> <span class="n">theta_f</span><span class="p">,</span> <span class="s1">&#39;tilt&#39;</span><span class="p">:</span> <span class="n">tilt</span><span class="p">,</span>
+            <span class="s1">&#39;xc&#39;</span><span class="p">:</span><span class="n">xc</span><span class="p">,</span><span class="s1">&#39;lhe&#39;</span><span class="p">:</span> <span class="n">lhe</span><span class="p">,</span><span class="s1">&#39;lse&#39;</span><span class="p">:</span> <span class="n">lse</span><span class="p">}</span></div>
+
+    <span class="c1"># # fit best q,theta for each line</span>
+    <span class="c1"># q_arr           = np.full(data.shape[0], np.nan)</span>
+    <span class="c1"># theta_arr       = np.full(data.shape[0], np.nan)</span>
+    <span class="c1"># tilt_arr        = np.full(data.shape[0], np.nan)</span>
+    <span class="c1"># data_s          = np.full(data.shape, np.nan)</span>
+    <span class="c1"># data_h          = np.full(data.shape, np.nan)</span>
+    <span class="c1"># data_se_bf      = np.full(data.shape, np.nan)</span>
+    <span class="c1"># data_he_bf      = np.full(data.shape, np.nan)</span>
+    <span class="c1"># for i in range(0,data.shape[0]):</span>
+    <span class="c1">#     xc                          = xx[i][mask[i]]</span>
+    <span class="c1">#     if dataType==&#39;h&#39;:</span>
+    <span class="c1">#         data_s[i][mask[i]] = hgtToSlp1D(xc, data[i][mask[i]], diffType=&#39;grad&#39;)</span>
+    <span class="c1">#         data_h[i][mask[i]] = data[i][mask[i]]</span>
+    <span class="c1">#     elif dataType==&#39;s&#39;:</span>
+    <span class="c1">#         data_s[i][mask[i]] = data[i][mask[i]]</span>
+    <span class="c1">#         data_h[i][mask[i]] = slpToHgt1D(xc, data[i][mask[i]], intType=&#39;cumtrapz&#39;)</span>
+    <span class="c1">#</span>
+    <span class="c1">#     ##TODO Gravity correction</span>
+    <span class="c1">#     if optimizeType==&#39;h_fit&#39;:</span>
+    <span class="c1">#         z                           = data_h[i][mask[i]]</span>
+    <span class="c1">#         idx                         = np.argmin(np.absolute(xc))#np.argmin(z)</span>
+    <span class="c1">#         xc                          = xc - xc[idx]</span>
+    <span class="c1">#         #z                           = rotHght(xc, z, idx)</span>
+    <span class="c1">#         z                           = z - z[idx]</span>
+    <span class="c1">#         S                           = fitBestEllipse(xc*1e-3,None,z,p,q,theta,mode=optimizeType)</span>
+    <span class="c1">#     elif optimizeType==&#39;s_fit&#39;:</span>
+    <span class="c1">#         sx                          = data_s[i][mask[i]]</span>
+    <span class="c1">#         idx                         = np.argmin(np.absolute(xc))</span>
+    <span class="c1">#         #xc                          = xc - xc[idx]</span>
+    <span class="c1">#         sx                          = sx - sx[idx]</span>
+    <span class="c1">#         S                           = fitBestEllipse(xc*1e-3,sx,None,p,q,theta,mode=optimizeType)</span>
+    <span class="c1">#     q_arr[i] = S[&#39;q&#39;]</span>
+    <span class="c1">#     theta_arr[i] = S[&#39;theta&#39;]</span>
+    <span class="c1">#     tilt_arr[i] = S[&#39;tilt&#39;]</span>
+    <span class="c1">#     data_he_bf[i][mask[i]]         = (data_h[i][mask[i]] - zfit_fn((xc*1e-3, p), S[&#39;q&#39;], S[&#39;theta&#39;], S[&#39;tilt&#39;]))</span>
+    <span class="c1">#     data_se_bf[i][mask[i]]         = data_s[i][mask[i]] - sfit_fn((xc*1e-3, p), S[&#39;q&#39;], S[&#39;theta&#39;], S[&#39;tilt&#39;])</span>
+    <span class="c1">#</span>
+    <span class="c1"># # remove the average of fits</span>
+    <span class="c1"># q_avg           = np.nanmean(q_arr)</span>
+    <span class="c1"># theta_avg       = np.nanmean(theta_arr)</span>
+    <span class="c1"># tilt_avg        = np.nanmean(tilt_arr)</span>
+    <span class="c1"># print(&#39;avg: &#39;+str(q_avg)+&#39;,&#39;+str(theta_avg)+&#39;,&#39;+str(tilt_avg))</span>
+    <span class="c1"># data_se         = np.full(data.shape, np.nan)</span>
+    <span class="c1"># data_he         = np.full(data.shape, np.nan)</span>
+    <span class="c1"># for i in range(0,data.shape[0]):</span>
+    <span class="c1">#     z                           = data_h[i][mask[i]]</span>
+    <span class="c1">#     sx                          = data_s[i][mask[i]]</span>
+    <span class="c1">#     data_he[i][mask[i]]         = data_h[i][mask[i]] - zfit_fn((xc*1e-3, p),q_avg,theta_avg, tilt_avg)</span>
+    <span class="c1">#     data_se[i][mask[i]]         = data_s[i][mask[i]] - sfit_fn((xc*1e-3, p),q_avg,theta_avg, tilt_avg)</span>
+    <span class="c1">#</span>
+    <span class="c1"># return {&#39;q&#39;:q_avg, &#39;theta&#39;:theta_avg,&#39;dq&#39;:q-q_avg, &#39;dtheta&#39;:theta-theta_avg,</span>
+    <span class="c1">#         &#39;he&#39;:data_he-np.nanmean(data_he.flatten()),</span>
+    <span class="c1">#         &#39;se&#39;:data_se-np.nanmean(data_se.flatten()),</span>
+    <span class="c1">#         &#39;he_bf&#39;:data_he_bf-np.nanmean(data_he_bf.flatten()),</span>
+    <span class="c1">#         &#39;se_bf&#39;:data_se_bf-np.nanmean(data_se_bf.flatten())}</span>
+    
+<div class="viewcode-block" id="rotHght"><a class="viewcode-back" href="../../../../../PyLOSt.ui.stitch_algorithms.util.html#PyLOSt.ui.stitch_algorithms.util.remove_best_ellipse.rotHght">[docs]</a><span class="k">def</span> <span class="nf">rotHght</span><span class="p">(</span><span class="n">x</span> <span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Rotate height to center at array index idx</span>
+
+<span class="sd">    :param x: Mirror positions along X</span>
+<span class="sd">    :param z: Height data</span>
+<span class="sd">    :param idx: Index</span>
+<span class="sd">    :return: Rotated height</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">hgtToSlp1D</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">s</span> <span class="o">-</span> <span class="n">s</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+    <span class="n">zf</span> <span class="o">=</span> <span class="n">slpToHgt1D</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+    <span class="n">zf</span> <span class="o">=</span> <span class="n">zf</span> <span class="o">-</span> <span class="n">zf</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">zf</span></div>
+    
+<div class="viewcode-block" id="slpToHgt1D"><a class="viewcode-back" href="../../../../../PyLOSt.ui.stitch_algorithms.util.html#PyLOSt.ui.stitch_algorithms.util.remove_best_ellipse.slpToHgt1D">[docs]</a><span class="k">def</span> <span class="nf">slpToHgt1D</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">intType</span><span class="o">=</span><span class="s1">&#39;cumtrapz&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Integrate slope to height (1D)</span>
+
+<span class="sd">    :param x: Mirror positions along X</span>
+<span class="sd">    :param d: slopes</span>
+<span class="sd">    :param intType: Integration method e.g. cumtrapz</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">intType</span><span class="o">==</span><span class="s1">&#39;cumtrapz&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">integrate</span><span class="o">.</span><span class="n">cumtrapz</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">initial</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="hgtToSlp1D"><a class="viewcode-back" href="../../../../../PyLOSt.ui.stitch_algorithms.util.html#PyLOSt.ui.stitch_algorithms.util.remove_best_ellipse.hgtToSlp1D">[docs]</a><span class="k">def</span> <span class="nf">hgtToSlp1D</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">diffType</span><span class="o">=</span><span class="s1">&#39;grad&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Height to slope (1D)</span>
+
+<span class="sd">    :param x: Mirror positions along X</span>
+<span class="sd">    :param d: Height</span>
+<span class="sd">    :param diffType: Derivative type e.g. gradient</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">diffType</span><span class="o">==</span><span class="s1">&#39;grad&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">d</span><span class="p">,</span><span class="n">x</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="getMirSpecificData"><a class="viewcode-back" href="../../../../../PyLOSt.ui.stitch_algorithms.util.html#PyLOSt.ui.stitch_algorithms.util.remove_best_ellipse.getMirSpecificData">[docs]</a><span class="k">def</span> <span class="nf">getMirSpecificData</span><span class="p">(</span><span class="n">mirType</span><span class="p">):</span>
+    <span class="n">mirData</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;q&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;theta&#39;</span><span class="p">:</span><span class="mi">0</span> <span class="p">}</span>
+    <span class="k">return</span> <span class="n">mirData</span></div>
+
+<div class="viewcode-block" id="fitBestEllipse"><a class="viewcode-back" href="../../../../../PyLOSt.ui.stitch_algorithms.util.html#PyLOSt.ui.stitch_algorithms.util.remove_best_ellipse.fitBestEllipse">[docs]</a><span class="k">def</span> <span class="nf">fitBestEllipse</span><span class="p">(</span><span class="n">xc</span><span class="p">,</span><span class="n">sx</span><span class="p">,</span><span class="n">z</span><span class="p">,</span><span class="n">p</span><span class="p">,</span><span class="n">q</span><span class="p">,</span><span class="n">theta</span><span class="p">,</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fit best ellipse</span>
+
+<span class="sd">    :param xc:</span>
+<span class="sd">    :param sx:</span>
+<span class="sd">    :param z:</span>
+<span class="sd">    :param p:</span>
+<span class="sd">    :param q:</span>
+<span class="sd">    :param theta:</span>
+<span class="sd">    :param mode:</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">mode</span><span class="o">==</span><span class="s1">&#39;h_fit&#39;</span><span class="p">:</span>
+        <span class="n">popt</span><span class="p">,</span> <span class="n">pcov</span> <span class="o">=</span> <span class="n">curve_fit</span><span class="p">(</span><span class="n">zfit_fn</span><span class="p">,</span> <span class="p">(</span><span class="n">xc</span><span class="p">,</span> <span class="n">p</span><span class="p">),</span> <span class="n">z</span><span class="p">,</span> <span class="n">p0</span><span class="o">=</span><span class="p">[</span><span class="n">q</span><span class="p">,</span><span class="n">theta</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">elif</span> <span class="n">mode</span><span class="o">==</span><span class="s1">&#39;s_fit&#39;</span><span class="p">:</span>
+        <span class="n">popt</span><span class="p">,</span> <span class="n">pcov</span> <span class="o">=</span> <span class="n">curve_fit</span><span class="p">(</span><span class="n">sfit_fn</span><span class="p">,</span> <span class="p">(</span><span class="n">xc</span><span class="p">,</span> <span class="n">p</span><span class="p">),</span> <span class="n">sx</span><span class="p">,</span> <span class="n">p0</span><span class="o">=</span><span class="p">[</span><span class="n">q</span><span class="p">,</span><span class="n">theta</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">S</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;p&#39;</span><span class="p">:</span><span class="n">p</span><span class="p">,</span><span class="s1">&#39;q&#39;</span><span class="p">:</span><span class="n">popt</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="s1">&#39;theta&#39;</span><span class="p">:</span><span class="n">popt</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="s1">&#39;tilt&#39;</span><span class="p">:</span><span class="n">popt</span><span class="p">[</span><span class="mi">2</span><span class="p">]}</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">popt</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">S</span></div>
+
+<div class="viewcode-block" id="sfit_fn"><a class="viewcode-back" href="../../../../../PyLOSt.ui.stitch_algorithms.util.html#PyLOSt.ui.stitch_algorithms.util.remove_best_ellipse.sfit_fn">[docs]</a><span class="k">def</span> <span class="nf">sfit_fn</span><span class="p">(</span><span class="n">xp</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">tilt</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Slope fit function</span>
+
+<span class="sd">    :param xp:</span>
+<span class="sd">    :param q:</span>
+<span class="sd">    :param theta:</span>
+<span class="sd">    :param tilt:</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">xp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">xp</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="n">p</span><span class="o">+</span><span class="n">q</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">;</span> 
+    <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">p</span><span class="o">*</span><span class="n">q</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="o">/</span><span class="mi">1000</span><span class="p">);</span>
+    <span class="n">F</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">p</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="n">q</span><span class="o">**</span><span class="mi">2</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">p</span><span class="o">*</span><span class="n">q</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">-</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">theta</span><span class="o">/</span><span class="mi">1000</span><span class="p">)));</span>
+    <span class="n">alpha</span> <span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arcsin</span><span class="p">(</span><span class="n">p</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">F</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">-</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">theta</span><span class="o">/</span><span class="mi">1000</span><span class="p">)));</span>
+    <span class="n">mu</span> <span class="o">=</span> <span class="n">alpha</span><span class="o">-</span><span class="p">(</span><span class="n">theta</span><span class="o">/</span><span class="mi">1000</span><span class="p">);</span>
+    <span class="n">x0</span> <span class="o">=</span> <span class="n">F</span> <span class="o">-</span> <span class="n">q</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">alpha</span><span class="p">);</span>
+    <span class="n">y0</span> <span class="o">=</span> <span class="o">-</span><span class="n">b</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="p">(</span><span class="n">x0</span><span class="o">/</span><span class="n">a</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">);</span>
+    
+    <span class="n">sx_fit_fn</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">b</span><span class="o">/</span><span class="n">a</span><span class="p">)</span><span class="o">*</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span><span class="o">*</span><span class="n">x</span><span class="o">+</span><span class="n">x0</span><span class="p">)</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="o">*</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span><span class="o">*</span><span class="n">x</span><span class="o">*</span><span class="n">x0</span><span class="o">+</span><span class="p">(</span><span class="n">a</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">-</span><span class="p">(</span><span class="n">x0</span><span class="o">**</span><span class="mi">2</span><span class="p">)))</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="o">-</span><span class="n">mu</span><span class="p">)</span> <span class="o">+</span> <span class="n">tilt</span>
+    <span class="n">sx_fit_fn</span> <span class="o">=</span> <span class="n">sx_fit_fn</span><span class="o">*</span><span class="mf">1e6</span>
+
+    <span class="k">return</span> <span class="n">sx_fit_fn</span></div>
+
+<div class="viewcode-block" id="zfit_fn"><a class="viewcode-back" href="../../../../../PyLOSt.ui.stitch_algorithms.util.html#PyLOSt.ui.stitch_algorithms.util.remove_best_ellipse.zfit_fn">[docs]</a><span class="k">def</span> <span class="nf">zfit_fn</span><span class="p">(</span><span class="n">xp</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">tilt</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Height fit function</span>
+
+<span class="sd">    :param xp:</span>
+<span class="sd">    :param q:</span>
+<span class="sd">    :param theta:</span>
+<span class="sd">    :param tilt:</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">xp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">xp</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="n">p</span><span class="o">+</span><span class="n">q</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">;</span> 
+    <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">p</span><span class="o">*</span><span class="n">q</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="o">/</span><span class="mi">1000</span><span class="p">);</span>
+    <span class="n">F</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">p</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="n">q</span><span class="o">**</span><span class="mi">2</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">p</span><span class="o">*</span><span class="n">q</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">-</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">theta</span><span class="o">/</span><span class="mi">1000</span><span class="p">)));</span>
+    <span class="n">alpha</span> <span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arcsin</span><span class="p">(</span><span class="n">p</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">F</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">-</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">theta</span><span class="o">/</span><span class="mi">1000</span><span class="p">)));</span>
+    <span class="n">mu</span> <span class="o">=</span> <span class="n">alpha</span><span class="o">-</span><span class="p">(</span><span class="n">theta</span><span class="o">/</span><span class="mi">1000</span><span class="p">);</span>
+    <span class="n">x0</span> <span class="o">=</span> <span class="n">F</span> <span class="o">-</span> <span class="n">q</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">alpha</span><span class="p">);</span>
+    <span class="n">y0</span> <span class="o">=</span> <span class="o">-</span><span class="n">b</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="p">(</span><span class="n">x0</span><span class="o">/</span><span class="n">a</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">);</span>
+    
+    <span class="n">z1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">b</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="p">((</span><span class="n">x</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span><span class="o">+</span><span class="n">x0</span><span class="p">)</span><span class="o">/</span><span class="n">a</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span><span class="o">-</span><span class="n">y0</span><span class="p">)</span>
+    <span class="n">z2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="o">-</span><span class="n">mu</span><span class="p">)</span><span class="o">*</span><span class="n">x</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span> 
+    <span class="n">z3</span> <span class="o">=</span>  <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">y0</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">b</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="p">(</span><span class="n">x0</span><span class="o">/</span><span class="n">a</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)))</span>
+    <span class="n">z_fit_fn</span> <span class="o">=</span> <span class="n">z1</span><span class="o">+</span><span class="n">z2</span><span class="o">+</span><span class="n">z3</span> <span class="c1">#+ tilt*x</span>
+    <span class="n">z_fit_fn</span> <span class="o">=</span> <span class="n">z_fit_fn</span><span class="o">*</span><span class="mf">1e9</span>
+    
+    <span class="k">return</span> <span class="n">z_fit_fn</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../../index.html">PyLOSt</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../PyLOSt.html">PyLOSt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../quick_guide.html">Quick Guide</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

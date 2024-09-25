@@ -1,0 +1,358 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>orangewidget.utils.signals &#8212; pylost_widgets  documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for orangewidget.utils.signals</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+
+<span class="kn">from</span> <span class="nn">orangecanvas.registry.description</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">InputSignal</span><span class="p">,</span> <span class="n">OutputSignal</span><span class="p">,</span> <span class="n">Single</span><span class="p">,</span> <span class="n">Multiple</span><span class="p">,</span> <span class="n">Default</span><span class="p">,</span> <span class="n">NonDefault</span><span class="p">,</span>
+    <span class="n">Explicit</span><span class="p">,</span> <span class="n">Dynamic</span>
+<span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">orangewidget.utils</span> <span class="k">import</span> <span class="n">getmembers</span>
+
+<span class="c1"># increasing counter for ensuring the order of Input/Output definitions</span>
+<span class="c1"># is preserved when going through the unordered class namespace of</span>
+<span class="c1"># WidgetSignalsMixin.Inputs/Outputs.</span>
+<span class="n">_counter</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+
+
+<span class="k">class</span> <span class="nc">_Signal</span><span class="p">:</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_flags</span><span class="p">(</span><span class="n">multiple</span><span class="p">,</span> <span class="n">default</span><span class="p">,</span> <span class="n">explicit</span><span class="p">,</span> <span class="n">dynamic</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Compute flags from arguments&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">Multiple</span> <span class="k">if</span> <span class="n">multiple</span> <span class="k">else</span> <span class="n">Single</span><span class="p">)</span> <span class="o">|</span> \
+                <span class="p">(</span><span class="n">Default</span> <span class="k">if</span> <span class="n">default</span> <span class="k">else</span> <span class="n">NonDefault</span><span class="p">)</span> <span class="o">|</span> \
+                <span class="p">(</span><span class="n">explicit</span> <span class="ow">and</span> <span class="n">Explicit</span><span class="p">)</span> <span class="o">|</span> \
+                <span class="p">(</span><span class="n">dynamic</span> <span class="ow">and</span> <span class="n">Dynamic</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">bound_signal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a copy of the signal bound to a widget.</span>
+
+<span class="sd">        Called from `WidgetSignalsMixin.__init__`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">new_signal</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">new_signal</span><span class="o">.</span><span class="n">widget</span> <span class="o">=</span> <span class="n">widget</span>
+        <span class="k">return</span> <span class="n">new_signal</span>
+
+
+<span class="k">class</span> <span class="nc">Input</span><span class="p">(</span><span class="n">InputSignal</span><span class="p">,</span> <span class="n">_Signal</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Description of an input signal.</span>
+
+<span class="sd">    The class is used to declare input signals for a widget as follows</span>
+<span class="sd">    (the example is taken from the widget Test &amp; Score)::</span>
+
+<span class="sd">        class Inputs:</span>
+<span class="sd">            train_data = Input(&quot;Data&quot;, Table, default=True)</span>
+<span class="sd">            test_data = Input(&quot;Test Data&quot;, Table)</span>
+<span class="sd">            learner = Input(&quot;Learner&quot;, Learner, multiple=True)</span>
+<span class="sd">            preprocessor = Input(&quot;Preprocessor&quot;, Preprocess)</span>
+
+<span class="sd">    Every input signal must be used to decorate exactly one method that</span>
+<span class="sd">    serves as the input handler, for instance::</span>
+
+<span class="sd">        @Inputs.train_data</span>
+<span class="sd">        def set_train_data(self, data):</span>
+<span class="sd">            ...</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name (str):</span>
+<span class="sd">        signal name</span>
+<span class="sd">    type (type):</span>
+<span class="sd">        signal type</span>
+<span class="sd">    id (str):</span>
+<span class="sd">        a unique id of the signal</span>
+<span class="sd">    doc (str, optional):</span>
+<span class="sd">        signal documentation</span>
+<span class="sd">    replaces (list of str):</span>
+<span class="sd">        a list with names of signals replaced by this signal</span>
+<span class="sd">    multiple (bool, optional):</span>
+<span class="sd">        if set, multiple signals can be connected to this output</span>
+<span class="sd">        (default: `False`)</span>
+<span class="sd">    default (bool, optional):</span>
+<span class="sd">        when the widget accepts multiple signals of the same type, one of them</span>
+<span class="sd">        can set this flag to act as the default (default: `False`)</span>
+<span class="sd">    explicit (bool, optional):</span>
+<span class="sd">        if set, this signal is only used when it is the only option or when</span>
+<span class="sd">        explicitly connected in the dialog (default: `False`)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">replaces</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span>
+                 <span class="n">multiple</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">explicit</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">flags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_flags</span><span class="p">(</span><span class="n">multiple</span><span class="p">,</span> <span class="n">default</span><span class="p">,</span> <span class="n">explicit</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">doc</span><span class="p">,</span> <span class="n">replaces</span> <span class="ow">or</span> <span class="p">[])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_seq_id</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">_counter</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Decorator that stores decorated method&#39;s name in the signal&#39;s</span>
+<span class="sd">        `handler` attribute. The method is returned unchanged.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">handler</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Input </span><span class="si">{}</span><span class="s2"> is already bound to method </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span>
+                             <span class="nb">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">handler</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">handler</span> <span class="o">=</span> <span class="n">method</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="k">return</span> <span class="n">method</span>
+
+
+<span class="k">class</span> <span class="nc">Output</span><span class="p">(</span><span class="n">OutputSignal</span><span class="p">,</span> <span class="n">_Signal</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Description of an output signal.</span>
+
+<span class="sd">    The class is used to declare output signals for a widget as follows</span>
+<span class="sd">    (the example is taken from the widget Test &amp; Score)::</span>
+
+<span class="sd">        class Outputs:</span>
+<span class="sd">            predictions = Output(&quot;Predictions&quot;, Table)</span>
+<span class="sd">            evaluations_results = Output(&quot;Evaluation Results&quot;, Results)</span>
+
+<span class="sd">    The signal is then transmitted by, for instance::</span>
+
+<span class="sd">        self.Outputs.predictions.send(predictions)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name (str):</span>
+<span class="sd">        signal name</span>
+<span class="sd">    type (type):</span>
+<span class="sd">        signal type</span>
+<span class="sd">    id (str):</span>
+<span class="sd">        a unique id of the signal</span>
+<span class="sd">    doc (str, optional):</span>
+<span class="sd">        signal documentation</span>
+<span class="sd">    replaces (list of str):</span>
+<span class="sd">        a list with names of signals replaced by this signal</span>
+<span class="sd">    default (bool, optional):</span>
+<span class="sd">        when the widget accepts multiple signals of the same type, one of them</span>
+<span class="sd">        can set this flag to act as the default (default: `False`)</span>
+<span class="sd">    explicit (bool, optional):</span>
+<span class="sd">        if set, this signal is only used when it is the only option or when</span>
+<span class="sd">        explicitly connected in the dialog (default: `False`)</span>
+<span class="sd">    dynamic (bool, optional):</span>
+<span class="sd">        Specifies that the instances on the output will in general be subtypes</span>
+<span class="sd">        of the declared type and that the output can be connected to any input</span>
+<span class="sd">        signal which can accept a subtype of the declared output type</span>
+<span class="sd">        (default: `True`)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">replaces</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span>
+                 <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">explicit</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dynamic</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="n">flags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_flags</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="n">default</span><span class="p">,</span> <span class="n">explicit</span><span class="p">,</span> <span class="n">dynamic</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">flags</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">doc</span><span class="p">,</span> <span class="n">replaces</span> <span class="ow">or</span> <span class="p">[])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">widget</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_seq_id</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">_counter</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Emit the signal through signal manager.&quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">widget</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="n">signal_manager</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">widget</span><span class="o">.</span><span class="n">signalManager</span>
+        <span class="k">if</span> <span class="n">signal_manager</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">signal_manager</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">widget</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="nb">id</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">invalidate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Invalidate the current output value on the signal&quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">widget</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="n">signal_manager</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">widget</span><span class="o">.</span><span class="n">signalManager</span>
+        <span class="k">if</span> <span class="n">signal_manager</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">signal_manager</span><span class="o">.</span><span class="n">invalidate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">widget</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">WidgetSignalsMixin</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Mixin for managing widget&#39;s input and output signals&quot;&quot;&quot;</span>
+    <span class="k">class</span> <span class="nc">Inputs</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="k">class</span> <span class="nc">Outputs</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bind_signals</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_bind_signals</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">direction</span><span class="p">,</span> <span class="n">signal_type</span> <span class="ow">in</span> <span class="p">((</span><span class="s2">&quot;Inputs&quot;</span><span class="p">,</span> <span class="n">Input</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;Outputs&quot;</span><span class="p">,</span> <span class="n">Output</span><span class="p">)):</span>
+            <span class="n">bound_cls</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">direction</span><span class="p">)()</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">signal</span> <span class="ow">in</span> <span class="n">getmembers</span><span class="p">(</span><span class="n">bound_cls</span><span class="p">,</span> <span class="n">signal_type</span><span class="p">):</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">bound_cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">bound_signal</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">direction</span><span class="p">,</span> <span class="n">bound_cls</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signalName</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Send a `value` on the `signalName` widget output.</span>
+
+<span class="sd">        An output with `signalName` must be defined in the class ``outputs``</span>
+<span class="sd">        list.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">signalName</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> is not a valid output signal for widget </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">signalName</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">signalManager</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">signalManager</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signalName</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="nb">id</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">handleNewSignals</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Invoked by the workflow signal propagation manager after all</span>
+<span class="sd">        signals handlers have been called.</span>
+<span class="sd">        Reimplement this method in order to coalesce updates from</span>
+<span class="sd">        multiple updated inputs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="c1"># Methods used by the meta class</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">convert_signals</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert tuple descriptions into old-style signals for backwards</span>
+<span class="sd">        compatibility, and check the input handlers exist.</span>
+<span class="sd">        The method is called from the meta-class.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">def</span> <span class="nf">signal_from_args</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">signal_type</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">signal_type</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">signal_type</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s2">&quot;inputs&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">cls</span><span class="o">.</span><span class="n">inputs</span><span class="p">:</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">inputs</span> <span class="o">=</span> <span class="p">[</span><span class="n">signal_from_args</span><span class="p">(</span><span class="n">input_</span><span class="p">,</span> <span class="n">InputSignal</span><span class="p">)</span>
+                          <span class="k">for</span> <span class="n">input_</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">inputs</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s2">&quot;outputs&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">cls</span><span class="o">.</span><span class="n">outputs</span><span class="p">:</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">outputs</span> <span class="o">=</span> <span class="p">[</span><span class="n">signal_from_args</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">OutputSignal</span><span class="p">)</span>
+                           <span class="k">for</span> <span class="n">output</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">outputs</span><span class="p">]</span>
+
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_check_input_handlers</span><span class="p">()</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_check_input_handlers</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">unbound</span> <span class="o">=</span> <span class="p">[</span><span class="n">signal</span><span class="o">.</span><span class="n">name</span>
+                   <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">signal</span> <span class="ow">in</span> <span class="n">getmembers</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">Inputs</span><span class="p">,</span> <span class="n">Input</span><span class="p">)</span>
+                   <span class="k">if</span> <span class="ow">not</span> <span class="n">signal</span><span class="o">.</span><span class="n">handler</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">unbound</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;unbound signal(s) in </span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span>
+                             <span class="nb">format</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">unbound</span><span class="p">)))</span>
+
+        <span class="n">missing_handlers</span> <span class="o">=</span> <span class="p">[</span><span class="n">signal</span><span class="o">.</span><span class="n">handler</span> <span class="k">for</span> <span class="n">signal</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">inputs</span>
+                            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">handler</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="n">missing_handlers</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;missing handlers in </span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span>
+                             <span class="nb">format</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">missing_handlers</span><span class="p">)))</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_signals</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">direction</span><span class="p">,</span> <span class="n">ignore_old_style</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a list of `InputSignal` or `OutputSignal` needed for the</span>
+<span class="sd">        widget description. For old-style signals, the method returns the</span>
+<span class="sd">        original list. New-style signals are collected into a list.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        direction (str): `&quot;inputs&quot;` or `&quot;outputs&quot;`</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of `InputSignal` or `OutputSignal`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">old_style</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">direction</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">old_style</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">ignore_old_style</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">old_style</span>
+
+        <span class="n">signal_class</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">direction</span><span class="o">.</span><span class="n">title</span><span class="p">())</span>
+        <span class="n">signals</span> <span class="o">=</span> <span class="p">[</span><span class="n">signal</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">signal</span> <span class="ow">in</span> <span class="n">getmembers</span><span class="p">(</span><span class="n">signal_class</span><span class="p">,</span> <span class="n">_Signal</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">signals</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">_seq_id</span><span class="p">))</span>
+
+
+<span class="k">class</span> <span class="nc">AttributeList</span><span class="p">(</span><span class="nb">list</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Signal type for lists of attributes (variables)&quot;&quot;&quot;</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">pylost_widgets</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../pylost_widgets.html">pylost_widgets package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

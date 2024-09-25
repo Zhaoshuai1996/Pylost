@@ -1,0 +1,9 @@
+<h1>Optimize XY widget guide</h1>
+<p>Optimize XY is typically used otpimize X,Y positions of a sequence of overlapped subapertures, where the motor translation is assumed to be not very accurate. It tries to find best offset between two (successive) subapertures which minimizes the overlap errors, using <em>phase_cross_correlation</em> function from&nbsp;<em>skimage.registration</em> modeul in <em>scikit-image</em> image processing package.</p>
+<p>The optimized is applied with the initial assumption that the overlap region has integer-pixel offsets (i.e. subpixel offsets are removed from motor values), and new offsets are calculated which minimizes overlap errors (i.e. new offsets are added to motors values).</p>
+<p>Different options for the widget are shown below. </p>
+<p><img src="images/optimize_xy_options.png" width="300" height="200" /></p>
+<p>The new images are registed to sub-pixel accuracies given by 1/upsampling_factor, where upsampling_factor is kept to 100 by default. Another option overlap_ratio is set to 0.9 by default, which puts a threshold on minimum required correlation. The larger the overlap_ratio, the more robust are resutls. The option 'order' is by default 1, and a k-th order implies an optimization between [i, i+k] subapertures.</p>
+<h3>Instructions to use optimize XY</h3>
+<p><video controls="controls" width="500" height="250">
+<source src="videos/optimize_xy.mp4" type="video/mp4" /></video></p>

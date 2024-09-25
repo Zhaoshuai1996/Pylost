@@ -1,0 +1,174 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PyLOSt.ui.settings.SGMoreOptions &#8212; PyLOSt  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/alabaster.css" />
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for PyLOSt.ui.settings.SGMoreOptions</h1><div class="highlight"><pre>
+<span></span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Created on Apr 28, 2020</span>
+
+<span class="sd">More options in raw file name selection, in conversion to h5 section.</span>
+
+<span class="sd">@author: adapa</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">PyQt5</span> <span class="kn">import</span> <span class="n">uic</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtWidgets</span> <span class="kn">import</span> <span class="n">QDialog</span><span class="p">,</span> <span class="n">QAbstractItemView</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtWidgets</span> <span class="kn">import</span> <span class="n">QStyle</span>
+
+<span class="kn">from</span> <span class="nn">PyLOSt.util.commons</span> <span class="kn">import</span> <span class="n">alertMsg</span><span class="p">,</span> <span class="n">infoMsg</span>
+<span class="kn">from</span> <span class="nn">PyLOSt.util.resource_path</span> <span class="kn">import</span> <span class="n">resource_path</span>
+
+<span class="n">qtfnamesDialogFile</span> <span class="o">=</span> <span class="n">resource_path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;ui&quot;</span><span class="p">,</span> <span class="s2">&quot;settings&quot;</span><span class="p">,</span> <span class="s2">&quot;fname_more_options.ui&quot;</span><span class="p">))</span>
+
+<span class="n">Ui_QDialog</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="n">uic</span><span class="o">.</span><span class="n">loadUiType</span><span class="p">(</span><span class="n">qtfnamesDialogFile</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SGMoreOptions"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGMoreOptions.SGMoreOptions">[docs]</a><span class="k">class</span> <span class="nc">SGMoreOptions</span><span class="p">(</span><span class="n">QDialog</span><span class="p">,</span> <span class="n">Ui_QDialog</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="p">[]):</span>
+        <span class="n">QDialog</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setupUi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">options</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">options</span><span class="p">)</span><span class="o">&gt;=</span><span class="mi">6</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setVals</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bhOrder</span><span class="o">.</span><span class="n">setIcon</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bhOrder</span><span class="o">.</span><span class="n">style</span><span class="p">()</span><span class="o">.</span><span class="n">standardIcon</span><span class="p">(</span><span class="n">QStyle</span><span class="o">.</span><span class="n">SP_MessageBoxInformation</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bhOrder</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">infoMsg</span><span class="p">(</span><span class="s1">&#39;Filename&#39;</span><span class="p">,</span> <span class="s1">&#39;The sequence of different filename components, which can be reordered with drag and drop. </span><span class="se">\n</span><span class="s1">&#39;</span>
+                                                                  <span class="s1">&#39;Deffault order prefix, direction, scan_number, seperator, subaperture_number&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initList</span><span class="p">()</span>
+
+<div class="viewcode-block" id="SGMoreOptions.initList"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGMoreOptions.SGMoreOptions.initList">[docs]</a>    <span class="k">def</span> <span class="nf">initList</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">leOrder</span>
+        <span class="nb">list</span><span class="o">.</span><span class="n">setDragDropMode</span><span class="p">(</span><span class="n">QAbstractItemView</span><span class="o">.</span><span class="n">InternalMove</span><span class="p">)</span>
+        <span class="c1"># list.setDefaultDropAction(MoveAction)</span>
+        <span class="nb">list</span><span class="o">.</span><span class="n">setDragDropOverwriteMode</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="nb">list</span><span class="o">.</span><span class="n">setAcceptDrops</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="nb">list</span><span class="o">.</span><span class="n">setDropIndicatorShown</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="nb">list</span><span class="o">.</span><span class="n">setDragEnabled</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="nb">list</span><span class="o">.</span><span class="n">currentItemChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">itChange</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">orderArr0</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">leOrder</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">whatsThis</span><span class="p">())</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">leOrder</span><span class="o">.</span><span class="n">count</span><span class="p">())]</span></div>
+
+<div class="viewcode-block" id="SGMoreOptions.itChange"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGMoreOptions.SGMoreOptions.itChange">[docs]</a>    <span class="k">def</span> <span class="nf">itChange</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;it&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SGMoreOptions.setVals"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGMoreOptions.SGMoreOptions.setVals">[docs]</a>    <span class="k">def</span> <span class="nf">setVals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">options</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">options</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">!=</span><span class="s1">&#39;&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">leScans</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">options</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">options</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">!=</span><span class="s1">&#39;&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lePatches</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">options</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">options</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">!=</span><span class="s1">&#39;&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">leSep</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">options</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">options</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">!=</span><span class="s1">&#39;&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">leExt</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">options</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">options</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">!=</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">&#39;F&#39;</span> <span class="ow">in</span> <span class="n">options</span><span class="p">[</span><span class="mi">4</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">isDirF</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">leDirFstr</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">options</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="s1">&#39;F&#39;</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">isDirF</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s1">&#39;B&#39;</span> <span class="ow">in</span> <span class="n">options</span><span class="p">[</span><span class="mi">4</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">isDirB</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">leDirBstr</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">options</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="s1">&#39;B&#39;</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">isDirB</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span></div>
+        <span class="c1"># if options[5]!=&#39;&#39;: self.leOrder.setText(options[5]) #TODO</span>
+<div class="viewcode-block" id="SGMoreOptions.getVals"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGMoreOptions.SGMoreOptions.getVals">[docs]</a>    <span class="k">def</span> <span class="nf">getVals</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">dir</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">orderArr</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">leOrder</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">whatsThis</span><span class="p">())</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">leOrder</span><span class="o">.</span><span class="n">count</span><span class="p">())]</span>
+        <span class="k">if</span> <span class="n">orderArr</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">orderArr0</span><span class="p">:</span> <span class="n">orderArr</span><span class="o">=</span><span class="p">[]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isDirF</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
+            <span class="nb">dir</span><span class="p">[</span><span class="s1">&#39;F&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">leDirFstr</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isDirB</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
+            <span class="nb">dir</span><span class="p">[</span><span class="s1">&#39;B&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">leDirBstr</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">leScans</span><span class="o">.</span><span class="n">text</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">lePatches</span><span class="o">.</span><span class="n">text</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">leSep</span><span class="o">.</span><span class="n">text</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">leExt</span><span class="o">.</span><span class="n">text</span><span class="p">(),</span> <span class="nb">dir</span><span class="p">,</span> <span class="n">orderArr</span><span class="p">]</span></div></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../index.html">PyLOSt</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../PyLOSt.html">PyLOSt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quick_guide.html">Quick Guide</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

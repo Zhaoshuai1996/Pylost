@@ -1,0 +1,224 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pylost_widgets.learning.OWVisFitResults &#8212; pylost_widgets  documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for pylost_widgets.learning.OWVisFitResults</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;OWFileExternal is copied from orange native OWFile and adapted to pylost use</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">Orange.data</span> <span class="k">import</span> <span class="n">Table</span>
+<span class="kn">from</span> <span class="nn">Orange.data.variable</span> <span class="k">import</span> <span class="n">ContinuousVariable</span>
+<span class="kn">from</span> <span class="nn">Orange.widgets</span> <span class="k">import</span> <span class="n">gui</span><span class="p">,</span> <span class="n">widget</span>
+<span class="kn">from</span> <span class="nn">Orange.widgets.utils.signals</span> <span class="k">import</span> <span class="n">Input</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtCore</span> <span class="k">import</span> <span class="n">Qt</span><span class="p">,</span> <span class="n">QSize</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtWidgets</span> <span class="k">import</span> <span class="n">QSizePolicy</span>
+<span class="kn">from</span> <span class="nn">orangewidget.settings</span> <span class="k">import</span> <span class="n">Setting</span>
+<span class="kn">from</span> <span class="nn">orangewidget.widget</span> <span class="k">import</span> <span class="n">Msg</span>
+<span class="kn">from</span> <span class="nn">silx.gui.plot</span> <span class="k">import</span> <span class="n">Plot1D</span>
+
+<span class="kn">from</span> <span class="nn">pylost_widgets.util.util_plots</span> <span class="k">import</span> <span class="n">CurveLegendListContextMenu</span>
+
+<span class="n">DEG_TO_MRAD</span> <span class="o">=</span> <span class="mf">17.4533</span>
+
+<div class="viewcode-block" id="OWVisFitResults"><a class="viewcode-back" href="../../../pylost_widgets.learning.html#pylost_widgets.learning.OWVisFitResults.OWVisFitResults">[docs]</a><span class="k">class</span> <span class="nc">OWVisFitResults</span><span class="p">(</span><span class="n">widget</span><span class="o">.</span><span class="n">OWWidget</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;Visualize regression&#39;</span>
+    <span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;Visualize results of different regression fits.&#39;</span>
+    <span class="n">icon</span> <span class="o">=</span> <span class="s2">&quot;../icons/plot.svg&quot;</span>
+    <span class="n">priority</span> <span class="o">=</span> <span class="mi">1001</span>
+
+<div class="viewcode-block" id="OWVisFitResults.Inputs"><a class="viewcode-back" href="../../../pylost_widgets.learning.html#pylost_widgets.learning.OWVisFitResults.OWVisFitResults.Inputs">[docs]</a>    <span class="k">class</span> <span class="nc">Inputs</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="s1">&#39;fit_data&#39;</span><span class="p">,</span> <span class="n">Table</span><span class="p">)</span></div>
+
+    <span class="n">want_main_area</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">sel_x</span> <span class="o">=</span> <span class="n">Setting</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+    <span class="n">sel_y</span> <span class="o">=</span> <span class="n">Setting</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="OWVisFitResults.Error"><a class="viewcode-back" href="../../../pylost_widgets.learning.html#pylost_widgets.learning.OWVisFitResults.OWVisFitResults.Error">[docs]</a>    <span class="k">class</span> <span class="nc">Error</span><span class="p">(</span><span class="n">widget</span><span class="o">.</span><span class="n">OWWidget</span><span class="o">.</span><span class="n">Error</span><span class="p">):</span>
+        <span class="n">unknown</span> <span class="o">=</span> <span class="n">Msg</span><span class="p">(</span><span class="s2">&quot;Error:</span><span class="se">\n</span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="OWVisFitResults.NoFileSelected"><a class="viewcode-back" href="../../../pylost_widgets.learning.html#pylost_widgets.learning.OWVisFitResults.OWVisFitResults.NoFileSelected">[docs]</a>    <span class="k">class</span> <span class="nc">NoFileSelected</span><span class="p">:</span>
+        <span class="k">pass</span></div>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_in</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_arr</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">box</span> <span class="o">=</span> <span class="n">gui</span><span class="o">.</span><span class="n">vBox</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">controlArea</span><span class="p">,</span> <span class="s2">&quot;Info&quot;</span><span class="p">,</span> <span class="n">stretch</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">infolabel</span> <span class="o">=</span> <span class="n">gui</span><span class="o">.</span><span class="n">widgetLabel</span><span class="p">(</span><span class="n">box</span><span class="p">,</span> <span class="s1">&#39;No data loaded.&#39;</span><span class="p">)</span>
+
+        <span class="n">box</span> <span class="o">=</span> <span class="n">gui</span><span class="o">.</span><span class="n">hBox</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">controlArea</span><span class="p">,</span> <span class="s2">&quot;New&quot;</span><span class="p">,</span> <span class="n">stretch</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">selX</span> <span class="o">=</span> <span class="n">gui</span><span class="o">.</span><span class="n">comboBox</span><span class="p">(</span><span class="n">box</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;sel_x&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;X-axis:&#39;</span><span class="p">,</span> <span class="n">labelWidth</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">sendSelectedValue</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="n">Qt</span><span class="o">.</span><span class="n">Horizontal</span><span class="p">,</span> <span class="n">stretch</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sizePolicy</span><span class="o">=</span><span class="n">QSizePolicy</span><span class="p">(</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">,</span> <span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">selY</span> <span class="o">=</span> <span class="n">gui</span><span class="o">.</span><span class="n">comboBox</span><span class="p">(</span><span class="n">box</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;sel_y&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Y-axis:&#39;</span><span class="p">,</span> <span class="n">labelWidth</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">sendSelectedValue</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="n">Qt</span><span class="o">.</span><span class="n">Horizontal</span><span class="p">,</span> <span class="n">stretch</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sizePolicy</span><span class="o">=</span><span class="n">QSizePolicy</span><span class="p">(</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">,</span> <span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">btnAdd</span> <span class="o">=</span> <span class="n">gui</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="n">box</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;Add plot&#39;</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">addPlot</span><span class="p">,</span> <span class="n">autoDefault</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">stretch</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sizePolicy</span><span class="o">=</span><span class="n">QSizePolicy</span><span class="p">(</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">,</span> <span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">btnDiff</span> <span class="o">=</span> <span class="n">gui</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="n">box</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;Plot difference&#39;</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">addPlotDiff</span><span class="p">,</span> <span class="n">autoDefault</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">stretch</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                                 <span class="n">sizePolicy</span><span class="o">=</span><span class="n">QSizePolicy</span><span class="p">(</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">,</span> <span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">btnClear</span> <span class="o">=</span> <span class="n">gui</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="n">box</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;Clear plot&#39;</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">clearPlot</span><span class="p">,</span> <span class="n">autoDefault</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">stretch</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sizePolicy</span><span class="o">=</span><span class="n">QSizePolicy</span><span class="p">(</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">,</span> <span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot</span> <span class="o">=</span> <span class="n">Plot1D</span><span class="p">()</span>
+        <span class="n">box</span> <span class="o">=</span> <span class="n">gui</span><span class="o">.</span><span class="n">vBox</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">controlArea</span><span class="p">,</span> <span class="s2">&quot;Info&quot;</span><span class="p">,</span> <span class="n">stretch</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">layout</span><span class="p">()</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">ld_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">getLegendsDockWidget</span><span class="p">()</span><span class="o">.</span><span class="n">_legendWidget</span>
+            <span class="n">contextMenu</span> <span class="o">=</span> <span class="n">CurveLegendListContextMenu</span><span class="p">(</span><span class="n">ld_list</span><span class="o">.</span><span class="n">model</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="p">)</span>
+            <span class="n">contextMenu</span><span class="o">.</span><span class="n">sigContextMenu</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">ld_list</span><span class="o">.</span><span class="n">_contextMenuSlot</span><span class="p">)</span>
+            <span class="n">ld_list</span><span class="o">.</span><span class="n">setContextMenu</span><span class="p">(</span><span class="n">contextMenu</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Error</span><span class="o">.</span><span class="n">unknown</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+
+<div class="viewcode-block" id="OWVisFitResults.sizeHint"><a class="viewcode-back" href="../../../pylost_widgets.learning.html#pylost_widgets.learning.OWVisFitResults.OWVisFitResults.sizeHint">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">sizeHint</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">QSize</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">700</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="OWVisFitResults.set_data"><a class="viewcode-back" href="../../../pylost_widgets.learning.html#pylost_widgets.learning.OWVisFitResults.OWVisFitResults.set_data">[docs]</a>    <span class="nd">@Inputs</span><span class="o">.</span><span class="n">data</span>
+    <span class="k">def</span> <span class="nf">set_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_in</span> <span class="o">=</span> <span class="n">data</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">load_data</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_in</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">infolabel</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;No data&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="OWVisFitResults.load_data"><a class="viewcode-back" href="../../../pylost_widgets.learning.html#pylost_widgets.learning.OWVisFitResults.OWVisFitResults.load_data">[docs]</a>    <span class="k">def</span> <span class="nf">load_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_in</span><span class="p">):</span>
+            <span class="n">domain</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_in</span><span class="o">.</span><span class="n">domain</span>
+            <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Select&#39;</span><span class="p">]</span><span class="o">+</span><span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">domain</span><span class="o">.</span><span class="n">variables</span><span class="p">]</span>
+            <span class="n">metas</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">domain</span><span class="o">.</span><span class="n">metas</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">ContinuousVariable</span><span class="p">)]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">infolabel</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;Loaded table with </span><span class="si">{}</span><span class="s1"> rows&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_in</span><span class="p">)))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">selX</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">selY</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">x_items</span> <span class="o">=</span> <span class="n">names</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">y_items</span> <span class="o">=</span> <span class="n">names</span> <span class="o">+</span> <span class="n">metas</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">selX</span><span class="o">.</span><span class="n">addItems</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x_items</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">selY</span><span class="o">.</span><span class="n">addItems</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y_items</span><span class="p">)</span>
+            <span class="c1"># self.clearPlot()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">getLegendsDockWidget</span><span class="p">()</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">load_plots</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="OWVisFitResults.load_plots"><a class="viewcode-back" href="../../../pylost_widgets.learning.html#pylost_widgets.learning.OWVisFitResults.OWVisFitResults.load_plots">[docs]</a>    <span class="k">def</span> <span class="nf">load_plots</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plot_arr</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">ixy</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot_arr</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">ixy</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_items</span> <span class="ow">and</span> <span class="n">ixy</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_items</span><span class="p">:</span>
+                    <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_xy</span><span class="p">(</span><span class="n">ixy</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ixy</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="k">if</span> <span class="n">ixy</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;a&#39;</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">addCurve</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">legend</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> - </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ixy</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">ixy</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+                    <span class="k">elif</span> <span class="n">ixy</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;d&#39;</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">addCurve</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">legend</span><span class="o">=</span><span class="s1">&#39;Difference </span><span class="si">{}</span><span class="s1"> - </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ixy</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">ixy</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span></div>
+
+<div class="viewcode-block" id="OWVisFitResults.addPlot"><a class="viewcode-back" href="../../../pylost_widgets.learning.html#pylost_widgets.learning.OWVisFitResults.OWVisFitResults.addPlot">[docs]</a>    <span class="k">def</span> <span class="nf">addPlot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_arr</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">sel_x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sel_y</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">))</span>
+        <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_xy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">addCurve</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">legend</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> - </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sel_x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sel_y</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="OWVisFitResults.addPlotDiff"><a class="viewcode-back" href="../../../pylost_widgets.learning.html#pylost_widgets.learning.OWVisFitResults.OWVisFitResults.addPlotDiff">[docs]</a>    <span class="k">def</span> <span class="nf">addPlotDiff</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_arr</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">sel_x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sel_y</span><span class="p">,</span> <span class="s1">&#39;d&#39;</span><span class="p">))</span>
+        <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_xy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">addCurve</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">legend</span><span class="o">=</span><span class="s1">&#39;Difference </span><span class="si">{}</span><span class="s1"> - </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sel_y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sel_x</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="OWVisFitResults.get_xy"><a class="viewcode-back" href="../../../pylost_widgets.learning.html#pylost_widgets.learning.OWVisFitResults.OWVisFitResults.get_xy">[docs]</a>    <span class="k">def</span> <span class="nf">get_xy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ix</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">iy</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">ix</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sel_x</span>
+        <span class="k">if</span> <span class="n">iy</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">iy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sel_y</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_in</span><span class="p">[:,</span> <span class="n">ix</span><span class="p">])</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_in</span><span class="p">[:,</span> <span class="n">iy</span><span class="p">])</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">y</span><span class="p">):</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_in</span><span class="p">[:,</span> <span class="n">iy</span><span class="p">]</span><span class="o">.</span><span class="n">metas</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+        <span class="n">x_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">x_idx</span></div>
+
+<div class="viewcode-block" id="OWVisFitResults.clearPlot"><a class="viewcode-back" href="../../../pylost_widgets.learning.html#pylost_widgets.learning.OWVisFitResults.OWVisFitResults.clearPlot">[docs]</a>    <span class="k">def</span> <span class="nf">clearPlot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_arr</span> <span class="o">=</span> <span class="p">[]</span></div></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">pylost_widgets</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../pylost_widgets.html">pylost_widgets package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

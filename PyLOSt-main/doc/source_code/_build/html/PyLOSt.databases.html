@@ -1,0 +1,1784 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>PyLOSt.databases package &#8212; PyLOSt  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="PyLOSt.ui package" href="PyLOSt.ui.html" />
+    <link rel="prev" title="PyLOSt.data_in.sharper package" href="PyLOSt.data_in.sharper.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="pylost-databases-package">
+<h1>PyLOSt.databases package<a class="headerlink" href="#pylost-databases-package" title="Permalink to this headline">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="module-PyLOSt.databases.gs_table_classes">
+<span id="pylost-databases-gs-table-classes-module"></span><h2>PyLOSt.databases.gs_table_classes module<a class="headerlink" href="#module-PyLOSt.databases.gs_table_classes" title="Permalink to this headline">¶</a></h2>
+<p>Created on Jul 12, 2018</p>
+<p>&#64;author: adapa</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.AlgoTypes">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">PyLOSt.databases.gs_table_classes.</span></span><span class="sig-name descname"><span class="pre">AlgoTypes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kw</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/databases/gs_table_classes.html#AlgoTypes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.AlgoTypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlobject.main.SQLObject</span></code></p>
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.AlgoTypes.algoType">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">algoType</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.AlgoTypes.algoType" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.AlgoTypes.algoTypeDesc">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">algoTypeDesc</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.AlgoTypes.algoTypeDesc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.AlgoTypes.byAlgoType">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">byAlgoType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.AlgoTypes.byAlgoType" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.AlgoTypes.j">
+<span class="sig-name descname"><span class="pre">j</span></span><em class="property"> <span class="pre">=</span> <span class="pre">algo_types</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.AlgoTypes.j" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.AlgoTypes.q">
+<span class="sig-name descname"><span class="pre">q</span></span><em class="property"> <span class="pre">=</span> <span class="pre">algo_types</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.AlgoTypes.q" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.AlgoTypes.sqlmeta">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">sqlmeta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.AlgoTypes.sqlmeta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlobject.main.sqlmeta</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.AlgoTypes.sqlmeta.childName">
+<span class="sig-name descname"><span class="pre">childName</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.AlgoTypes.sqlmeta.childName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.AlgoTypes.sqlmeta.columnDefinitions">
+<span class="sig-name descname"><span class="pre">columnDefinitions</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'algoType':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3e04f0a0</span> <span class="pre">algoType&gt;,</span> <span class="pre">'algoTypeDesc':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3e04f1f0</span> <span class="pre">algoTypeDesc&gt;}</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.AlgoTypes.sqlmeta.columnDefinitions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.AlgoTypes.sqlmeta.columnList">
+<span class="sig-name descname"><span class="pre">columnList</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[&lt;SOStringCol</span> <span class="pre">algoType</span> <span class="pre">alternate</span> <span class="pre">ID&gt;,</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">algoTypeDesc&gt;]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.AlgoTypes.sqlmeta.columnList" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.AlgoTypes.sqlmeta.columns">
+<span class="sig-name descname"><span class="pre">columns</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'algoType':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">algoType</span> <span class="pre">alternate</span> <span class="pre">ID&gt;,</span> <span class="pre">'algoTypeDesc':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">algoTypeDesc&gt;}</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.AlgoTypes.sqlmeta.columns" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.AlgoTypes.sqlmeta.idName">
+<span class="sig-name descname"><span class="pre">idName</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'id'</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.AlgoTypes.sqlmeta.idName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.AlgoTypes.sqlmeta.indexDefinitions">
+<span class="sig-name descname"><span class="pre">indexDefinitions</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.AlgoTypes.sqlmeta.indexDefinitions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.AlgoTypes.sqlmeta.indexes">
+<span class="sig-name descname"><span class="pre">indexes</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.AlgoTypes.sqlmeta.indexes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.AlgoTypes.sqlmeta.joinDefinitions">
+<span class="sig-name descname"><span class="pre">joinDefinitions</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.AlgoTypes.sqlmeta.joinDefinitions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.AlgoTypes.sqlmeta.joins">
+<span class="sig-name descname"><span class="pre">joins</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.AlgoTypes.sqlmeta.joins" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.AlgoTypes.sqlmeta.soClass">
+<span class="sig-name descname"><span class="pre">soClass</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.AlgoTypes.sqlmeta.soClass" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#PyLOSt.databases.gs_table_classes.AlgoTypes" title="PyLOSt.databases.gs_table_classes.AlgoTypes"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyLOSt.databases.gs_table_classes.AlgoTypes</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.AlgoTypes.sqlmeta.style">
+<span class="sig-name descname"><span class="pre">style</span></span><em class="property"> <span class="pre">=</span> <span class="pre">&lt;sqlobject.styles.MixedCaseUnderscoreStyle</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.AlgoTypes.sqlmeta.style" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.AlgoTypes.sqlmeta.table">
+<span class="sig-name descname"><span class="pre">table</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'algo_types'</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.AlgoTypes.sqlmeta.table" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Algorithms">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">PyLOSt.databases.gs_table_classes.</span></span><span class="sig-name descname"><span class="pre">Algorithms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kw</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/databases/gs_table_classes.html#Algorithms"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Algorithms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlobject.main.SQLObject</span></code></p>
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Algorithms.addedBy">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">addedBy</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Algorithms.addedBy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Algorithms.algoDesc">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">algoDesc</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Algorithms.algoDesc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Algorithms.algoName">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">algoName</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Algorithms.algoName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Algorithms.algoType">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">algoType</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Algorithms.algoType" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Algorithms.algoTypeID">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">algoTypeID</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Algorithms.algoTypeID" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Algorithms.byAlgoName">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">byAlgoName</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Algorithms.byAlgoName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Algorithms.dateAdded">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">dateAdded</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Algorithms.dateAdded" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Algorithms.functionName">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">functionName</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Algorithms.functionName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Algorithms.j">
+<span class="sig-name descname"><span class="pre">j</span></span><em class="property"> <span class="pre">=</span> <span class="pre">algorithms</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Algorithms.j" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Algorithms.location">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">location</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Algorithms.location" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Algorithms.locationID">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">locationID</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Algorithms.locationID" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Algorithms.q">
+<span class="sig-name descname"><span class="pre">q</span></span><em class="property"> <span class="pre">=</span> <span class="pre">algorithms</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Algorithms.q" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Algorithms.sqlmeta">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">sqlmeta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Algorithms.sqlmeta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlobject.main.sqlmeta</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Algorithms.sqlmeta.childName">
+<span class="sig-name descname"><span class="pre">childName</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Algorithms.sqlmeta.childName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Algorithms.sqlmeta.columnDefinitions">
+<span class="sig-name descname"><span class="pre">columnDefinitions</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'addedBy':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3e03c640</span> <span class="pre">addedBy&gt;,</span> <span class="pre">'algoDesc':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3e03c4c0</span> <span class="pre">algoDesc&gt;,</span> <span class="pre">'algoName':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3e03c100</span> <span class="pre">algoName&gt;,</span> <span class="pre">'algoTypeID':</span> <span class="pre">&lt;ForeignKey</span> <span class="pre">1ba3e03c550</span> <span class="pre">algoType&gt;,</span> <span class="pre">'dateAdded':</span> <span class="pre">&lt;DateCol</span> <span class="pre">1ba3e03c700</span> <span class="pre">dateAdded&gt;,</span> <span class="pre">'functionName':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3e03c610</span> <span class="pre">functionName&gt;,</span> <span class="pre">'locationID':</span> <span class="pre">&lt;ForeignKey</span> <span class="pre">1ba3e03c6a0</span> <span class="pre">location&gt;}</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Algorithms.sqlmeta.columnDefinitions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Algorithms.sqlmeta.columnList">
+<span class="sig-name descname"><span class="pre">columnList</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[&lt;SOStringCol</span> <span class="pre">algoName</span> <span class="pre">alternate</span> <span class="pre">ID&gt;,</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">algoDesc&gt;,</span> <span class="pre">&lt;SOForeignKey</span> <span class="pre">algoTypeID</span> <span class="pre">connected</span> <span class="pre">to</span> <span class="pre">AlgoTypes&gt;,</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">functionName&gt;,</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">addedBy&gt;,</span> <span class="pre">&lt;SOForeignKey</span> <span class="pre">locationID</span> <span class="pre">connected</span> <span class="pre">to</span> <span class="pre">Locations&gt;,</span> <span class="pre">&lt;SODateCol</span> <span class="pre">dateAdded&gt;]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Algorithms.sqlmeta.columnList" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Algorithms.sqlmeta.columns">
+<span class="sig-name descname"><span class="pre">columns</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'addedBy':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">addedBy&gt;,</span> <span class="pre">'algoDesc':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">algoDesc&gt;,</span> <span class="pre">'algoName':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">algoName</span> <span class="pre">alternate</span> <span class="pre">ID&gt;,</span> <span class="pre">'algoTypeID':</span> <span class="pre">&lt;SOForeignKey</span> <span class="pre">algoTypeID</span> <span class="pre">connected</span> <span class="pre">to</span> <span class="pre">AlgoTypes&gt;,</span> <span class="pre">'dateAdded':</span> <span class="pre">&lt;SODateCol</span> <span class="pre">dateAdded&gt;,</span> <span class="pre">'functionName':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">functionName&gt;,</span> <span class="pre">'locationID':</span> <span class="pre">&lt;SOForeignKey</span> <span class="pre">locationID</span> <span class="pre">connected</span> <span class="pre">to</span> <span class="pre">Locations&gt;}</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Algorithms.sqlmeta.columns" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Algorithms.sqlmeta.idName">
+<span class="sig-name descname"><span class="pre">idName</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'id'</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Algorithms.sqlmeta.idName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Algorithms.sqlmeta.indexDefinitions">
+<span class="sig-name descname"><span class="pre">indexDefinitions</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Algorithms.sqlmeta.indexDefinitions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Algorithms.sqlmeta.indexes">
+<span class="sig-name descname"><span class="pre">indexes</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Algorithms.sqlmeta.indexes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Algorithms.sqlmeta.joinDefinitions">
+<span class="sig-name descname"><span class="pre">joinDefinitions</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Algorithms.sqlmeta.joinDefinitions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Algorithms.sqlmeta.joins">
+<span class="sig-name descname"><span class="pre">joins</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Algorithms.sqlmeta.joins" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Algorithms.sqlmeta.soClass">
+<span class="sig-name descname"><span class="pre">soClass</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Algorithms.sqlmeta.soClass" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#PyLOSt.databases.gs_table_classes.Algorithms" title="PyLOSt.databases.gs_table_classes.Algorithms"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyLOSt.databases.gs_table_classes.Algorithms</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Algorithms.sqlmeta.style">
+<span class="sig-name descname"><span class="pre">style</span></span><em class="property"> <span class="pre">=</span> <span class="pre">&lt;sqlobject.styles.MixedCaseUnderscoreStyle</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Algorithms.sqlmeta.style" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Algorithms.sqlmeta.table">
+<span class="sig-name descname"><span class="pre">table</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'algorithms'</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Algorithms.sqlmeta.table" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.AppInfo">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">PyLOSt.databases.gs_table_classes.</span></span><span class="sig-name descname"><span class="pre">AppInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kw</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/databases/gs_table_classes.html#AppInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.AppInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlobject.main.SQLObject</span></code></p>
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.AppInfo.appLanguage">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">appLanguage</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.AppInfo.appLanguage" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.AppInfo.appName">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">appName</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.AppInfo.appName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.AppInfo.createdBy">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">createdBy</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.AppInfo.createdBy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.AppInfo.dateCreated">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">dateCreated</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.AppInfo.dateCreated" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.AppInfo.dateModified">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">dateModified</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.AppInfo.dateModified" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.AppInfo.j">
+<span class="sig-name descname"><span class="pre">j</span></span><em class="property"> <span class="pre">=</span> <span class="pre">app_info</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.AppInfo.j" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.AppInfo.location">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">location</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.AppInfo.location" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.AppInfo.locationID">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">locationID</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.AppInfo.locationID" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.AppInfo.q">
+<span class="sig-name descname"><span class="pre">q</span></span><em class="property"> <span class="pre">=</span> <span class="pre">app_info</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.AppInfo.q" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.AppInfo.sqlmeta">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">sqlmeta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.AppInfo.sqlmeta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlobject.main.sqlmeta</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.AppInfo.sqlmeta.childName">
+<span class="sig-name descname"><span class="pre">childName</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.AppInfo.sqlmeta.childName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.AppInfo.sqlmeta.columnDefinitions">
+<span class="sig-name descname"><span class="pre">columnDefinitions</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'appLanguage':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3e042100</span> <span class="pre">appLanguage&gt;,</span> <span class="pre">'appName':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3e042040</span> <span class="pre">appName&gt;,</span> <span class="pre">'createdBy':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3e0421f0</span> <span class="pre">createdBy&gt;,</span> <span class="pre">'dateCreated':</span> <span class="pre">&lt;DateCol</span> <span class="pre">1ba3e0422e0</span> <span class="pre">dateCreated&gt;,</span> <span class="pre">'dateModified':</span> <span class="pre">&lt;DateCol</span> <span class="pre">1ba3e042340</span> <span class="pre">dateModified&gt;,</span> <span class="pre">'locationID':</span> <span class="pre">&lt;ForeignKey</span> <span class="pre">1ba3e042250</span> <span class="pre">location&gt;,</span> <span class="pre">'version':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3e042190</span> <span class="pre">version&gt;}</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.AppInfo.sqlmeta.columnDefinitions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.AppInfo.sqlmeta.columnList">
+<span class="sig-name descname"><span class="pre">columnList</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[&lt;SOStringCol</span> <span class="pre">appName&gt;,</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">appLanguage&gt;,</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">version&gt;,</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">createdBy&gt;,</span> <span class="pre">&lt;SOForeignKey</span> <span class="pre">locationID</span> <span class="pre">connected</span> <span class="pre">to</span> <span class="pre">Locations&gt;,</span> <span class="pre">&lt;SODateCol</span> <span class="pre">dateCreated&gt;,</span> <span class="pre">&lt;SODateCol</span> <span class="pre">dateModified&gt;]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.AppInfo.sqlmeta.columnList" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.AppInfo.sqlmeta.columns">
+<span class="sig-name descname"><span class="pre">columns</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'appLanguage':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">appLanguage&gt;,</span> <span class="pre">'appName':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">appName&gt;,</span> <span class="pre">'createdBy':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">createdBy&gt;,</span> <span class="pre">'dateCreated':</span> <span class="pre">&lt;SODateCol</span> <span class="pre">dateCreated&gt;,</span> <span class="pre">'dateModified':</span> <span class="pre">&lt;SODateCol</span> <span class="pre">dateModified&gt;,</span> <span class="pre">'locationID':</span> <span class="pre">&lt;SOForeignKey</span> <span class="pre">locationID</span> <span class="pre">connected</span> <span class="pre">to</span> <span class="pre">Locations&gt;,</span> <span class="pre">'version':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">version&gt;}</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.AppInfo.sqlmeta.columns" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.AppInfo.sqlmeta.idName">
+<span class="sig-name descname"><span class="pre">idName</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'id'</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.AppInfo.sqlmeta.idName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.AppInfo.sqlmeta.indexDefinitions">
+<span class="sig-name descname"><span class="pre">indexDefinitions</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.AppInfo.sqlmeta.indexDefinitions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.AppInfo.sqlmeta.indexes">
+<span class="sig-name descname"><span class="pre">indexes</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.AppInfo.sqlmeta.indexes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.AppInfo.sqlmeta.joinDefinitions">
+<span class="sig-name descname"><span class="pre">joinDefinitions</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.AppInfo.sqlmeta.joinDefinitions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.AppInfo.sqlmeta.joins">
+<span class="sig-name descname"><span class="pre">joins</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.AppInfo.sqlmeta.joins" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.AppInfo.sqlmeta.soClass">
+<span class="sig-name descname"><span class="pre">soClass</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.AppInfo.sqlmeta.soClass" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#PyLOSt.databases.gs_table_classes.AppInfo" title="PyLOSt.databases.gs_table_classes.AppInfo"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyLOSt.databases.gs_table_classes.AppInfo</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.AppInfo.sqlmeta.style">
+<span class="sig-name descname"><span class="pre">style</span></span><em class="property"> <span class="pre">=</span> <span class="pre">&lt;sqlobject.styles.MixedCaseUnderscoreStyle</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.AppInfo.sqlmeta.style" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.AppInfo.sqlmeta.table">
+<span class="sig-name descname"><span class="pre">table</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'app_info'</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.AppInfo.sqlmeta.table" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.AppInfo.version">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">version</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.AppInfo.version" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.ConfigParams">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">PyLOSt.databases.gs_table_classes.</span></span><span class="sig-name descname"><span class="pre">ConfigParams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kw</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/databases/gs_table_classes.html#ConfigParams"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.ConfigParams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlobject.main.SQLObject</span></code></p>
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.ConfigParams.dateCreated">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">dateCreated</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.ConfigParams.dateCreated" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.ConfigParams.j">
+<span class="sig-name descname"><span class="pre">j</span></span><em class="property"> <span class="pre">=</span> <span class="pre">config_params</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.ConfigParams.j" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.ConfigParams.paramDesc">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">paramDesc</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.ConfigParams.paramDesc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.ConfigParams.paramName">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">paramName</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.ConfigParams.paramName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.ConfigParams.paramType">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">paramType</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.ConfigParams.paramType" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.ConfigParams.paramValue">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">paramValue</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.ConfigParams.paramValue" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.ConfigParams.q">
+<span class="sig-name descname"><span class="pre">q</span></span><em class="property"> <span class="pre">=</span> <span class="pre">config_params</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.ConfigParams.q" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.ConfigParams.sqlmeta">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">sqlmeta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.ConfigParams.sqlmeta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlobject.main.sqlmeta</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.ConfigParams.sqlmeta.childName">
+<span class="sig-name descname"><span class="pre">childName</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.ConfigParams.sqlmeta.childName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.ConfigParams.sqlmeta.columnDefinitions">
+<span class="sig-name descname"><span class="pre">columnDefinitions</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'dateCreated':</span> <span class="pre">&lt;DateCol</span> <span class="pre">1ba3e056220</span> <span class="pre">dateCreated&gt;,</span> <span class="pre">'paramDesc':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3e0560d0</span> <span class="pre">paramDesc&gt;,</span> <span class="pre">'paramName':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3e056070</span> <span class="pre">paramName&gt;,</span> <span class="pre">'paramType':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3e056160</span> <span class="pre">paramType&gt;,</span> <span class="pre">'paramValue':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3e0561c0</span> <span class="pre">paramValue&gt;}</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.ConfigParams.sqlmeta.columnDefinitions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.ConfigParams.sqlmeta.columnList">
+<span class="sig-name descname"><span class="pre">columnList</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[&lt;SOStringCol</span> <span class="pre">paramName&gt;,</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">paramDesc&gt;,</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">paramType&gt;,</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">paramValue&gt;,</span> <span class="pre">&lt;SODateCol</span> <span class="pre">dateCreated&gt;]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.ConfigParams.sqlmeta.columnList" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.ConfigParams.sqlmeta.columns">
+<span class="sig-name descname"><span class="pre">columns</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'dateCreated':</span> <span class="pre">&lt;SODateCol</span> <span class="pre">dateCreated&gt;,</span> <span class="pre">'paramDesc':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">paramDesc&gt;,</span> <span class="pre">'paramName':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">paramName&gt;,</span> <span class="pre">'paramType':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">paramType&gt;,</span> <span class="pre">'paramValue':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">paramValue&gt;}</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.ConfigParams.sqlmeta.columns" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.ConfigParams.sqlmeta.idName">
+<span class="sig-name descname"><span class="pre">idName</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'id'</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.ConfigParams.sqlmeta.idName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.ConfigParams.sqlmeta.indexDefinitions">
+<span class="sig-name descname"><span class="pre">indexDefinitions</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.ConfigParams.sqlmeta.indexDefinitions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.ConfigParams.sqlmeta.indexes">
+<span class="sig-name descname"><span class="pre">indexes</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.ConfigParams.sqlmeta.indexes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.ConfigParams.sqlmeta.joinDefinitions">
+<span class="sig-name descname"><span class="pre">joinDefinitions</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.ConfigParams.sqlmeta.joinDefinitions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.ConfigParams.sqlmeta.joins">
+<span class="sig-name descname"><span class="pre">joins</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.ConfigParams.sqlmeta.joins" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.ConfigParams.sqlmeta.soClass">
+<span class="sig-name descname"><span class="pre">soClass</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.ConfigParams.sqlmeta.soClass" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#PyLOSt.databases.gs_table_classes.ConfigParams" title="PyLOSt.databases.gs_table_classes.ConfigParams"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyLOSt.databases.gs_table_classes.ConfigParams</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.ConfigParams.sqlmeta.style">
+<span class="sig-name descname"><span class="pre">style</span></span><em class="property"> <span class="pre">=</span> <span class="pre">&lt;sqlobject.styles.MixedCaseUnderscoreStyle</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.ConfigParams.sqlmeta.style" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.ConfigParams.sqlmeta.table">
+<span class="sig-name descname"><span class="pre">table</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'config_params'</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.ConfigParams.sqlmeta.table" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InputDispTypes">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">PyLOSt.databases.gs_table_classes.</span></span><span class="sig-name descname"><span class="pre">InputDispTypes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kw</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/databases/gs_table_classes.html#InputDispTypes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InputDispTypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlobject.main.SQLObject</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InputDispTypes.byDispType">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">byDispType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InputDispTypes.byDispType" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InputDispTypes.dispDesc">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">dispDesc</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InputDispTypes.dispDesc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InputDispTypes.dispType">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">dispType</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InputDispTypes.dispType" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InputDispTypes.j">
+<span class="sig-name descname"><span class="pre">j</span></span><em class="property"> <span class="pre">=</span> <span class="pre">input_disp_types</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InputDispTypes.j" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InputDispTypes.q">
+<span class="sig-name descname"><span class="pre">q</span></span><em class="property"> <span class="pre">=</span> <span class="pre">input_disp_types</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InputDispTypes.q" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InputDispTypes.sqlmeta">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">sqlmeta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InputDispTypes.sqlmeta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlobject.main.sqlmeta</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InputDispTypes.sqlmeta.childName">
+<span class="sig-name descname"><span class="pre">childName</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InputDispTypes.sqlmeta.childName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InputDispTypes.sqlmeta.columnDefinitions">
+<span class="sig-name descname"><span class="pre">columnDefinitions</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'dispDesc':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3e04fc10</span> <span class="pre">dispDesc&gt;,</span> <span class="pre">'dispType':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3e04f940</span> <span class="pre">dispType&gt;}</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InputDispTypes.sqlmeta.columnDefinitions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InputDispTypes.sqlmeta.columnList">
+<span class="sig-name descname"><span class="pre">columnList</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[&lt;SOStringCol</span> <span class="pre">dispType</span> <span class="pre">alternate</span> <span class="pre">ID&gt;,</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">dispDesc&gt;]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InputDispTypes.sqlmeta.columnList" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InputDispTypes.sqlmeta.columns">
+<span class="sig-name descname"><span class="pre">columns</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'dispDesc':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">dispDesc&gt;,</span> <span class="pre">'dispType':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">dispType</span> <span class="pre">alternate</span> <span class="pre">ID&gt;}</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InputDispTypes.sqlmeta.columns" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InputDispTypes.sqlmeta.idName">
+<span class="sig-name descname"><span class="pre">idName</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'id'</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InputDispTypes.sqlmeta.idName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InputDispTypes.sqlmeta.indexDefinitions">
+<span class="sig-name descname"><span class="pre">indexDefinitions</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InputDispTypes.sqlmeta.indexDefinitions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InputDispTypes.sqlmeta.indexes">
+<span class="sig-name descname"><span class="pre">indexes</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InputDispTypes.sqlmeta.indexes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InputDispTypes.sqlmeta.joinDefinitions">
+<span class="sig-name descname"><span class="pre">joinDefinitions</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InputDispTypes.sqlmeta.joinDefinitions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InputDispTypes.sqlmeta.joins">
+<span class="sig-name descname"><span class="pre">joins</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InputDispTypes.sqlmeta.joins" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InputDispTypes.sqlmeta.soClass">
+<span class="sig-name descname"><span class="pre">soClass</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InputDispTypes.sqlmeta.soClass" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#PyLOSt.databases.gs_table_classes.InputDispTypes" title="PyLOSt.databases.gs_table_classes.InputDispTypes"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyLOSt.databases.gs_table_classes.InputDispTypes</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InputDispTypes.sqlmeta.style">
+<span class="sig-name descname"><span class="pre">style</span></span><em class="property"> <span class="pre">=</span> <span class="pre">&lt;sqlobject.styles.MixedCaseUnderscoreStyle</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InputDispTypes.sqlmeta.style" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InputDispTypes.sqlmeta.table">
+<span class="sig-name descname"><span class="pre">table</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'input_disp_types'</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InputDispTypes.sqlmeta.table" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">PyLOSt.databases.gs_table_classes.</span></span><span class="sig-name descname"><span class="pre">InstrTypeFunctionMap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kw</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/databases/gs_table_classes.html#InstrTypeFunctionMap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlobject.main.SQLObject</span></code></p>
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap.className">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">className</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap.className" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap.dataFormat">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">dataFormat</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap.dataFormat" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap.dateCreated">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">dateCreated</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap.dateCreated" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap.fileName">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">fileName</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap.fileName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap.instrType">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">instrType</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap.instrType" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap.instrTypeID">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">instrTypeID</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap.instrTypeID" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap.j">
+<span class="sig-name descname"><span class="pre">j</span></span><em class="property"> <span class="pre">=</span> <span class="pre">instr_type_function_map</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap.j" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap.q">
+<span class="sig-name descname"><span class="pre">q</span></span><em class="property"> <span class="pre">=</span> <span class="pre">instr_type_function_map</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap.q" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap.sqlmeta">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">sqlmeta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap.sqlmeta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlobject.main.sqlmeta</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap.sqlmeta.childName">
+<span class="sig-name descname"><span class="pre">childName</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap.sqlmeta.childName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap.sqlmeta.columnDefinitions">
+<span class="sig-name descname"><span class="pre">columnDefinitions</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'className':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3e056b20</span> <span class="pre">className&gt;,</span> <span class="pre">'dataFormat':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3e056a30</span> <span class="pre">dataFormat&gt;,</span> <span class="pre">'dateCreated':</span> <span class="pre">&lt;DateCol</span> <span class="pre">1ba3e056b50</span> <span class="pre">dateCreated&gt;,</span> <span class="pre">'fileName':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3e056ac0</span> <span class="pre">fileName&gt;,</span> <span class="pre">'instrTypeID':</span> <span class="pre">&lt;ForeignKey</span> <span class="pre">1ba3e0566a0</span> <span class="pre">instrType&gt;}</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap.sqlmeta.columnDefinitions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap.sqlmeta.columnList">
+<span class="sig-name descname"><span class="pre">columnList</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[&lt;SOForeignKey</span> <span class="pre">instrTypeID</span> <span class="pre">connected</span> <span class="pre">to</span> <span class="pre">InstrTypes&gt;,</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">dataFormat&gt;,</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">fileName&gt;,</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">className&gt;,</span> <span class="pre">&lt;SODateCol</span> <span class="pre">dateCreated&gt;]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap.sqlmeta.columnList" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap.sqlmeta.columns">
+<span class="sig-name descname"><span class="pre">columns</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'className':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">className&gt;,</span> <span class="pre">'dataFormat':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">dataFormat&gt;,</span> <span class="pre">'dateCreated':</span> <span class="pre">&lt;SODateCol</span> <span class="pre">dateCreated&gt;,</span> <span class="pre">'fileName':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">fileName&gt;,</span> <span class="pre">'instrTypeID':</span> <span class="pre">&lt;SOForeignKey</span> <span class="pre">instrTypeID</span> <span class="pre">connected</span> <span class="pre">to</span> <span class="pre">InstrTypes&gt;}</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap.sqlmeta.columns" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap.sqlmeta.idName">
+<span class="sig-name descname"><span class="pre">idName</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'id'</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap.sqlmeta.idName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap.sqlmeta.indexDefinitions">
+<span class="sig-name descname"><span class="pre">indexDefinitions</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap.sqlmeta.indexDefinitions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap.sqlmeta.indexes">
+<span class="sig-name descname"><span class="pre">indexes</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap.sqlmeta.indexes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap.sqlmeta.joinDefinitions">
+<span class="sig-name descname"><span class="pre">joinDefinitions</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap.sqlmeta.joinDefinitions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap.sqlmeta.joins">
+<span class="sig-name descname"><span class="pre">joins</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap.sqlmeta.joins" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap.sqlmeta.soClass">
+<span class="sig-name descname"><span class="pre">soClass</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap.sqlmeta.soClass" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap" title="PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap.sqlmeta.style">
+<span class="sig-name descname"><span class="pre">style</span></span><em class="property"> <span class="pre">=</span> <span class="pre">&lt;sqlobject.styles.MixedCaseUnderscoreStyle</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap.sqlmeta.style" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap.sqlmeta.table">
+<span class="sig-name descname"><span class="pre">table</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'instr_type_function_map'</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap.sqlmeta.table" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InstrTypes">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">PyLOSt.databases.gs_table_classes.</span></span><span class="sig-name descname"><span class="pre">InstrTypes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kw</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/databases/gs_table_classes.html#InstrTypes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InstrTypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlobject.main.SQLObject</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InstrTypes.byInstrType">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">byInstrType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InstrTypes.byInstrType" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InstrTypes.instrDesc">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">instrDesc</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InstrTypes.instrDesc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InstrTypes.instrType">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">instrType</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InstrTypes.instrType" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InstrTypes.j">
+<span class="sig-name descname"><span class="pre">j</span></span><em class="property"> <span class="pre">=</span> <span class="pre">instr_types</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InstrTypes.j" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InstrTypes.q">
+<span class="sig-name descname"><span class="pre">q</span></span><em class="property"> <span class="pre">=</span> <span class="pre">instr_types</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InstrTypes.q" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InstrTypes.sqlmeta">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">sqlmeta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InstrTypes.sqlmeta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlobject.main.sqlmeta</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InstrTypes.sqlmeta.childName">
+<span class="sig-name descname"><span class="pre">childName</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InstrTypes.sqlmeta.childName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InstrTypes.sqlmeta.columnDefinitions">
+<span class="sig-name descname"><span class="pre">columnDefinitions</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'instrDesc':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3e04f700</span> <span class="pre">instrDesc&gt;,</span> <span class="pre">'instrType':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3e04f430</span> <span class="pre">instrType&gt;}</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InstrTypes.sqlmeta.columnDefinitions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InstrTypes.sqlmeta.columnList">
+<span class="sig-name descname"><span class="pre">columnList</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[&lt;SOStringCol</span> <span class="pre">instrType</span> <span class="pre">alternate</span> <span class="pre">ID&gt;,</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">instrDesc&gt;]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InstrTypes.sqlmeta.columnList" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InstrTypes.sqlmeta.columns">
+<span class="sig-name descname"><span class="pre">columns</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'instrDesc':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">instrDesc&gt;,</span> <span class="pre">'instrType':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">instrType</span> <span class="pre">alternate</span> <span class="pre">ID&gt;}</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InstrTypes.sqlmeta.columns" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InstrTypes.sqlmeta.idName">
+<span class="sig-name descname"><span class="pre">idName</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'id'</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InstrTypes.sqlmeta.idName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InstrTypes.sqlmeta.indexDefinitions">
+<span class="sig-name descname"><span class="pre">indexDefinitions</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InstrTypes.sqlmeta.indexDefinitions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InstrTypes.sqlmeta.indexes">
+<span class="sig-name descname"><span class="pre">indexes</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InstrTypes.sqlmeta.indexes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InstrTypes.sqlmeta.joinDefinitions">
+<span class="sig-name descname"><span class="pre">joinDefinitions</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InstrTypes.sqlmeta.joinDefinitions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InstrTypes.sqlmeta.joins">
+<span class="sig-name descname"><span class="pre">joins</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InstrTypes.sqlmeta.joins" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InstrTypes.sqlmeta.soClass">
+<span class="sig-name descname"><span class="pre">soClass</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InstrTypes.sqlmeta.soClass" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#PyLOSt.databases.gs_table_classes.InstrTypes" title="PyLOSt.databases.gs_table_classes.InstrTypes"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyLOSt.databases.gs_table_classes.InstrTypes</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InstrTypes.sqlmeta.style">
+<span class="sig-name descname"><span class="pre">style</span></span><em class="property"> <span class="pre">=</span> <span class="pre">&lt;sqlobject.styles.MixedCaseUnderscoreStyle</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InstrTypes.sqlmeta.style" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.InstrTypes.sqlmeta.table">
+<span class="sig-name descname"><span class="pre">table</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'instr_types'</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.InstrTypes.sqlmeta.table" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Instruments">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">PyLOSt.databases.gs_table_classes.</span></span><span class="sig-name descname"><span class="pre">Instruments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kw</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/databases/gs_table_classes.html#Instruments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Instruments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlobject.main.SQLObject</span></code></p>
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Instruments.addedBy">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">addedBy</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Instruments.addedBy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Instruments.byInstrId">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">byInstrId</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Instruments.byInstrId" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Instruments.dataFormats">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">dataFormats</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Instruments.dataFormats" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Instruments.dateAdded">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">dateAdded</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Instruments.dateAdded" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Instruments.instrId">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">instrId</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Instruments.instrId" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Instruments.instrLocation">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">instrLocation</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Instruments.instrLocation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Instruments.instrLocationID">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">instrLocationID</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Instruments.instrLocationID" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Instruments.instrName">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">instrName</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Instruments.instrName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Instruments.instrType">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">instrType</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Instruments.instrType" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Instruments.instrTypeID">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">instrTypeID</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Instruments.instrTypeID" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Instruments.j">
+<span class="sig-name descname"><span class="pre">j</span></span><em class="property"> <span class="pre">=</span> <span class="pre">instruments</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Instruments.j" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Instruments.q">
+<span class="sig-name descname"><span class="pre">q</span></span><em class="property"> <span class="pre">=</span> <span class="pre">instruments</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Instruments.q" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Instruments.sqlmeta">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">sqlmeta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Instruments.sqlmeta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlobject.main.sqlmeta</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Instruments.sqlmeta.childName">
+<span class="sig-name descname"><span class="pre">childName</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Instruments.sqlmeta.childName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Instruments.sqlmeta.columnDefinitions">
+<span class="sig-name descname"><span class="pre">columnDefinitions</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'addedBy':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3e034970</span> <span class="pre">addedBy&gt;,</span> <span class="pre">'dataFormats':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3e0348e0</span> <span class="pre">dataFormats&gt;,</span> <span class="pre">'dateAdded':</span> <span class="pre">&lt;DateCol</span> <span class="pre">1ba3e0349d0</span> <span class="pre">dateAdded&gt;,</span> <span class="pre">'instrId':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3e034400</span> <span class="pre">instrId&gt;,</span> <span class="pre">'instrLocationID':</span> <span class="pre">&lt;ForeignKey</span> <span class="pre">1ba3e0348b0</span> <span class="pre">instrLocation&gt;,</span> <span class="pre">'instrName':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3e034790</span> <span class="pre">instrName&gt;,</span> <span class="pre">'instrTypeID':</span> <span class="pre">&lt;ForeignKey</span> <span class="pre">1ba3e034820</span> <span class="pre">instrType&gt;}</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Instruments.sqlmeta.columnDefinitions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Instruments.sqlmeta.columnList">
+<span class="sig-name descname"><span class="pre">columnList</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[&lt;SOStringCol</span> <span class="pre">instrId</span> <span class="pre">alternate</span> <span class="pre">ID&gt;,</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">instrName&gt;,</span> <span class="pre">&lt;SOForeignKey</span> <span class="pre">instrTypeID</span> <span class="pre">connected</span> <span class="pre">to</span> <span class="pre">InstrTypes&gt;,</span> <span class="pre">&lt;SOForeignKey</span> <span class="pre">instrLocationID</span> <span class="pre">connected</span> <span class="pre">to</span> <span class="pre">Locations&gt;,</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">dataFormats&gt;,</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">addedBy&gt;,</span> <span class="pre">&lt;SODateCol</span> <span class="pre">dateAdded&gt;]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Instruments.sqlmeta.columnList" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Instruments.sqlmeta.columns">
+<span class="sig-name descname"><span class="pre">columns</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'addedBy':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">addedBy&gt;,</span> <span class="pre">'dataFormats':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">dataFormats&gt;,</span> <span class="pre">'dateAdded':</span> <span class="pre">&lt;SODateCol</span> <span class="pre">dateAdded&gt;,</span> <span class="pre">'instrId':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">instrId</span> <span class="pre">alternate</span> <span class="pre">ID&gt;,</span> <span class="pre">'instrLocationID':</span> <span class="pre">&lt;SOForeignKey</span> <span class="pre">instrLocationID</span> <span class="pre">connected</span> <span class="pre">to</span> <span class="pre">Locations&gt;,</span> <span class="pre">'instrName':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">instrName&gt;,</span> <span class="pre">'instrTypeID':</span> <span class="pre">&lt;SOForeignKey</span> <span class="pre">instrTypeID</span> <span class="pre">connected</span> <span class="pre">to</span> <span class="pre">InstrTypes&gt;}</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Instruments.sqlmeta.columns" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Instruments.sqlmeta.idName">
+<span class="sig-name descname"><span class="pre">idName</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'id'</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Instruments.sqlmeta.idName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Instruments.sqlmeta.indexDefinitions">
+<span class="sig-name descname"><span class="pre">indexDefinitions</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Instruments.sqlmeta.indexDefinitions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Instruments.sqlmeta.indexes">
+<span class="sig-name descname"><span class="pre">indexes</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Instruments.sqlmeta.indexes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Instruments.sqlmeta.joinDefinitions">
+<span class="sig-name descname"><span class="pre">joinDefinitions</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Instruments.sqlmeta.joinDefinitions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Instruments.sqlmeta.joins">
+<span class="sig-name descname"><span class="pre">joins</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Instruments.sqlmeta.joins" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Instruments.sqlmeta.soClass">
+<span class="sig-name descname"><span class="pre">soClass</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Instruments.sqlmeta.soClass" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#PyLOSt.databases.gs_table_classes.Instruments" title="PyLOSt.databases.gs_table_classes.Instruments"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyLOSt.databases.gs_table_classes.Instruments</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Instruments.sqlmeta.style">
+<span class="sig-name descname"><span class="pre">style</span></span><em class="property"> <span class="pre">=</span> <span class="pre">&lt;sqlobject.styles.MixedCaseUnderscoreStyle</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Instruments.sqlmeta.style" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Instruments.sqlmeta.table">
+<span class="sig-name descname"><span class="pre">table</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'instruments'</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Instruments.sqlmeta.table" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Locations">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">PyLOSt.databases.gs_table_classes.</span></span><span class="sig-name descname"><span class="pre">Locations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kw</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/databases/gs_table_classes.html#Locations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Locations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlobject.main.SQLObject</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Locations.byLocation">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">byLocation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Locations.byLocation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Locations.j">
+<span class="sig-name descname"><span class="pre">j</span></span><em class="property"> <span class="pre">=</span> <span class="pre">locations</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Locations.j" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Locations.location">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">location</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Locations.location" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Locations.locationDesc">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">locationDesc</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Locations.locationDesc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Locations.q">
+<span class="sig-name descname"><span class="pre">q</span></span><em class="property"> <span class="pre">=</span> <span class="pre">locations</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Locations.q" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Locations.sqlmeta">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">sqlmeta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Locations.sqlmeta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlobject.main.sqlmeta</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Locations.sqlmeta.childName">
+<span class="sig-name descname"><span class="pre">childName</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Locations.sqlmeta.childName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Locations.sqlmeta.columnDefinitions">
+<span class="sig-name descname"><span class="pre">columnDefinitions</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'location':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3e0429a0</span> <span class="pre">location&gt;,</span> <span class="pre">'locationDesc':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3e042d30</span> <span class="pre">locationDesc&gt;}</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Locations.sqlmeta.columnDefinitions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Locations.sqlmeta.columnList">
+<span class="sig-name descname"><span class="pre">columnList</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[&lt;SOStringCol</span> <span class="pre">location</span> <span class="pre">alternate</span> <span class="pre">ID&gt;,</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">locationDesc&gt;]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Locations.sqlmeta.columnList" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Locations.sqlmeta.columns">
+<span class="sig-name descname"><span class="pre">columns</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'location':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">location</span> <span class="pre">alternate</span> <span class="pre">ID&gt;,</span> <span class="pre">'locationDesc':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">locationDesc&gt;}</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Locations.sqlmeta.columns" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Locations.sqlmeta.idName">
+<span class="sig-name descname"><span class="pre">idName</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'id'</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Locations.sqlmeta.idName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Locations.sqlmeta.indexDefinitions">
+<span class="sig-name descname"><span class="pre">indexDefinitions</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Locations.sqlmeta.indexDefinitions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Locations.sqlmeta.indexes">
+<span class="sig-name descname"><span class="pre">indexes</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Locations.sqlmeta.indexes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Locations.sqlmeta.joinDefinitions">
+<span class="sig-name descname"><span class="pre">joinDefinitions</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Locations.sqlmeta.joinDefinitions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Locations.sqlmeta.joins">
+<span class="sig-name descname"><span class="pre">joins</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Locations.sqlmeta.joins" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Locations.sqlmeta.soClass">
+<span class="sig-name descname"><span class="pre">soClass</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Locations.sqlmeta.soClass" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#PyLOSt.databases.gs_table_classes.Locations" title="PyLOSt.databases.gs_table_classes.Locations"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyLOSt.databases.gs_table_classes.Locations</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Locations.sqlmeta.style">
+<span class="sig-name descname"><span class="pre">style</span></span><em class="property"> <span class="pre">=</span> <span class="pre">&lt;sqlobject.styles.MixedCaseUnderscoreStyle</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Locations.sqlmeta.style" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.Locations.sqlmeta.table">
+<span class="sig-name descname"><span class="pre">table</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'locations'</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.Locations.sqlmeta.table" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">PyLOSt.databases.gs_table_classes.</span></span><span class="sig-name descname"><span class="pre">StitchSetupAlgoOptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kw</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/databases/gs_table_classes.html#StitchSetupAlgoOptions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlobject.main.SQLObject</span></code></p>
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.addedBy">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">addedBy</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.addedBy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.algo">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">algo</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.algo" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.algoID">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">algoID</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.algoID" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.allVals">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">allVals</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.allVals" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.dateAdded">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">dateAdded</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.dateAdded" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.defVal">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">defVal</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.defVal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.dispType">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">dispType</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.dispType" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.dispTypeID">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">dispTypeID</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.dispTypeID" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.groupItems">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">groupItems</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.groupItems" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.j">
+<span class="sig-name descname"><span class="pre">j</span></span><em class="property"> <span class="pre">=</span> <span class="pre">stitch_setup_algo_options</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.j" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.option">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">option</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.option" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.optionDesc">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">optionDesc</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.optionDesc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.q">
+<span class="sig-name descname"><span class="pre">q</span></span><em class="property"> <span class="pre">=</span> <span class="pre">stitch_setup_algo_options</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.q" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.sqlmeta">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">sqlmeta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.sqlmeta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlobject.main.sqlmeta</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.sqlmeta.childName">
+<span class="sig-name descname"><span class="pre">childName</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.sqlmeta.childName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.sqlmeta.columnDefinitions">
+<span class="sig-name descname"><span class="pre">columnDefinitions</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'addedBy':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3e02aaf0</span> <span class="pre">addedBy&gt;,</span> <span class="pre">'algoID':</span> <span class="pre">&lt;ForeignKey</span> <span class="pre">1ba3e02a5b0</span> <span class="pre">algo&gt;,</span> <span class="pre">'allVals':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3e02aa00</span> <span class="pre">allVals&gt;,</span> <span class="pre">'dateAdded':</span> <span class="pre">&lt;DateCol</span> <span class="pre">1ba3e02ab50</span> <span class="pre">dateAdded&gt;,</span> <span class="pre">'defVal':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3e02a9d0</span> <span class="pre">defVal&gt;,</span> <span class="pre">'dispTypeID':</span> <span class="pre">&lt;ForeignKey</span> <span class="pre">1ba3e02a8e0</span> <span class="pre">dispType&gt;,</span> <span class="pre">'groupItems':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3e02aa90</span> <span class="pre">groupItems&gt;,</span> <span class="pre">'option':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3e02a850</span> <span class="pre">option&gt;,</span> <span class="pre">'optionDesc':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3e02a8b0</span> <span class="pre">optionDesc&gt;,</span> <span class="pre">'valUnit':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3e02aa60</span> <span class="pre">valUnit&gt;}</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.sqlmeta.columnDefinitions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.sqlmeta.columnList">
+<span class="sig-name descname"><span class="pre">columnList</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[&lt;SOForeignKey</span> <span class="pre">algoID</span> <span class="pre">connected</span> <span class="pre">to</span> <span class="pre">Algorithms&gt;,</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">option&gt;,</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">optionDesc&gt;,</span> <span class="pre">&lt;SOForeignKey</span> <span class="pre">dispTypeID</span> <span class="pre">connected</span> <span class="pre">to</span> <span class="pre">InputDispTypes&gt;,</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">defVal&gt;,</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">allVals&gt;,</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">valUnit&gt;,</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">groupItems&gt;,</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">addedBy&gt;,</span> <span class="pre">&lt;SODateCol</span> <span class="pre">dateAdded&gt;]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.sqlmeta.columnList" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.sqlmeta.columns">
+<span class="sig-name descname"><span class="pre">columns</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'addedBy':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">addedBy&gt;,</span> <span class="pre">'algoID':</span> <span class="pre">&lt;SOForeignKey</span> <span class="pre">algoID</span> <span class="pre">connected</span> <span class="pre">to</span> <span class="pre">Algorithms&gt;,</span> <span class="pre">'allVals':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">allVals&gt;,</span> <span class="pre">'dateAdded':</span> <span class="pre">&lt;SODateCol</span> <span class="pre">dateAdded&gt;,</span> <span class="pre">'defVal':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">defVal&gt;,</span> <span class="pre">'dispTypeID':</span> <span class="pre">&lt;SOForeignKey</span> <span class="pre">dispTypeID</span> <span class="pre">connected</span> <span class="pre">to</span> <span class="pre">InputDispTypes&gt;,</span> <span class="pre">'groupItems':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">groupItems&gt;,</span> <span class="pre">'option':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">option&gt;,</span> <span class="pre">'optionDesc':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">optionDesc&gt;,</span> <span class="pre">'valUnit':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">valUnit&gt;}</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.sqlmeta.columns" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.sqlmeta.idName">
+<span class="sig-name descname"><span class="pre">idName</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'id'</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.sqlmeta.idName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.sqlmeta.indexDefinitions">
+<span class="sig-name descname"><span class="pre">indexDefinitions</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.sqlmeta.indexDefinitions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.sqlmeta.indexes">
+<span class="sig-name descname"><span class="pre">indexes</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.sqlmeta.indexes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.sqlmeta.joinDefinitions">
+<span class="sig-name descname"><span class="pre">joinDefinitions</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.sqlmeta.joinDefinitions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.sqlmeta.joins">
+<span class="sig-name descname"><span class="pre">joins</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.sqlmeta.joins" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.sqlmeta.soClass">
+<span class="sig-name descname"><span class="pre">soClass</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.sqlmeta.soClass" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions" title="PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.sqlmeta.style">
+<span class="sig-name descname"><span class="pre">style</span></span><em class="property"> <span class="pre">=</span> <span class="pre">&lt;sqlobject.styles.MixedCaseUnderscoreStyle</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.sqlmeta.style" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.sqlmeta.table">
+<span class="sig-name descname"><span class="pre">table</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'stitch_setup_algo_options'</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.sqlmeta.table" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.valUnit">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">valUnit</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions.valUnit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">PyLOSt.databases.gs_table_classes.</span></span><span class="sig-name descname"><span class="pre">StitchSetupOptionsCommon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kw</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/databases/gs_table_classes.html#StitchSetupOptionsCommon"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlobject.main.SQLObject</span></code></p>
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.addedBy">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">addedBy</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.addedBy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.byOption">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">byOption</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.byOption" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.dateAdded">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">dateAdded</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.dateAdded" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.defVal">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">defVal</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.defVal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.defValUnit">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">defValUnit</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.defValUnit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.dispType">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">dispType</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.dispType" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.dispTypeID">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">dispTypeID</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.dispTypeID" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.j">
+<span class="sig-name descname"><span class="pre">j</span></span><em class="property"> <span class="pre">=</span> <span class="pre">stitch_setup_options_common</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.j" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.location">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">location</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.location" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.locationID">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">locationID</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.locationID" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.option">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">option</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.option" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.optionDesc">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">optionDesc</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.optionDesc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.q">
+<span class="sig-name descname"><span class="pre">q</span></span><em class="property"> <span class="pre">=</span> <span class="pre">stitch_setup_options_common</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.q" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.sqlmeta">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">sqlmeta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.sqlmeta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlobject.main.sqlmeta</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.sqlmeta.childName">
+<span class="sig-name descname"><span class="pre">childName</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.sqlmeta.childName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.sqlmeta.columnDefinitions">
+<span class="sig-name descname"><span class="pre">columnDefinitions</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'addedBy':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3e01eb80</span> <span class="pre">addedBy&gt;,</span> <span class="pre">'dateAdded':</span> <span class="pre">&lt;DateCol</span> <span class="pre">1ba3e01ec10</span> <span class="pre">dateAdded&gt;,</span> <span class="pre">'defVal':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3e01ea90</span> <span class="pre">defVal&gt;,</span> <span class="pre">'defValUnit':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3e01eb50</span> <span class="pre">defValUnit&gt;,</span> <span class="pre">'dispTypeID':</span> <span class="pre">&lt;ForeignKey</span> <span class="pre">1ba3e01ea30</span> <span class="pre">dispType&gt;,</span> <span class="pre">'locationID':</span> <span class="pre">&lt;ForeignKey</span> <span class="pre">1ba3e01ebe0</span> <span class="pre">location&gt;,</span> <span class="pre">'option':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3e01e460</span> <span class="pre">option&gt;,</span> <span class="pre">'optionDesc':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3e01e940</span> <span class="pre">optionDesc&gt;}</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.sqlmeta.columnDefinitions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.sqlmeta.columnList">
+<span class="sig-name descname"><span class="pre">columnList</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[&lt;SOStringCol</span> <span class="pre">option</span> <span class="pre">alternate</span> <span class="pre">ID&gt;,</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">optionDesc&gt;,</span> <span class="pre">&lt;SOForeignKey</span> <span class="pre">dispTypeID</span> <span class="pre">connected</span> <span class="pre">to</span> <span class="pre">InputDispTypes&gt;,</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">defVal&gt;,</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">defValUnit&gt;,</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">addedBy&gt;,</span> <span class="pre">&lt;SOForeignKey</span> <span class="pre">locationID</span> <span class="pre">connected</span> <span class="pre">to</span> <span class="pre">Locations&gt;,</span> <span class="pre">&lt;SODateCol</span> <span class="pre">dateAdded&gt;]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.sqlmeta.columnList" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.sqlmeta.columns">
+<span class="sig-name descname"><span class="pre">columns</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'addedBy':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">addedBy&gt;,</span> <span class="pre">'dateAdded':</span> <span class="pre">&lt;SODateCol</span> <span class="pre">dateAdded&gt;,</span> <span class="pre">'defVal':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">defVal&gt;,</span> <span class="pre">'defValUnit':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">defValUnit&gt;,</span> <span class="pre">'dispTypeID':</span> <span class="pre">&lt;SOForeignKey</span> <span class="pre">dispTypeID</span> <span class="pre">connected</span> <span class="pre">to</span> <span class="pre">InputDispTypes&gt;,</span> <span class="pre">'locationID':</span> <span class="pre">&lt;SOForeignKey</span> <span class="pre">locationID</span> <span class="pre">connected</span> <span class="pre">to</span> <span class="pre">Locations&gt;,</span> <span class="pre">'option':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">option</span> <span class="pre">alternate</span> <span class="pre">ID&gt;,</span> <span class="pre">'optionDesc':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">optionDesc&gt;}</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.sqlmeta.columns" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.sqlmeta.idName">
+<span class="sig-name descname"><span class="pre">idName</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'id'</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.sqlmeta.idName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.sqlmeta.indexDefinitions">
+<span class="sig-name descname"><span class="pre">indexDefinitions</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.sqlmeta.indexDefinitions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.sqlmeta.indexes">
+<span class="sig-name descname"><span class="pre">indexes</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.sqlmeta.indexes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.sqlmeta.joinDefinitions">
+<span class="sig-name descname"><span class="pre">joinDefinitions</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.sqlmeta.joinDefinitions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.sqlmeta.joins">
+<span class="sig-name descname"><span class="pre">joins</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.sqlmeta.joins" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.sqlmeta.soClass">
+<span class="sig-name descname"><span class="pre">soClass</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.sqlmeta.soClass" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon" title="PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.sqlmeta.style">
+<span class="sig-name descname"><span class="pre">style</span></span><em class="property"> <span class="pre">=</span> <span class="pre">&lt;sqlobject.styles.MixedCaseUnderscoreStyle</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.sqlmeta.style" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.sqlmeta.table">
+<span class="sig-name descname"><span class="pre">table</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'stitch_setup_options_common'</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon.sqlmeta.table" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">PyLOSt.databases.gs_table_classes.</span></span><span class="sig-name descname"><span class="pre">StitchSetupOptionsInstr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kw</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/databases/gs_table_classes.html#StitchSetupOptionsInstr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlobject.main.SQLObject</span></code></p>
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.addedBy">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">addedBy</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.addedBy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.dateAdded">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">dateAdded</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.dateAdded" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.defVal">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">defVal</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.defVal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.defValUnit">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">defValUnit</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.defValUnit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.instr">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">instr</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.instr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.instrID">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">instrID</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.instrID" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.j">
+<span class="sig-name descname"><span class="pre">j</span></span><em class="property"> <span class="pre">=</span> <span class="pre">stitch_setup_options_instr</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.j" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.location">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">location</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.location" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.locationID">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">locationID</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.locationID" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.option">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">option</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.option" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.optionID">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">optionID</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.optionID" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.q">
+<span class="sig-name descname"><span class="pre">q</span></span><em class="property"> <span class="pre">=</span> <span class="pre">stitch_setup_options_instr</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.q" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.sqlmeta">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">sqlmeta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.sqlmeta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlobject.main.sqlmeta</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.sqlmeta.childName">
+<span class="sig-name descname"><span class="pre">childName</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.sqlmeta.childName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.sqlmeta.columnDefinitions">
+<span class="sig-name descname"><span class="pre">columnDefinitions</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'addedBy':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3ddbcd90</span> <span class="pre">addedBy&gt;,</span> <span class="pre">'dateAdded':</span> <span class="pre">&lt;DateCol</span> <span class="pre">1ba3e011f40</span> <span class="pre">dateAdded&gt;,</span> <span class="pre">'defVal':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3ddbcc10</span> <span class="pre">defVal&gt;,</span> <span class="pre">'defValUnit':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3ddbccd0</span> <span class="pre">defValUnit&gt;,</span> <span class="pre">'instrID':</span> <span class="pre">&lt;ForeignKey</span> <span class="pre">1ba3ddbcbe0</span> <span class="pre">instr&gt;,</span> <span class="pre">'locationID':</span> <span class="pre">&lt;ForeignKey</span> <span class="pre">1ba3ddeb9a0</span> <span class="pre">location&gt;,</span> <span class="pre">'optionID':</span> <span class="pre">&lt;ForeignKey</span> <span class="pre">1ba3ddbcb80</span> <span class="pre">option&gt;}</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.sqlmeta.columnDefinitions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.sqlmeta.columnList">
+<span class="sig-name descname"><span class="pre">columnList</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[&lt;SOForeignKey</span> <span class="pre">instrID</span> <span class="pre">connected</span> <span class="pre">to</span> <span class="pre">Instruments&gt;,</span> <span class="pre">&lt;SOForeignKey</span> <span class="pre">optionID</span> <span class="pre">connected</span> <span class="pre">to</span> <span class="pre">StitchSetupOptionsCommon&gt;,</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">defVal&gt;,</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">defValUnit&gt;,</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">addedBy&gt;,</span> <span class="pre">&lt;SOForeignKey</span> <span class="pre">locationID</span> <span class="pre">connected</span> <span class="pre">to</span> <span class="pre">Locations&gt;,</span> <span class="pre">&lt;SODateCol</span> <span class="pre">dateAdded&gt;]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.sqlmeta.columnList" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.sqlmeta.columns">
+<span class="sig-name descname"><span class="pre">columns</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'addedBy':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">addedBy&gt;,</span> <span class="pre">'dateAdded':</span> <span class="pre">&lt;SODateCol</span> <span class="pre">dateAdded&gt;,</span> <span class="pre">'defVal':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">defVal&gt;,</span> <span class="pre">'defValUnit':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">defValUnit&gt;,</span> <span class="pre">'instrID':</span> <span class="pre">&lt;SOForeignKey</span> <span class="pre">instrID</span> <span class="pre">connected</span> <span class="pre">to</span> <span class="pre">Instruments&gt;,</span> <span class="pre">'locationID':</span> <span class="pre">&lt;SOForeignKey</span> <span class="pre">locationID</span> <span class="pre">connected</span> <span class="pre">to</span> <span class="pre">Locations&gt;,</span> <span class="pre">'optionID':</span> <span class="pre">&lt;SOForeignKey</span> <span class="pre">optionID</span> <span class="pre">connected</span> <span class="pre">to</span> <span class="pre">StitchSetupOptionsCommon&gt;}</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.sqlmeta.columns" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.sqlmeta.idName">
+<span class="sig-name descname"><span class="pre">idName</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'id'</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.sqlmeta.idName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.sqlmeta.indexDefinitions">
+<span class="sig-name descname"><span class="pre">indexDefinitions</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.sqlmeta.indexDefinitions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.sqlmeta.indexes">
+<span class="sig-name descname"><span class="pre">indexes</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.sqlmeta.indexes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.sqlmeta.joinDefinitions">
+<span class="sig-name descname"><span class="pre">joinDefinitions</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.sqlmeta.joinDefinitions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.sqlmeta.joins">
+<span class="sig-name descname"><span class="pre">joins</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.sqlmeta.joins" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.sqlmeta.soClass">
+<span class="sig-name descname"><span class="pre">soClass</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.sqlmeta.soClass" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr" title="PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.sqlmeta.style">
+<span class="sig-name descname"><span class="pre">style</span></span><em class="property"> <span class="pre">=</span> <span class="pre">&lt;sqlobject.styles.MixedCaseUnderscoreStyle</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.sqlmeta.style" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.sqlmeta.table">
+<span class="sig-name descname"><span class="pre">table</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'stitch_setup_options_instr'</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr.sqlmeta.table" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchViewerButtonTypes">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">PyLOSt.databases.gs_table_classes.</span></span><span class="sig-name descname"><span class="pre">StitchViewerButtonTypes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kw</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/databases/gs_table_classes.html#StitchViewerButtonTypes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchViewerButtonTypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlobject.main.SQLObject</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchViewerButtonTypes.j">
+<span class="sig-name descname"><span class="pre">j</span></span><em class="property"> <span class="pre">=</span> <span class="pre">stitch_viewer_button_types</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchViewerButtonTypes.j" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchViewerButtonTypes.q">
+<span class="sig-name descname"><span class="pre">q</span></span><em class="property"> <span class="pre">=</span> <span class="pre">stitch_viewer_button_types</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchViewerButtonTypes.q" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchViewerButtonTypes.sqlmeta">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">sqlmeta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchViewerButtonTypes.sqlmeta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlobject.main.sqlmeta</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchViewerButtonTypes.sqlmeta.childName">
+<span class="sig-name descname"><span class="pre">childName</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchViewerButtonTypes.sqlmeta.childName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchViewerButtonTypes.sqlmeta.columnDefinitions">
+<span class="sig-name descname"><span class="pre">columnDefinitions</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'type':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3e05dd90</span> <span class="pre">type&gt;,</span> <span class="pre">'typeDesc':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3e066040</span> <span class="pre">typeDesc&gt;}</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchViewerButtonTypes.sqlmeta.columnDefinitions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchViewerButtonTypes.sqlmeta.columnList">
+<span class="sig-name descname"><span class="pre">columnList</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[&lt;SOStringCol</span> <span class="pre">type&gt;,</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">typeDesc&gt;]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchViewerButtonTypes.sqlmeta.columnList" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchViewerButtonTypes.sqlmeta.columns">
+<span class="sig-name descname"><span class="pre">columns</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'type':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">type&gt;,</span> <span class="pre">'typeDesc':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">typeDesc&gt;}</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchViewerButtonTypes.sqlmeta.columns" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchViewerButtonTypes.sqlmeta.idName">
+<span class="sig-name descname"><span class="pre">idName</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'id'</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchViewerButtonTypes.sqlmeta.idName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchViewerButtonTypes.sqlmeta.indexDefinitions">
+<span class="sig-name descname"><span class="pre">indexDefinitions</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchViewerButtonTypes.sqlmeta.indexDefinitions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchViewerButtonTypes.sqlmeta.indexes">
+<span class="sig-name descname"><span class="pre">indexes</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchViewerButtonTypes.sqlmeta.indexes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchViewerButtonTypes.sqlmeta.joinDefinitions">
+<span class="sig-name descname"><span class="pre">joinDefinitions</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchViewerButtonTypes.sqlmeta.joinDefinitions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchViewerButtonTypes.sqlmeta.joins">
+<span class="sig-name descname"><span class="pre">joins</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchViewerButtonTypes.sqlmeta.joins" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchViewerButtonTypes.sqlmeta.soClass">
+<span class="sig-name descname"><span class="pre">soClass</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchViewerButtonTypes.sqlmeta.soClass" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#PyLOSt.databases.gs_table_classes.StitchViewerButtonTypes" title="PyLOSt.databases.gs_table_classes.StitchViewerButtonTypes"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyLOSt.databases.gs_table_classes.StitchViewerButtonTypes</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchViewerButtonTypes.sqlmeta.style">
+<span class="sig-name descname"><span class="pre">style</span></span><em class="property"> <span class="pre">=</span> <span class="pre">&lt;sqlobject.styles.MixedCaseUnderscoreStyle</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchViewerButtonTypes.sqlmeta.style" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchViewerButtonTypes.sqlmeta.table">
+<span class="sig-name descname"><span class="pre">table</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'stitch_viewer_button_types'</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchViewerButtonTypes.sqlmeta.table" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchViewerButtonTypes.type">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">type</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchViewerButtonTypes.type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchViewerButtonTypes.typeDesc">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">typeDesc</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchViewerButtonTypes.typeDesc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchViewerButtons">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">PyLOSt.databases.gs_table_classes.</span></span><span class="sig-name descname"><span class="pre">StitchViewerButtons</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kw</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/databases/gs_table_classes.html#StitchViewerButtons"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchViewerButtons" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlobject.main.SQLObject</span></code></p>
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchViewerButtons.className">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">className</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchViewerButtons.className" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchViewerButtons.dateCreated">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">dateCreated</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchViewerButtons.dateCreated" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchViewerButtons.description">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchViewerButtons.description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchViewerButtons.fileName">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">fileName</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchViewerButtons.fileName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchViewerButtons.j">
+<span class="sig-name descname"><span class="pre">j</span></span><em class="property"> <span class="pre">=</span> <span class="pre">stitch_viewer_buttons</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchViewerButtons.j" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchViewerButtons.name">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchViewerButtons.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchViewerButtons.q">
+<span class="sig-name descname"><span class="pre">q</span></span><em class="property"> <span class="pre">=</span> <span class="pre">stitch_viewer_buttons</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchViewerButtons.q" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchViewerButtons.requires">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">requires</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchViewerButtons.requires" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchViewerButtons.requiresText">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">requiresText</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchViewerButtons.requiresText" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchViewerButtons.sqlmeta">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">sqlmeta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchViewerButtons.sqlmeta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlobject.main.sqlmeta</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchViewerButtons.sqlmeta.childName">
+<span class="sig-name descname"><span class="pre">childName</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchViewerButtons.sqlmeta.childName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchViewerButtons.sqlmeta.columnDefinitions">
+<span class="sig-name descname"><span class="pre">columnDefinitions</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'className':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3e05d370</span> <span class="pre">className&gt;,</span> <span class="pre">'dateCreated':</span> <span class="pre">&lt;DateCol</span> <span class="pre">1ba3e05d550</span> <span class="pre">dateCreated&gt;,</span> <span class="pre">'description':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3e05d280</span> <span class="pre">description&gt;,</span> <span class="pre">'fileName':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3e05d310</span> <span class="pre">fileName&gt;,</span> <span class="pre">'name':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3e05d1c0</span> <span class="pre">name&gt;,</span> <span class="pre">'requires':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3e05d490</span> <span class="pre">requires&gt;,</span> <span class="pre">'requiresText':</span> <span class="pre">&lt;StringCol</span> <span class="pre">1ba3e05d520</span> <span class="pre">requiresText&gt;,</span> <span class="pre">'typeID':</span> <span class="pre">&lt;ForeignKey</span> <span class="pre">1ba3e05d3a0</span> <span class="pre">type&gt;}</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchViewerButtons.sqlmeta.columnDefinitions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchViewerButtons.sqlmeta.columnList">
+<span class="sig-name descname"><span class="pre">columnList</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[&lt;SOStringCol</span> <span class="pre">name&gt;,</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">description&gt;,</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">fileName&gt;,</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">className&gt;,</span> <span class="pre">&lt;SOForeignKey</span> <span class="pre">typeID</span> <span class="pre">connected</span> <span class="pre">to</span> <span class="pre">StitchViewerButtonTypes&gt;,</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">requires&gt;,</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">requiresText&gt;,</span> <span class="pre">&lt;SODateCol</span> <span class="pre">dateCreated&gt;]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchViewerButtons.sqlmeta.columnList" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchViewerButtons.sqlmeta.columns">
+<span class="sig-name descname"><span class="pre">columns</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'className':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">className&gt;,</span> <span class="pre">'dateCreated':</span> <span class="pre">&lt;SODateCol</span> <span class="pre">dateCreated&gt;,</span> <span class="pre">'description':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">description&gt;,</span> <span class="pre">'fileName':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">fileName&gt;,</span> <span class="pre">'name':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">name&gt;,</span> <span class="pre">'requires':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">requires&gt;,</span> <span class="pre">'requiresText':</span> <span class="pre">&lt;SOStringCol</span> <span class="pre">requiresText&gt;,</span> <span class="pre">'typeID':</span> <span class="pre">&lt;SOForeignKey</span> <span class="pre">typeID</span> <span class="pre">connected</span> <span class="pre">to</span> <span class="pre">StitchViewerButtonTypes&gt;}</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchViewerButtons.sqlmeta.columns" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchViewerButtons.sqlmeta.idName">
+<span class="sig-name descname"><span class="pre">idName</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'id'</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchViewerButtons.sqlmeta.idName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchViewerButtons.sqlmeta.indexDefinitions">
+<span class="sig-name descname"><span class="pre">indexDefinitions</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchViewerButtons.sqlmeta.indexDefinitions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchViewerButtons.sqlmeta.indexes">
+<span class="sig-name descname"><span class="pre">indexes</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchViewerButtons.sqlmeta.indexes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchViewerButtons.sqlmeta.joinDefinitions">
+<span class="sig-name descname"><span class="pre">joinDefinitions</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchViewerButtons.sqlmeta.joinDefinitions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchViewerButtons.sqlmeta.joins">
+<span class="sig-name descname"><span class="pre">joins</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchViewerButtons.sqlmeta.joins" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchViewerButtons.sqlmeta.soClass">
+<span class="sig-name descname"><span class="pre">soClass</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchViewerButtons.sqlmeta.soClass" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#PyLOSt.databases.gs_table_classes.StitchViewerButtons" title="PyLOSt.databases.gs_table_classes.StitchViewerButtons"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyLOSt.databases.gs_table_classes.StitchViewerButtons</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchViewerButtons.sqlmeta.style">
+<span class="sig-name descname"><span class="pre">style</span></span><em class="property"> <span class="pre">=</span> <span class="pre">&lt;sqlobject.styles.MixedCaseUnderscoreStyle</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchViewerButtons.sqlmeta.style" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchViewerButtons.sqlmeta.table">
+<span class="sig-name descname"><span class="pre">table</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'stitch_viewer_buttons'</span></em><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchViewerButtons.sqlmeta.table" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchViewerButtons.type">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">type</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchViewerButtons.type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.StitchViewerButtons.typeID">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">typeID</span></span><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.StitchViewerButtons.typeID" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="PyLOSt.databases.gs_table_classes.connectDB">
+<span class="sig-prename descclassname"><span class="pre">PyLOSt.databases.gs_table_classes.</span></span><span class="sig-name descname"><span class="pre">connectDB</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_loc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'C:\\Users\\adapa\\AppData\\Roaming\\Python\\Python38\\site-packages\\PyLOSt\\databases\\gs.db'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/databases/gs_table_classes.html#connectDB"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.databases.gs_table_classes.connectDB" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-PyLOSt.databases">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-PyLOSt.databases" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">PyLOSt</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="PyLOSt.html">PyLOSt package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="PyLOSt.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="PyLOSt.algorithms.html">PyLOSt.algorithms package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="PyLOSt.data_in.html">PyLOSt.data_in package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">PyLOSt.databases package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-PyLOSt.databases.gs_table_classes">PyLOSt.databases.gs_table_classes module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-PyLOSt.databases">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="PyLOSt.ui.html">PyLOSt.ui package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="PyLOSt.util.html">PyLOSt.util package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.html#module-PyLOSt.SG_gui">PyLOSt.SG_gui module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.html#module-PyLOSt.default_rc">PyLOSt.default_rc module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.html#module-PyLOSt">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="quick_guide.html">Quick Guide</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="PyLOSt.html">PyLOSt package</a><ul>
+      <li>Previous: <a href="PyLOSt.data_in.sharper.html" title="previous chapter">PyLOSt.data_in.sharper package</a></li>
+      <li>Next: <a href="PyLOSt.ui.html" title="next chapter">PyLOSt.ui package</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/PyLOSt.databases.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,36 @@
+
+<h1>Data (File) widget guide</h1>
+<p>This widget is used to load a single or a sequence of files. It allows loading of many file formats some of which are as following.</p>
+<ul>
+<li>Raw instrument data formats such as
+<ul>
+<li>Zygo Fizeau 'dat' / 'datx'</li>
+<li>Veeco MSI 'OPD'</li>
+<li>SHARPeR 'has'</li>
+</ul>
+</li>
+<li>Simple ascii formats such as
+<ul>
+<li>ESRF LTP formats 'slp', 'slp2'</li>
+<li>Simple 'txt' files as follows<br /><img src="images/ex_txt_file.png" alt="Example of simple txt ascii file" width="150" height="200" /></li>
+</ul>
+</li>
+<li>Pickle (pkl) and HDF5 formats. Pickle can store and reload in native python data types.</li>
+</ul>
+<p>The output of the widget will be a dictionary object, typically containing default data such as heights, slopes_x, slopes_y for data analysis with other orange pylost widgets</p>
+<p>&nbsp;</p>
+<h3>Load a single file</h3>
+<p>To load a single file, please follow the instruction in the following video</p>
+<p><video controls="controls" width="500" height="250">
+<source src="videos/load_file.mp4" type="video/mp4" /></video></p>
+<p>&nbsp;</p>
+<h3>Load a sequence of files</h3>
+<p>To load a sequence of files of same data type such as subapertures of a single scan, use the instructions from following video.</p>
+<p><video controls="controls" width="500" height="250">
+<source src="videos/load_file_seq.mp4" type="video/mp4" /></video></p>
+<p>&nbsp;</p>
+<h3>Load a simple general text file</h3>
+<p>To load a simple text file with column data, use the instructions from the video below. The data names may not be recognizable by orange-pylost and may need to be renamed to known naming conventions (as explained in the video).</p>
+<p><video controls="controls" width="500" height="250">
+<source src="videos/load_txt_file.mp4" /></video></p>
+<p>&nbsp;</p>

@@ -1,0 +1,245 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pylost_widgets.scripts.file_formats.esrf.keyence &#8212; pylost_widgets  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/alabaster.css" />
+    <script data-url_root="../../../../../" id="documentation_options" src="../../../../../_static/documentation_options.js"></script>
+    <script src="../../../../../_static/jquery.js"></script>
+    <script src="../../../../../_static/underscore.js"></script>
+    <script src="../../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for pylost_widgets.scripts.file_formats.esrf.keyence</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Created on Mon Aug  3 12:05:38 2020</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># pylint: disable=C0103, C0115, C0116</span>
+<span class="c1"># pylint: disable=R0902, R0903, R0904</span>
+
+
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">datetime</span> <span class="k">as</span> <span class="nn">dt</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span>
+
+<span class="kn">from</span> <span class="nn">PyLOSt.data_in.francois_esrf.generic</span> <span class="kn">import</span> <span class="n">ESRFOpticsLabData</span><span class="p">,</span> <span class="n">Surface</span>
+<span class="kn">from</span> <span class="nn">pylost_widgets.scripts.file_formats.esrf</span> <span class="kn">import</span> <span class="n">vk4extract</span>
+
+
+<div class="viewcode-block" id="KeyenceData"><a class="viewcode-back" href="../../../../../pylost_widgets.scripts.file_formats.esrf.html#pylost_widgets.scripts.file_formats.esrf.keyence.KeyenceData">[docs]</a><span class="k">class</span> <span class="nc">KeyenceData</span><span class="p">(</span><span class="n">ESRFOpticsLabData</span><span class="p">,</span> <span class="n">Surface</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Keyence VK4 data class.&#39;&#39;&#39;</span>
+    <span class="n">method</span> <span class="o">=</span> <span class="s1">&#39;Confocal microscope&#39;</span>
+    <span class="n">instrument</span> <span class="o">=</span> <span class="s2">&quot;VK-X1100&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">header_format</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">header_size</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">note</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_raw_shape</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">intensity</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="p">{</span>
+                      <span class="s1">&#39;coords&#39;</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">um</span><span class="p">,</span> <span class="s1">&#39;values&#39;</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">um</span><span class="p">,</span>
+                      <span class="s1">&#39;height&#39;</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">nm</span><span class="p">,</span> <span class="s1">&#39;angle&#39;</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">urad</span><span class="p">,</span>
+                      <span class="s1">&#39;length&#39;</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span> <span class="s1">&#39;radius&#39;</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">km</span><span class="p">,</span> <span class="s1">&#39;curvature&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="o">/</span><span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="p">,</span>
+                      <span class="s1">&#39;pixel&#39;</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">um</span><span class="p">,</span>
+                      <span class="p">}</span>
+
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;Keyence surface map&#39;</span>
+
+
+    <span class="c1"># ----overriding----</span>
+<div class="viewcode-block" id="KeyenceData.readfile"><a class="viewcode-back" href="../../../../../pylost_widgets.scripts.file_formats.esrf.html#pylost_widgets.scripts.file_formats.esrf.keyence.KeyenceData.readfile">[docs]</a>    <span class="k">def</span> <span class="nf">readfile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span> <span class="c1"># pylint: disable=unused-argument, R0914</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">input_file</span><span class="p">:</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">datetime</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getmtime</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">rpartition</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">name</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;opening </span><span class="se">\&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="si">}</span><span class="se">\&#39;</span><span class="s1">...&#39;</span><span class="p">)</span>
+
+            <span class="n">offsets</span> <span class="o">=</span> <span class="n">vk4extract</span><span class="o">.</span><span class="n">extract_offsets</span><span class="p">(</span><span class="n">input_file</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;offsets&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">offsets</span>
+            <span class="n">meas_cond</span> <span class="o">=</span> <span class="n">vk4extract</span><span class="o">.</span><span class="n">extract_measurement_conditions</span><span class="p">(</span><span class="n">offsets</span><span class="p">,</span> <span class="n">input_file</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;meas_cond&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">meas_cond</span>
+            <span class="n">height_arr</span> <span class="o">=</span> <span class="n">vk4extract</span><span class="o">.</span><span class="n">extract_img_data</span><span class="p">(</span><span class="n">offsets</span><span class="p">,</span> <span class="s1">&#39;height&#39;</span><span class="p">,</span> <span class="n">input_file</span><span class="p">)</span>
+            <span class="n">int_arr</span> <span class="o">=</span> <span class="n">vk4extract</span><span class="o">.</span><span class="n">extract_img_data</span><span class="p">(</span><span class="n">offsets</span><span class="p">,</span> <span class="s1">&#39;light&#39;</span><span class="p">,</span> <span class="n">input_file</span><span class="p">)</span>
+
+            <span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">height_arr</span><span class="p">[</span><span class="s1">&#39;height&#39;</span><span class="p">],</span> <span class="n">height_arr</span><span class="p">[</span><span class="s1">&#39;width&#39;</span><span class="p">]</span>
+            <span class="n">spixX</span><span class="p">,</span> <span class="n">spixY</span><span class="p">,</span> <span class="n">spixZ</span> <span class="o">=</span> <span class="n">meas_cond</span><span class="p">[</span><span class="s1">&#39;x_length_per_pixel&#39;</span><span class="p">],</span> <span class="n">meas_cond</span><span class="p">[</span><span class="s1">&#39;y_length_per_pixel&#39;</span><span class="p">],</span> <span class="n">meas_cond</span><span class="p">[</span><span class="s1">&#39;z_length_per_digit&#39;</span><span class="p">]</span>
+            <span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">height_arr</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">],(</span><span class="n">h</span><span class="p">,</span><span class="n">w</span><span class="p">))</span><span class="o">.</span><span class="n">T</span><span class="o">*</span><span class="n">spixZ</span><span class="o">*</span><span class="mf">1e-6</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">int_arr</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">],(</span><span class="n">h</span><span class="p">,</span><span class="n">w</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>
+            <span class="n">fVx</span><span class="p">,</span> <span class="n">fVy</span> <span class="o">=</span> <span class="n">w</span><span class="o">*</span><span class="n">spixX</span><span class="o">*</span><span class="mf">1e-6</span><span class="p">,</span> <span class="n">h</span><span class="o">*</span><span class="n">spixY</span><span class="o">*</span><span class="mf">1e-6</span>
+            <span class="n">fieldView</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">0.5</span><span class="o">*</span><span class="n">fVx</span><span class="p">,</span><span class="mf">0.5</span><span class="o">*</span><span class="n">fVx</span><span class="p">,</span><span class="o">-</span><span class="mf">0.5</span><span class="o">*</span><span class="n">fVy</span><span class="p">,</span><span class="mf">0.5</span><span class="o">*</span><span class="n">fVy</span><span class="p">]</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;lateral_res&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">(</span><span class="n">spixX</span><span class="o">*</span><span class="mf">1e-6</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_raw_shape</span> <span class="o">=</span> <span class="n">arr</span><span class="o">.</span><span class="n">shape</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_raw_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;lateral_res&#39;</span><span class="p">],</span>
+                            <span class="n">num</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_raw_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_raw_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;lateral_res&#39;</span><span class="p">],</span>
+                            <span class="n">num</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_raw_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">initial</span> <span class="o">=</span> <span class="n">Surface</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">arr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span></div></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">KeyenceData</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;C:\Users\fraperri\Documents\Python\pyopticslab\tests\keyence\20x_7200.vk4&quot;</span><span class="p">)</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">subarray</span><span class="p">((</span><span class="mi">455</span><span class="p">,</span> <span class="mi">29986</span><span class="p">),</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">781</span><span class="p">))</span>
+    <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+    <span class="c1"># data.cylinder_removal(False)</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">center_coordinates</span><span class="p">()</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">change_values_unit</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">um</span><span class="p">)</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">auto_coords_unit</span><span class="p">()</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s1">&#39;upper&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;2D profile in um - cylinder removed&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">x_unit</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">y_unit</span><span class="p">))</span>
+    <span class="c1"># plt.yticks(np.linspace(0, 0.5, 2))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="c1"># print(f&#39;PV:{data.pv}{data.values_unit}, RMS:{data.rms}{data.values_unit}&#39;)</span>
+
+    <span class="kn">from</span> <span class="nn">esrf.data.generic</span> <span class="kn">import</span> <span class="n">Profile</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">reload</span><span class="p">()</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">subarray</span><span class="p">((</span><span class="mi">455</span><span class="p">,</span> <span class="mi">29986</span><span class="p">),</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">781</span><span class="p">))</span>
+    <span class="n">mean</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">[:,</span><span class="mi">390</span><span class="p">]</span>
+    <span class="n">meanprofile</span> <span class="o">=</span> <span class="n">Profile</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">mean</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">units</span><span class="p">)</span>
+    <span class="n">meanprofile</span><span class="o">.</span><span class="n">auto_units</span><span class="p">()</span>
+    <span class="n">meanprofile</span><span class="o">.</span><span class="n">center_coordinates</span><span class="p">()</span>
+    <span class="n">meanprofile</span><span class="o">.</span><span class="n">level_profile</span><span class="p">()</span>
+    <span class="n">meanprofile</span><span class="o">.</span><span class="n">polynomial_removal</span><span class="p">()</span>
+    <span class="n">meanprofile</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+    <span class="n">left</span> <span class="o">=</span> <span class="n">meanprofile</span><span class="o">.</span><span class="n">duplicate</span><span class="p">()</span>
+    <span class="n">left</span><span class="o">.</span><span class="n">subarray</span><span class="p">((</span><span class="o">-</span><span class="mf">12.5</span><span class="p">,</span> <span class="o">-</span><span class="mf">4.0</span><span class="p">))</span>
+    <span class="n">center</span> <span class="o">=</span> <span class="n">meanprofile</span><span class="o">.</span><span class="n">duplicate</span><span class="p">()</span>
+    <span class="n">center</span><span class="o">.</span><span class="n">subarray</span><span class="p">((</span><span class="o">-</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">))</span>
+    <span class="n">right</span> <span class="o">=</span> <span class="n">meanprofile</span><span class="o">.</span><span class="n">duplicate</span><span class="p">()</span>
+    <span class="n">right</span><span class="o">.</span><span class="n">subarray</span><span class="p">((</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">12.5</span><span class="p">))</span>
+
+    <span class="n">roc</span> <span class="o">=</span> <span class="n">center</span><span class="o">.</span><span class="n">radius</span><span class="o">*</span><span class="mf">1e3</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;RoC over 8mm centered: </span><span class="si">{</span><span class="n">roc</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1"> mm&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;RoC left side: </span><span class="si">{</span><span class="n">left</span><span class="o">.</span><span class="n">radius</span><span class="o">*</span><span class="mf">1e3</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1"> mm&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;RoC right side: </span><span class="si">{</span><span class="n">right</span><span class="o">.</span><span class="n">radius</span><span class="o">*</span><span class="mf">1e3</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1"> mm&#39;</span><span class="p">)</span>
+
+    <span class="n">resid_full</span> <span class="o">=</span> <span class="n">meanprofile</span><span class="o">.</span><span class="n">duplicate</span><span class="p">()</span>
+    <span class="n">ideal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">roc</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">resid_full</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> <span class="o">-</span> <span class="n">roc</span>
+    <span class="n">resid_full</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">meanprofile</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="n">ideal</span>
+    <span class="n">resid_full</span><span class="o">.</span><span class="n">change_values_unit</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">um</span><span class="p">)</span>
+    <span class="n">resid_full</span><span class="o">.</span><span class="n">min_removal</span><span class="p">()</span>
+    <span class="n">resid_full</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+
+    <span class="n">resid_center</span> <span class="o">=</span> <span class="n">center</span><span class="o">.</span><span class="n">duplicate</span><span class="p">()</span>
+    <span class="n">ideal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">roc</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">center</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> <span class="o">-</span> <span class="n">roc</span>
+    <span class="n">resid_center</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">center</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="n">ideal</span>
+    <span class="n">resid_center</span><span class="o">.</span><span class="n">change_values_unit</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">um</span><span class="p">)</span>
+    <span class="n">resid_center</span><span class="o">.</span><span class="n">min_removal</span><span class="p">()</span>
+    <span class="n">resid_center</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../../index.html">pylost_widgets</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../pylost_widgets.html">pylost_widgets package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

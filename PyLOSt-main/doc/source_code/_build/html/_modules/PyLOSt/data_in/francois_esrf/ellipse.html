@@ -1,0 +1,323 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PyLOSt.data_in.francois_esrf.ellipse &#8212; PyLOSt  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/alabaster.css" />
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for PyLOSt.data_in.francois_esrf.ellipse</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    ellipse class</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># pylint: disable=C0103, C0115, C0116</span>
+<span class="c1"># pylint: disable=R0902, R0903, R0913, R0914</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">scipy.optimize.minpack</span> <span class="kn">import</span> <span class="n">leastsq</span>
+
+<span class="kn">from</span> <span class="nn">PyLOSt.data_in.francois_esrf.generic</span> <span class="kn">import</span> <span class="n">Profile</span><span class="p">,</span> <span class="n">Surface</span>
+
+
+
+<div class="viewcode-block" id="Ellipse"><a class="viewcode-back" href="../../../../PyLOSt.data_in.francois_esrf.html#PyLOSt.data_in.francois_esrf.ellipse.Ellipse">[docs]</a><span class="k">class</span> <span class="nc">Ellipse</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;p and q in meter, theta in mrad&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">measurement</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">theta</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">p</span> <span class="o">=</span> <span class="n">p</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">q</span> <span class="o">=</span> <span class="n">q</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="o">=</span> <span class="n">theta</span><span class="o">*</span><span class="mf">1e-3</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">piston</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tilt</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimizations</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimized</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">cls</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">measurement</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">measurement</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">measurement</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span>
+                               <span class="n">measurement</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                               <span class="n">measurement</span><span class="o">.</span><span class="n">units</span><span class="p">,</span>
+                               <span class="n">measurement</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span>
+                               <span class="n">measurement</span><span class="o">.</span><span class="n">source</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">measurement</span><span class="o">.</span><span class="n">center_coordinates</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">Profile</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">measurement</span><span class="o">.</span><span class="n">level_profile</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="nb">issubclass</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">Surface</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">measurement</span><span class="o">.</span><span class="n">plane_removal</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">measurement</span><span class="o">.</span><span class="n">min_removal</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">theoretical</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">residues</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_class</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># return &#39;,&#39;.join(self.optimization)</span>
+        <span class="n">fmt</span> <span class="o">=</span> <span class="s1">&#39;.7f&#39;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;p:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="si">:{</span><span class="n">fmt</span><span class="si">}}</span><span class="s1"> q:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="si">:{</span><span class="n">fmt</span><span class="si">}}</span><span class="s1"> theta:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="o">*</span><span class="mf">1e3</span><span class="si">:{</span><span class="n">fmt</span><span class="si">}}</span><span class="s1">&#39;</span>
+
+<div class="viewcode-block" id="Ellipse.from_class"><a class="viewcode-back" href="../../../../PyLOSt.data_in.francois_esrf.html#PyLOSt.data_in.francois_esrf.ellipse.Ellipse.from_class">[docs]</a>    <span class="k">def</span> <span class="nf">from_class</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">new_ellipse</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">measurement</span><span class="o">.</span><span class="n">duplicate</span><span class="p">()</span>
+        <span class="n">new_ellipse</span><span class="o">.</span><span class="n">units_to_SI</span><span class="p">()</span>
+        <span class="bp">cls</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">new_ellipse</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">Surface</span><span class="p">):</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">new_ellipse</span><span class="o">.</span><span class="n">meshgrid</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">new_ellipse</span><span class="o">.</span><span class="n">coords</span>
+        <span class="n">new_ellipse</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">Ellipse</span><span class="o">.</span><span class="n">from_parameters</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">new_ellipse</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span>
+                                                     <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">,</span>
+                                                     <span class="bp">self</span><span class="o">.</span><span class="n">piston</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tilt</span><span class="p">,</span>
+                                                     <span class="bp">self</span><span class="o">.</span><span class="n">offset</span><span class="p">)</span>
+        <span class="n">new_ellipse</span><span class="o">.</span><span class="n">change_units</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">measurement</span><span class="o">.</span><span class="n">units</span><span class="p">)</span>
+        <span class="n">residues</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">measurement</span><span class="o">.</span><span class="n">duplicate</span><span class="p">()</span>
+        <span class="n">residues</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">measurement</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="n">new_ellipse</span><span class="o">.</span><span class="n">values</span>
+        <span class="k">return</span> <span class="n">new_ellipse</span><span class="p">,</span> <span class="n">residues</span></div>
+
+<div class="viewcode-block" id="Ellipse.from_parameters"><a class="viewcode-back" href="../../../../PyLOSt.data_in.francois_esrf.html#PyLOSt.data_in.francois_esrf.ellipse.Ellipse.from_parameters">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_parameters</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">kind</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">piston</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">tilt</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;theoretical ellipse (meter, radian). Returns slopes or heights&quot;&quot;&quot;</span>
+        <span class="c1"># x += offset</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="n">p</span><span class="o">+</span><span class="n">q</span><span class="p">)</span><span class="o">/</span><span class="mf">2.0</span> <span class="c1"># semi-major axis</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">p</span><span class="o">*</span><span class="n">q</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span> <span class="c1"># semi-minor axis</span>
+        <span class="n">F</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">a</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">b</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="c1"># linear eccentricity</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arcsin</span><span class="p">(</span><span class="n">p</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mf">2.0</span><span class="o">*</span><span class="n">theta</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mf">2.0</span><span class="o">*</span><span class="n">F</span><span class="p">))</span>
+        <span class="n">mu</span> <span class="o">=</span> <span class="n">alpha</span> <span class="o">-</span> <span class="n">theta</span>
+        <span class="c1"># ecc = np.sqrt(a**2-np.sqrt(p*q)**2)/a # eccentricity with b=np.sqrt(p*q)</span>
+        <span class="c1"># mu2 = theta * ecc</span>
+        <span class="n">x0</span> <span class="o">=</span> <span class="n">F</span> <span class="o">-</span> <span class="n">q</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span>
+        <span class="c1"># y0 = -b*np.sqrt(1 - (x0/a)**2)</span>
+        <span class="k">if</span> <span class="s1">&#39;slopes&#39;</span> <span class="ow">in</span> <span class="n">kind</span><span class="p">:</span>
+            <span class="n">s1n</span> <span class="o">=</span> <span class="p">(</span><span class="n">b</span><span class="o">/</span><span class="n">a</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">mu</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">x0</span><span class="o">+</span><span class="n">x</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">mu</span><span class="p">))</span>
+            <span class="n">s1d</span> <span class="o">=</span> <span class="n">a</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">x0</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="p">(</span><span class="n">x</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">mu</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mf">2.0</span><span class="o">*</span><span class="n">x</span><span class="o">*</span><span class="n">x0</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span>
+            <span class="n">s1</span> <span class="o">=</span> <span class="n">s1n</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">s1d</span><span class="p">)</span>
+            <span class="n">s2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span> <span class="o">*</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span>
+            <span class="n">sx</span> <span class="o">=</span> <span class="n">s1</span> <span class="o">+</span> <span class="n">s2</span>
+            <span class="k">return</span> <span class="n">sx</span> <span class="o">+</span> <span class="n">tilt</span>
+        <span class="c1"># heights</span>
+        <span class="n">z1</span> <span class="o">=</span> <span class="n">x</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span> <span class="o">*</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span>
+        <span class="n">z2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">b</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="p">(</span><span class="n">x0</span><span class="o">/</span><span class="n">a</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+        <span class="n">z3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">b</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="p">((</span><span class="n">x0</span><span class="o">+</span><span class="n">x</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">mu</span><span class="p">))</span><span class="o">/</span><span class="n">a</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+        <span class="n">hx</span> <span class="o">=</span> <span class="n">z1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">z2</span> <span class="o">-</span> <span class="n">z3</span><span class="p">)</span>
+        <span class="n">hx</span> <span class="o">=</span> <span class="n">x</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">tilt</span><span class="p">)</span> <span class="o">+</span> <span class="n">hx</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">tilt</span><span class="p">)</span>
+        <span class="n">hx</span> <span class="o">+=</span> <span class="n">piston</span>
+        <span class="k">return</span> <span class="n">hx</span></div>
+
+
+<div class="viewcode-block" id="Ellipse.optimize"><a class="viewcode-back" href="../../../../PyLOSt.data_in.francois_esrf.html#PyLOSt.data_in.francois_esrf.ellipse.Ellipse.optimize">[docs]</a>    <span class="k">def</span> <span class="nf">optimize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">optimization</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;q&#39;</span><span class="p">,</span> <span class="s1">&#39;theta&#39;</span><span class="p">)):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimized</span> <span class="o">=</span> <span class="n">Optimization</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">optimization</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimized</span><span class="o">.</span><span class="n">theoretical</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimized</span><span class="o">.</span><span class="n">residues</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimized</span><span class="o">.</span><span class="n">from_class</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimized</span><span class="o">.</span><span class="n">residues</span><span class="o">.</span><span class="n">auto_units</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimizations</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">optimized</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimized</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="se">\n</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">measurement</span><span class="o">.</span><span class="n">source</span><span class="si">}</span><span class="s1">:</span><span class="se">\n</span><span class="s1">    </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">optimized</span><span class="o">.</span><span class="n">descr</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimized</span></div></div>
+
+
+
+
+<div class="viewcode-block" id="Optimization"><a class="viewcode-back" href="../../../../PyLOSt.data_in.francois_esrf.html#PyLOSt.data_in.francois_esrf.ellipse.Optimization">[docs]</a><span class="k">class</span> <span class="nc">Optimization</span><span class="p">(</span><span class="n">Ellipse</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; optimization: (tuple/list) including one or more following key:</span>
+<span class="sd">                &#39;p&#39;, &#39;q&#39;, &#39;theta&#39;, &#39;piston&#39;, &#39;tilt&#39;, &#39;offset&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ellipse</span><span class="p">,</span> <span class="n">optimization</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;q&#39;</span><span class="p">,</span> <span class="s1">&#39;theta&#39;</span><span class="p">)):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">ellipse</span><span class="o">.</span><span class="n">measurement</span><span class="p">,</span> <span class="n">ellipse</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> <span class="n">ellipse</span><span class="o">.</span><span class="n">q</span><span class="p">,</span> <span class="n">ellipse</span><span class="o">.</span><span class="n">theta</span><span class="o">*</span><span class="mf">1e3</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">descr</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="c1"># force piston &amp; tilt optimization</span>
+        <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">ellipse</span><span class="o">.</span><span class="n">measurement</span><span class="p">),</span> <span class="n">Surface</span><span class="p">):</span>
+            <span class="n">optimization</span> <span class="o">=</span> <span class="n">optimization</span> <span class="o">+</span> <span class="p">(</span><span class="s1">&#39;piston&#39;</span><span class="p">,)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimization</span> <span class="o">=</span> <span class="n">optimization</span> <span class="o">+</span> <span class="p">(</span><span class="s1">&#39;tilt&#39;</span><span class="p">,)</span>
+        <span class="c1"># self.optimization = optimization</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">opt_prms</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">piston</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tilt</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_optimize</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span>
+
+<div class="viewcode-block" id="Optimization.Wrap"><a class="viewcode-back" href="../../../../PyLOSt.data_in.francois_esrf.html#PyLOSt.data_in.francois_esrf.ellipse.Optimization.Wrap">[docs]</a>    <span class="k">class</span> <span class="nc">Wrap</span><span class="p">():</span> <span class="c1"># pylint: disable=unused-argument</span>
+<div class="viewcode-block" id="Optimization.Wrap.ellipse_removal"><a class="viewcode-back" href="../../../../PyLOSt.data_in.francois_esrf.html#PyLOSt.data_in.francois_esrf.ellipse.Optimization.Wrap.ellipse_removal">[docs]</a>        <span class="nd">@staticmethod</span>
+        <span class="k">def</span> <span class="nf">ellipse_removal</span><span class="p">(</span><span class="n">func</span><span class="p">):</span> <span class="c1"># pylint: disable=unused-argument</span>
+            <span class="k">def</span> <span class="nf">_wrapping</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="n">params</span><span class="p">):</span>
+                <span class="c1"># print(params)</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="n">Ellipse</span><span class="o">.</span><span class="n">from_parameters</span><span class="p">(</span><span class="o">**</span><span class="n">data</span><span class="o">.</span><span class="n">get_opt_params</span><span class="p">(</span><span class="n">params</span><span class="p">))</span>
+                <span class="c1"># TODO: test</span>
+                <span class="c1"># if &#39;offset&#39; in data.optimization:</span>
+                <span class="c1">#     data.offsetting(params[0][-1])</span>
+                    <span class="c1"># dec = data.linear_interp(params[0][-1])</span>
+                    <span class="c1"># sx += dec</span>
+                <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">residues</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="n">val</span>
+            <span class="k">return</span> <span class="n">_wrapping</span></div></div>
+
+    <span class="k">def</span> <span class="nf">_optimize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">kind</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">measurement</span><span class="o">.</span><span class="n">kind</span>
+        <span class="c1"># self.residues as temporary variable</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">residues</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">measurement</span><span class="o">.</span><span class="n">duplicate</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">residues</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">residues</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">residues</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">residues</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">residues</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="o">~</span><span class="n">mask</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">residues</span><span class="o">.</span><span class="n">units_to_SI</span><span class="p">()</span>
+        <span class="bp">cls</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">residues</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">Profile</span><span class="p">):</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">residues</span><span class="o">.</span><span class="n">coords</span>
+        <span class="k">elif</span> <span class="nb">issubclass</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">Surface</span><span class="p">):</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">residues</span><span class="o">.</span><span class="n">meshgrid</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">opt_prms</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="o">~</span><span class="n">mask</span><span class="p">],</span>
+                         <span class="s1">&#39;kind&#39;</span><span class="p">:</span> <span class="n">kind</span><span class="p">,</span>
+                         <span class="s1">&#39;p&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">,</span>
+                         <span class="s1">&#39;q&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span>
+                         <span class="s1">&#39;theta&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">,</span>
+                         <span class="s1">&#39;piston&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+                         <span class="s1">&#39;tilt&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+                         <span class="s1">&#39;offset&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+                         <span class="p">}</span>
+        <span class="n">p0</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimization</span><span class="p">:</span>
+            <span class="n">p0</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">))</span>
+        <span class="n">popt</span> <span class="o">=</span> <span class="n">leastsq</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_wrapped_loop</span><span class="p">,</span> <span class="n">p0</span><span class="p">,</span>
+                        <span class="n">xtol</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">ftol</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">,</span> <span class="n">gtol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span>
+                        <span class="n">full_output</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># popt = least_squares(self._wrapped_loop, x0=p0,</span>
+        <span class="c1">#                 xtol=1e-4, ftol=1e-12, gtol=1e-15,</span>
+        <span class="c1">#                 )</span>
+        <span class="c1"># print(popt)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">opt_prms</span><span class="p">[</span><span class="s1">&#39;p&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">opt_prms</span><span class="p">[</span><span class="s1">&#39;q&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">opt_prms</span><span class="p">[</span><span class="s1">&#39;theta&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">piston</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">opt_prms</span><span class="p">[</span><span class="s1">&#39;piston&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tilt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">opt_prms</span><span class="p">[</span><span class="s1">&#39;tilt&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">opt_prms</span><span class="p">[</span><span class="s1">&#39;offset&#39;</span><span class="p">]</span>
+
+<span class="c1"># =============================================================================</span>
+        <span class="c1"># xrange = [-0.028, 0.028]</span>
+        <span class="c1"># self.residues.set_profile_range(xrange)</span>
+        <span class="c1"># self.set_profile_range(xrange)</span>
+<span class="c1"># =============================================================================</span>
+
+        <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">opt_prms</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;kind&#39;</span><span class="p">]]</span> <span class="c1"># pylint: disable=W0106</span>
+        <span class="n">string</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">optimization</span><span class="p">)</span>
+        <span class="n">nfev</span> <span class="o">=</span> <span class="n">popt</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;nfev&#39;</span><span class="p">]</span>
+        <span class="c1"># nfev = popt.nfev</span>
+        <span class="k">del</span> <span class="n">popt</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">descr</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;(</span><span class="si">{</span><span class="n">string</span><span class="si">}</span><span class="s1">) optimization based on </span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s1"> (N=</span><span class="si">{</span><span class="n">nfev</span><span class="si">}</span><span class="s1">):</span><span class="se">\n</span><span class="s1">        &#39;</span>
+        <span class="n">fmt</span> <span class="o">=</span> <span class="s1">&#39;.7f&#39;</span>
+        <span class="c1"># for key, val in self.opt_prms.items():</span>
+        <span class="c1">#     self.descr = self.descr + f&#39; {key}:{val:{fmt}}&#39;</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="s1">&#39;q&#39;</span><span class="p">,</span> <span class="s1">&#39;theta&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">descr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">descr</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39; </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">opt_prms</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="si">:{</span><span class="n">fmt</span><span class="si">}}</span><span class="s1">&#39;</span>
+        <span class="k">if</span> <span class="s1">&#39;piston&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimization</span><span class="p">:</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="s1">&#39;piston&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">descr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">descr</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39; piston:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">opt_prms</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="si">:</span><span class="s1">.2e</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="k">if</span> <span class="s1">&#39;tilt&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimization</span><span class="p">:</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="s1">&#39;tilt&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">descr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">descr</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39; tilt:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">opt_prms</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="si">:</span><span class="s1">.2e</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="k">if</span> <span class="s1">&#39;offset&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimization</span><span class="p">:</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="s1">&#39;offset&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">descr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">descr</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39; offset:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">opt_prms</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="si">:</span><span class="s1">.2e</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">measurement</span><span class="o">.</span><span class="n">kind</span> <span class="o">+</span> <span class="s1">&#39;,&#39;</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">optimization</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Optimization.get_opt_params"><a class="viewcode-back" href="../../../../PyLOSt.data_in.francois_esrf.html#PyLOSt.data_in.francois_esrf.ellipse.Optimization.get_opt_params">[docs]</a>    <span class="k">def</span> <span class="nf">get_opt_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">optimization</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">opt_prms</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">opt_prms</span></div>
+
+    <span class="c1"># @ellipse_removal</span>
+    <span class="nd">@Wrap</span><span class="o">.</span><span class="n">ellipse_removal</span>
+    <span class="k">def</span> <span class="nf">_wrapped_loop</span><span class="p">(</span><span class="n">parameters</span><span class="p">):</span> <span class="c1"># pylint: disable=no-self-argument</span>
+        <span class="k">return</span> <span class="n">parameters</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../index.html">PyLOSt</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../PyLOSt.html">PyLOSt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quick_guide.html">Quick Guide</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

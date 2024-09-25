@@ -1,0 +1,256 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PyLOSt.algorithms.stitching.matrix_overlaperr_stitch &#8212; PyLOSt  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/alabaster.css" />
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for PyLOSt.algorithms.stitching.matrix_overlaperr_stitch</h1><div class="highlight"><pre>
+<span></span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Created on Mar 9, 2019</span>
+
+<span class="sd">Overlaps are fit to plane and the piston/pithc/roll errors between the subapertures are extracted.</span>
+<span class="sd">From this data piston/pithc/roll correction needed for each subaperture is determined using matrix techniques of solving linear equations.</span>
+
+<span class="sd">@author: ADAPA</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">PyLOSt.algorithms.stitching.algorithm</span> <span class="kn">import</span> <span class="n">Algorithm</span>
+<span class="kn">from</span> <span class="nn">PyLOSt.algorithms.util.util_reference</span> <span class="kn">import</span> <span class="n">get_A_Ref</span>
+<span class="kn">from</span> <span class="nn">PyLOSt.algorithms.util.util_stitching</span> <span class="kn">import</span> <span class="n">getOverlaps2D</span><span class="p">,</span> <span class="n">get_sparse_from_dict</span><span class="p">,</span> <span class="n">calc_inverse</span><span class="p">,</span> <span class="n">get_A_allpix</span><span class="p">,</span> \
+    <span class="n">flatten_list</span><span class="p">,</span> <span class="n">correctAndJoin</span><span class="p">,</span> <span class="n">plotSt</span>
+<span class="kn">from</span> <span class="nn">PyLOSt.algorithms.util.util_fit</span> <span class="kn">import</span> <span class="n">getXYGrid</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">signal</span>
+<span class="kn">from</span> <span class="nn">scipy.sparse.construct</span> <span class="kn">import</span> <span class="n">hstack</span><span class="p">,</span> <span class="n">vstack</span>
+
+
+<div class="viewcode-block" id="MatrixOverlapErrStitch"><a class="viewcode-back" href="../../../../PyLOSt.algorithms.stitching.html#PyLOSt.algorithms.stitching.matrix_overlaperr_stitch.MatrixOverlapErrStitch">[docs]</a><span class="k">class</span> <span class="nc">MatrixOverlapErrStitch</span><span class="p">(</span><span class="n">Algorithm</span><span class="p">):</span>
+    <span class="c1"># use A x (C.T) = E</span>
+    <span class="c1"># C = [[cxi][cyi]] correctors</span>
+    <span class="c1"># E = [[exji][eyji]] pitch and roll errors</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;matrix_overlaperr&#39;</span>
+    <span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;Overlap errors between all subapertures are solved through matrix based linear equations solutions.&#39;</span>
+
+    <span class="c1"># show intermediate plots</span>
+    <span class="n">showPlots</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">DEG_TO_MRAD</span> <span class="o">=</span> <span class="mf">17.4533</span>
+    <span class="n">num_exclude_subaps</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1">### Algo params</span>
+    <span class="n">data_type</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">inv_type</span> <span class="o">=</span> <span class="s1">&#39;SVD&#39;</span>
+    <span class="n">min_overlap</span> <span class="o">=</span> <span class="mf">0.6</span>  <span class="c1">#60 percent</span>
+    <span class="n">remove_outlier_subapertures</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">post_process</span> <span class="o">=</span> <span class="s1">&#39;none&#39;</span>  <span class="c1"># none/ref_cv</span>
+
+    <span class="c1"># Corrector terms</span>
+    <span class="n">cor_piston</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">cor_pitch</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">cor_roll</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">cor_reference_extract</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">cor_all_pixels</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="n">ref_extract_type</span> <span class="o">=</span> <span class="s1">&#39;poly&#39;</span>
+    <span class="n">start_deg</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">end_deg</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">scale_xy</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="n">use_threshold</span> <span class="o">=</span> <span class="s1">&#39;none&#39;</span>  <span class="c1"># none,pre_process,post_process</span>
+    <span class="n">threshold_minval</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">threshold_maxval</span> <span class="o">=</span> <span class="mi">0</span>
+    
+    <span class="n">filt_bad_pix</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">filt_bad_pix_threshold</span> <span class="o">=</span> <span class="mi">3</span>  <span class="c1"># filter &gt;3 orders of std from ideal shape</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stitch_options</span><span class="p">,</span> <span class="n">data_in</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param data_in: Data object containg raw data and other data needed for stitching</span>
+<span class="sd">        :param stitch_options: Parameters for stitching, stitching algorithm</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">algo_options</span> <span class="o">=</span> <span class="n">stitch_options</span><span class="p">[</span><span class="s1">&#39;algorithm_options&#39;</span><span class="p">]</span>
+        <span class="n">Algorithm</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">algo_options</span><span class="p">,</span> <span class="n">data_in</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_out</span><span class="p">[</span><span class="s1">&#39;creator&#39;</span><span class="p">]</span>                    <span class="o">=</span> <span class="sa">u</span><span class="s1">&#39;matrix_overlaperr_stitch.py&#39;</span>
+
+<div class="viewcode-block" id="MatrixOverlapErrStitch.stitch_scan_item"><a class="viewcode-back" href="../../../../PyLOSt.algorithms.stitching.html#PyLOSt.algorithms.stitching.matrix_overlaperr_stitch.MatrixOverlapErrStitch.stitch_scan_item">[docs]</a>    <span class="k">def</span> <span class="nf">stitch_scan_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">scan_item</span><span class="p">,</span> <span class="n">intensity</span><span class="p">,</span> <span class="n">res_item</span><span class="p">,</span> <span class="n">res_intensity</span><span class="p">,</span> <span class="n">mX</span><span class="p">,</span> <span class="n">mY</span><span class="p">,</span> <span class="n">pix_size</span><span class="p">,</span> <span class="n">prog_block</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">err_val</span>         <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">ref_scale</span>       <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">correctors</span>      <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">]]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">mX</span><span class="p">)</span>
+        <span class="n">cor_terms</span>       <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">cor_piston</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cor_roll</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cor_pitch</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">scan_item</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="n">res_item</span><span class="p">,</span> <span class="n">correctors</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pre_process</span><span class="p">(</span><span class="n">scan_item</span><span class="p">,</span> <span class="n">otype</span><span class="o">=</span><span class="n">key</span><span class="p">)</span>
+        <span class="n">sdiff</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">E</span><span class="p">,</span> <span class="n">E_resd</span><span class="p">,</span> <span class="n">validPat</span><span class="p">,</span> <span class="n">slc_i</span><span class="p">,</span> <span class="n">slc_j</span> <span class="o">=</span> <span class="n">getOverlaps2D</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mX</span><span class="p">,</span> <span class="n">mY</span><span class="p">,</span> <span class="n">scan_item</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">pix_size</span><span class="p">,</span>
+                                                                    <span class="n">cor_terms</span><span class="o">=</span><span class="n">cor_terms</span><span class="p">,</span>
+                                                                    <span class="n">cor_ref</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cor_reference_extract</span><span class="p">,</span>
+                                                                    <span class="n">showPlots</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">showPlots</span><span class="p">,</span>
+                                                                    <span class="n">prog_block</span><span class="o">=</span><span class="n">prog_block</span> <span class="o">*</span> <span class="mf">0.3</span><span class="p">)</span>
+        <span class="k">if</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">validPat</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">res_item</span><span class="p">,</span> <span class="n">correctors</span>
+
+        <span class="n">C</span><span class="p">,</span> <span class="n">C_ref</span><span class="p">,</span> <span class="n">ref_scale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_corrections</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">E</span><span class="p">,</span> <span class="n">E_resd</span><span class="p">,</span> <span class="n">validPat</span><span class="p">,</span> <span class="n">scan_item</span><span class="p">,</span> <span class="n">sdiff</span><span class="p">,</span> <span class="n">mX</span><span class="p">,</span> <span class="n">mY</span><span class="p">,</span> <span class="n">pix_size</span><span class="p">,</span> <span class="n">res_item</span><span class="p">,</span> <span class="n">slc_i</span><span class="p">,</span> <span class="n">slc_j</span><span class="p">,</span> <span class="n">otype</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">prog_block</span><span class="o">=</span><span class="n">prog_block</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">)</span>
+        <span class="n">err_val</span><span class="p">,</span> <span class="n">res_item</span><span class="p">,</span> <span class="n">scan_item_cor</span><span class="p">,</span> <span class="n">ref_ext</span> <span class="o">=</span> <span class="n">correctAndJoin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">scan_item</span><span class="p">,</span> <span class="n">pix_size</span><span class="p">,</span> <span class="n">res_item</span><span class="p">,</span> <span class="n">res_intensity</span><span class="p">,</span> <span class="n">otype</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">mX</span><span class="o">=</span><span class="n">mX</span><span class="p">,</span> <span class="n">mY</span><span class="o">=</span><span class="n">mY</span><span class="p">,</span> <span class="n">C_ref</span><span class="o">=</span><span class="n">C_ref</span><span class="p">,</span> <span class="n">ref_scale</span><span class="o">=</span><span class="n">ref_scale</span><span class="p">,</span> <span class="n">prog_block</span><span class="o">=</span><span class="n">prog_block</span> <span class="o">*</span> <span class="mf">0.2</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Fin correction&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">err_val</span><span class="p">,</span> <span class="n">res_item</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">scan_item_cor</span><span class="p">,</span> <span class="n">ref_ext</span></div>
+
+<div class="viewcode-block" id="MatrixOverlapErrStitch.pre_process"><a class="viewcode-back" href="../../../../PyLOSt.algorithms.stitching.html#PyLOSt.algorithms.stitching.matrix_overlaperr_stitch.MatrixOverlapErrStitch.pre_process">[docs]</a>    <span class="k">def</span> <span class="nf">pre_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scan_item</span><span class="p">,</span> <span class="n">otype</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_threshold</span><span class="o">==</span><span class="s1">&#39;pre_process&#39;</span><span class="p">:</span>
+            <span class="n">scan_item</span><span class="p">[</span><span class="n">scan_item</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">threshold_maxval</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="n">scan_item</span><span class="p">[</span><span class="n">scan_item</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">threshold_minval</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span></div>
+
+<div class="viewcode-block" id="MatrixOverlapErrStitch.calculate_corrections"><a class="viewcode-back" href="../../../../PyLOSt.algorithms.stitching.html#PyLOSt.algorithms.stitching.matrix_overlaperr_stitch.MatrixOverlapErrStitch.calculate_corrections">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_corrections</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">E</span><span class="p">,</span> <span class="n">E_resd</span><span class="p">,</span> <span class="n">validPat</span><span class="p">,</span> <span class="n">scan_item</span><span class="p">,</span> <span class="n">sdiff</span><span class="p">,</span> <span class="n">mX</span><span class="p">,</span> <span class="n">mY</span><span class="p">,</span> <span class="n">pix_size</span><span class="p">,</span> <span class="n">res_item</span><span class="p">,</span> <span class="n">slc_i</span><span class="p">,</span> <span class="n">slc_j</span><span class="p">,</span> <span class="n">otype</span><span class="p">,</span> <span class="n">prog_block</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">ref_scale</span>       <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">A_coo</span>           <span class="o">=</span> <span class="n">get_sparse_from_dict</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">A</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">mX</span><span class="p">)))</span>
+        <span class="c1">#Append global pitch/roll/piston set to zero</span>
+        <span class="n">A_coo</span>           <span class="o">=</span> <span class="n">vstack</span><span class="p">([</span><span class="n">A_coo</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">A_coo</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+        <span class="n">E</span>               <span class="o">+=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]</span>
+
+        <span class="n">f_pix</span> <span class="o">=</span> <span class="mf">0.3</span>
+        <span class="n">f_ref</span> <span class="o">=</span> <span class="mf">0.5</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">f_pix</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cor_all_pixels</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="n">f_ref</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cor_reference_extract</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">nPat</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">mX</span><span class="p">)</span>
+        <span class="n">C_ref</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cor_all_pixels</span><span class="p">:</span>
+            <span class="n">A_coo</span>       <span class="o">=</span> <span class="n">get_A_allpix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">sdiff</span><span class="p">,</span> <span class="n">mX</span><span class="p">,</span> <span class="n">mY</span><span class="p">,</span> <span class="n">pix_size</span><span class="p">,</span> <span class="n">res_item</span><span class="p">,</span> <span class="n">otype</span><span class="p">,</span> <span class="n">prog_block</span><span class="o">=</span><span class="n">f_pix</span><span class="o">*</span><span class="n">prog_block</span><span class="p">)</span>
+            <span class="n">E</span>           <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">flatten_list</span><span class="p">([</span><span class="nb">list</span><span class="p">(</span><span class="n">sdiff</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">sdiff</span><span class="p">[</span><span class="n">key</span><span class="p">])])</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">sdiff</span><span class="p">]))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cor_reference_extract</span><span class="p">:</span>
+            <span class="n">E_resd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">E_resd</span><span class="p">)[</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">E_resd</span><span class="p">)]</span>
+            <span class="n">B_coo</span><span class="p">,</span> <span class="n">ref_scale</span>       <span class="o">=</span> <span class="n">get_A_Ref</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scan_item</span><span class="p">,</span> <span class="n">sdiff</span><span class="p">,</span> <span class="n">mX</span><span class="p">,</span> <span class="n">mY</span><span class="p">,</span> <span class="n">pix_size</span><span class="p">,</span> <span class="n">slc_i</span><span class="p">,</span> <span class="n">slc_j</span><span class="p">,</span> <span class="n">otype</span><span class="p">,</span>
+                                                    <span class="n">scaleXY</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scale_xy</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">cor_all_pixels</span><span class="p">),</span> <span class="n">prog_block</span><span class="o">=</span><span class="mf">0.7</span><span class="o">*</span><span class="n">f_ref</span><span class="o">*</span><span class="n">prog_block</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cor_all_pixels</span> <span class="ow">and</span> <span class="n">A_coo</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">B_coo</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="n">A_coo</span>   <span class="o">=</span> <span class="n">hstack</span><span class="p">([</span><span class="n">A_coo</span><span class="p">,</span> <span class="n">B_coo</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">C_ref</span>   <span class="o">=</span> <span class="n">calc_inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">B_coo</span><span class="p">,</span> <span class="n">E_resd</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">increment_progress</span><span class="p">(</span><span class="mf">0.3</span><span class="o">*</span><span class="n">f_ref</span><span class="o">*</span><span class="n">prog_block</span><span class="p">)</span>
+
+        <span class="n">C</span>               <span class="o">=</span> <span class="n">calc_inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">A_coo</span><span class="p">,</span> <span class="n">E</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cor_all_pixels</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cor_reference_extract</span><span class="p">:</span>
+                <span class="n">C_ref</span> <span class="o">=</span> <span class="n">C</span><span class="p">[</span><span class="mi">3</span> <span class="o">*</span> <span class="n">nPat</span><span class="p">:]</span>
+                <span class="n">C</span> <span class="o">=</span> <span class="n">C</span><span class="p">[:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">nPat</span><span class="p">]</span>
+                <span class="n">C</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">C</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">nPat</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">C</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">C</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">nPat</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Fin determining correctors array&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">post_process</span> <span class="o">==</span> <span class="s1">&#39;ref_cv&#39;</span><span class="p">:</span>
+            <span class="n">C</span><span class="p">[</span><span class="n">validPat</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">detrend</span><span class="p">(</span><span class="n">C</span><span class="p">[</span><span class="n">validPat</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span><span class="mi">3</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">showPlots</span><span class="p">:</span>
+            <span class="n">plotSt</span><span class="p">(</span><span class="n">C</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">pnum</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Piston&#39;</span><span class="p">)</span>
+            <span class="n">plotSt</span><span class="p">(</span><span class="n">C</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">pnum</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Roll&#39;</span><span class="p">)</span>
+            <span class="n">plotSt</span><span class="p">(</span><span class="n">C</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">pnum</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Pitch&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">increment_progress</span><span class="p">(</span><span class="n">f</span><span class="o">*</span><span class="n">prog_block</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">C</span><span class="p">,</span> <span class="n">C_ref</span><span class="p">,</span> <span class="n">ref_scale</span></div>
+    
+<div class="viewcode-block" id="MatrixOverlapErrStitch.maskByThreshold"><a class="viewcode-back" href="../../../../PyLOSt.algorithms.stitching.html#PyLOSt.algorithms.stitching.matrix_overlaperr_stitch.MatrixOverlapErrStitch.maskByThreshold">[docs]</a>    <span class="k">def</span> <span class="nf">maskByThreshold</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">carr</span><span class="p">,</span> <span class="n">oarr</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply a threshold on subaperture values</span>
+
+<span class="sd">        :param carr: Corrected subapertures</span>
+<span class="sd">        :param oarr: Original subapertures</span>
+<span class="sd">        :return: Corrected subapertures after threshold</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">carr</span><span class="p">[</span><span class="n">oarr</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">threshold_minval</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="n">carr</span><span class="p">[</span><span class="n">oarr</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">threshold_maxval</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="k">return</span> <span class="n">carr</span></div></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../index.html">PyLOSt</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../PyLOSt.html">PyLOSt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quick_guide.html">Quick Guide</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

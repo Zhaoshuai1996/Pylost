@@ -1,0 +1,402 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pylost_widgets.util.DictionaryTree &#8212; pylost_widgets  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for pylost_widgets.util.DictionaryTree</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">PyQt5</span> <span class="kn">import</span> <span class="n">QtCore</span><span class="p">,</span> <span class="n">QtGui</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtCore</span> <span class="kn">import</span> <span class="n">Qt</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtGui</span> <span class="kn">import</span> <span class="n">QBrush</span><span class="p">,</span> <span class="n">QColor</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtWidgets</span> <span class="kn">import</span> <span class="n">QTreeWidget</span><span class="p">,</span> <span class="n">QTreeWidgetItem</span><span class="p">,</span> <span class="n">QDialog</span><span class="p">,</span> <span class="n">QGridLayout</span><span class="p">,</span> <span class="n">QDialogButtonBox</span><span class="p">,</span> <span class="n">QAbstractItemView</span>
+<span class="kn">from</span> <span class="nn">astropy.units</span> <span class="kn">import</span> <span class="n">Quantity</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">unicode</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+
+<div class="viewcode-block" id="DictionaryTreeDialog"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.DictionaryTree.DictionaryTreeDialog">[docs]</a><span class="k">class</span> <span class="nc">DictionaryTreeDialog</span><span class="p">(</span><span class="n">QDialog</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Select item&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Dialog to display tree structure of any python dictionary object.</span>
+
+<span class="sd">        :param parent: Parent object</span>
+<span class="sd">        :type parent: QWidget</span>
+<span class="sd">        :param data: Dictionary data</span>
+<span class="sd">        :type data: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">QDialog</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_sel</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">item_sel</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="n">layout</span> <span class="o">=</span> <span class="n">QGridLayout</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">layout</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dictTree</span> <span class="o">=</span> <span class="n">DictionaryTreeWidget</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dictTree</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">selectItem</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buttonBox</span> <span class="o">=</span> <span class="n">QDialogButtonBox</span><span class="p">(</span><span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">Ok</span> <span class="o">|</span> <span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">Cancel</span><span class="p">)</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dictTree</span><span class="p">)</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">buttonBox</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buttonBox</span><span class="o">.</span><span class="n">accepted</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">accept</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buttonBox</span><span class="o">.</span><span class="n">rejected</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reject</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DictionaryTreeDialog.selectItem"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.DictionaryTree.DictionaryTreeDialog.selectItem">[docs]</a>    <span class="k">def</span> <span class="nf">selectItem</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Select data of clicked item.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">item_sel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dictTree</span><span class="o">.</span><span class="n">currentItem</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_sel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dictTree</span><span class="o">.</span><span class="n">get_selected_data</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="DictionaryTreeDialog.get_selected_data"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.DictionaryTree.DictionaryTreeDialog.get_selected_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_selected_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">item_sel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_sel</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_sel</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">item_sel</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mi">0</span><span class="p">):</span><span class="bp">self</span><span class="o">.</span><span class="n">data_sel</span><span class="p">}</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span></div></div>
+
+<div class="viewcode-block" id="DictionaryTreeWidget"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.DictionaryTree.DictionaryTreeWidget">[docs]</a><span class="k">class</span> <span class="nc">DictionaryTreeWidget</span><span class="p">(</span><span class="n">QTreeWidget</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">editable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">enable_dragdrop</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Widget to display tree structure of any python dictionary object.</span>
+
+<span class="sd">        :param parent: Parent object</span>
+<span class="sd">        :type parent: QWidget</span>
+<span class="sd">        :param data: Dictionary data</span>
+<span class="sd">        :type data: dict</span>
+<span class="sd">        :param editable: Flag if checked enables to edit dictionary keys</span>
+<span class="sd">        :type editable: bool</span>
+<span class="sd">        :param enable_dragdrop: Enable drag and drop</span>
+<span class="sd">        :type enable_dragdrop: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">QTreeWidget</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">editable</span> <span class="o">=</span> <span class="n">editable</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">enable_dragdrop</span> <span class="o">=</span> <span class="n">enable_dragdrop</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setHeaderLabels</span><span class="p">([</span><span class="s1">&#39;Name&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">,</span> <span class="s1">&#39;Shape&#39;</span><span class="p">,</span> <span class="s1">&#39;Unit&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">updateDictionary</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prev_name</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">editable</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rename_flag</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">itemDoubleClicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">double_click</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">itemChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">edit_item</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">enable_dragdrop</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setSelectionMode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ExtendedSelection</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setDragDropMode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">InternalMove</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setDragEnabled</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setDropIndicatorShown</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DictionaryTreeWidget.updateDictionary"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.DictionaryTree.DictionaryTreeWidget.updateDictionary">[docs]</a>    <span class="k">def</span> <span class="nf">updateDictionary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update displayed dictionary data.</span>
+
+<span class="sd">        :param data: Dictionary data</span>
+<span class="sd">        :type data: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">dict</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fill_item</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">invisibleRootItem</span><span class="p">(),</span> <span class="n">data</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DictionaryTreeWidget.fill_item"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.DictionaryTree.DictionaryTreeWidget.fill_item">[docs]</a>    <span class="k">def</span> <span class="nf">fill_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Build tree by filling item by item.</span>
+
+<span class="sd">        :param item: Parent Treewidget item</span>
+<span class="sd">        :type item: QTreeWidgetItem</span>
+<span class="sd">        :param value: Dictionary of values to add to item as children</span>
+<span class="sd">        :type value: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># item.setExpanded(True)</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">dict</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+                <span class="n">child</span> <span class="o">=</span> <span class="n">QTreeWidgetItem</span><span class="p">()</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">editable</span><span class="p">:</span>
+                    <span class="n">child</span><span class="o">.</span><span class="n">setFlags</span><span class="p">(</span><span class="n">child</span><span class="o">.</span><span class="n">flags</span><span class="p">()</span> <span class="o">|</span> <span class="n">Qt</span><span class="o">.</span><span class="n">ItemIsEditable</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_dragdrop</span><span class="p">:</span>
+                    <span class="n">child</span><span class="o">.</span><span class="n">setFlags</span><span class="p">(</span><span class="n">child</span><span class="o">.</span><span class="n">flags</span><span class="p">()</span> <span class="o">|</span> <span class="n">Qt</span><span class="o">.</span><span class="n">ItemIsDragEnabled</span> <span class="o">|</span> <span class="n">Qt</span><span class="o">.</span><span class="n">ItemIsDropEnabled</span><span class="p">)</span>
+
+                <span class="n">child</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">unicode</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">dict</span><span class="p">:</span>
+                    <span class="n">item</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">Qt</span><span class="o">.</span><span class="n">ForegroundRole</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="n">child</span><span class="o">.</span><span class="n">setForeground</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">QBrush</span><span class="p">(</span><span class="n">QColor</span><span class="p">(</span><span class="s2">&quot;green&quot;</span><span class="p">)))</span>
+                <span class="n">child</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">val</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+                    <span class="n">child</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s1">&#39; x &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span> <span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="n">val</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+                    <span class="n">child</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">val</span><span class="p">)))</span>
+                <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">isscalar</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+                    <span class="n">child</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;scalar&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">Quantity</span><span class="p">):</span>
+                    <span class="n">child</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">val</span><span class="o">.</span><span class="n">unit</span><span class="p">))</span>
+
+                <span class="n">item</span><span class="o">.</span><span class="n">addChild</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">fill_item</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DictionaryTreeWidget.get_selected_data"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.DictionaryTree.DictionaryTreeWidget.get_selected_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_selected_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">baseNode</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get data of selected tree node.</span>
+
+<span class="sd">        :param baseNode: Selected tree node</span>
+<span class="sd">        :type baseNode: QTreeWidgetItem</span>
+<span class="sd">        :return: Selected data</span>
+<span class="sd">        :rtype: dict/object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">baseNode</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">baseNode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">currentItem</span><span class="p">()</span>
+        <span class="n">items</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_selected_path</span><span class="p">(</span><span class="n">baseNode</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">item</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">data</span></div>
+
+<div class="viewcode-block" id="DictionaryTreeWidget.get_selected_path"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.DictionaryTree.DictionaryTreeWidget.get_selected_path">[docs]</a>    <span class="k">def</span> <span class="nf">get_selected_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">baseNode</span><span class="p">,</span> <span class="n">items</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get path of selected tree node.</span>
+
+<span class="sd">        :param baseNode: Selected tree node</span>
+<span class="sd">        :type baseNode: QTreeWidgetItem</span>
+<span class="sd">        :param items: List containing earlier path until current node</span>
+<span class="sd">        :type items: list[str]</span>
+<span class="sd">        :return: Selected path</span>
+<span class="sd">        :rtype: list[str]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="n">baseNode</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">items</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span><span class="p">]</span> <span class="o">+</span> <span class="n">items</span>
+        <span class="k">if</span> <span class="n">baseNode</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">items</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_selected_path</span><span class="p">(</span><span class="n">baseNode</span><span class="o">.</span><span class="n">parent</span><span class="p">(),</span> <span class="n">items</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">items</span></div>
+
+<div class="viewcode-block" id="DictionaryTreeWidget.clearData"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.DictionaryTree.DictionaryTreeWidget.clearData">[docs]</a>    <span class="k">def</span> <span class="nf">clearData</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Clear data of the tree widget</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="DictionaryTreeWidget.double_click"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.DictionaryTree.DictionaryTreeWidget.double_click">[docs]</a>    <span class="k">def</span> <span class="nf">double_click</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="n">column</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Callback of double click of a tree node. Used for renaming node.</span>
+
+<span class="sd">        :param item: Clicked tree node</span>
+<span class="sd">        :type item: QTreeWidgetItem</span>
+<span class="sd">        :param column: Column position of item</span>
+<span class="sd">        :type column: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prev_name</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">column</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rename_flag</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="DictionaryTreeWidget.edit_item"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.DictionaryTree.DictionaryTreeWidget.edit_item">[docs]</a>    <span class="k">def</span> <span class="nf">edit_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="n">column</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Callback when tree item text is changed. Item renamed if used with double_click.</span>
+
+<span class="sd">        :param item: Clicked tree node</span>
+<span class="sd">        :type item: QTreeWidgetItem</span>
+<span class="sd">        :param column: Column position of item</span>
+<span class="sd">        :type column: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">column</span><span class="o">==</span><span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">rename_flag</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">prev_name</span> <span class="o">!=</span> <span class="n">item</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">column</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_dict_key</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prev_name</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rename_flag</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="DictionaryTreeWidget.update_dict_key"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.DictionaryTree.DictionaryTreeWidget.update_dict_key">[docs]</a>    <span class="k">def</span> <span class="nf">update_dict_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">old_key</span><span class="p">,</span> <span class="n">baseNode</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update dictionary key with the new name entered with double click in the tree widget item.</span>
+
+<span class="sd">        :param old_key: Old key in the dictionary</span>
+<span class="sd">        :type old_key: str</span>
+<span class="sd">        :param baseNode: QTreewidget item with the new name</span>
+<span class="sd">        :type baseNode: QTreeWidgetItem</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">new_key</span> <span class="o">=</span> <span class="n">baseNode</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_selected_path</span><span class="p">(</span><span class="n">baseNode</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">path</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">k</span><span class="o">!=</span><span class="n">new_key</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">old_key</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>  <span class="c1"># Last item in loop</span>
+                <span class="k">if</span> <span class="n">new_key</span><span class="o">!=</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
+                    <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">old_key</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">old_key</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">updateDictionary</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DictionaryTreeWidget.dropEvent"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.DictionaryTree.DictionaryTreeWidget.dropEvent">[docs]</a>    <span class="k">def</span> <span class="nf">dropEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Event in &#39;drag and drop&#39; action, after dropped&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">source</span><span class="p">()</span> <span class="o">==</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="n">QAbstractItemView</span><span class="o">.</span><span class="n">dropEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DictionaryTreeWidget.dropMimeData"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.DictionaryTree.DictionaryTreeWidget.dropMimeData">[docs]</a>    <span class="k">def</span> <span class="nf">dropMimeData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Event when an item is moved.</span>
+
+<span class="sd">        :param parent: Parent object</span>
+<span class="sd">        :type parent: QWidget</span>
+<span class="sd">        :param row: Row number of moving item</span>
+<span class="sd">        :type row: int</span>
+<span class="sd">        :param data: Data of the DictionaryTree</span>
+<span class="sd">        :type data: dict</span>
+<span class="sd">        :param action: Action object</span>
+<span class="sd">        :type action: QAction</span>
+<span class="sd">        :return: Flag whether item is moved</span>
+<span class="sd">        :rtype: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">MoveAction</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">moveSelection</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">row</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+    <span class="c1">## https://riverbankcomputing.com/pipermail/pyqt/2009-December/025379.html</span>
+<div class="viewcode-block" id="DictionaryTreeWidget.moveSelection"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.DictionaryTree.DictionaryTreeWidget.moveSelection">[docs]</a>    <span class="k">def</span> <span class="nf">moveSelection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">position</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Drag and drop items within the dictionary tree widget.</span>
+
+<span class="sd">        :param parent: Previous parent of the moving item</span>
+<span class="sd">        :type parent: QTreeWidgetItem</span>
+<span class="sd">        :param position: New row position to drop</span>
+<span class="sd">        :type position: int</span>
+<span class="sd">        :return: Flag whether item is moved</span>
+<span class="sd">        :rtype: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># save the selected items</span>
+        <span class="n">selection</span> <span class="o">=</span> <span class="p">[</span><span class="n">QtCore</span><span class="o">.</span><span class="n">QPersistentModelIndex</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">selectedIndexes</span><span class="p">()]</span>
+        <span class="n">parent_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">indexFromItem</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">parent_index</span> <span class="ow">in</span> <span class="n">selection</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="c1"># save the drop location in case it gets moved</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">()</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">parent_index</span><span class="p">)</span><span class="o">.</span><span class="n">row</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">target</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">target</span> <span class="o">=</span> <span class="n">position</span>
+        <span class="c1"># remove the selected items</span>
+        <span class="n">taken</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">taken_data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">selection</span><span class="p">):</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">itemFromIndex</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">QModelIndex</span><span class="p">(</span><span class="n">index</span><span class="p">))</span>
+            <span class="n">data_item</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
+            <span class="k">if</span> <span class="n">item</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">item</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">topitem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">takeTopLevelItem</span><span class="p">(</span><span class="n">index</span><span class="o">.</span><span class="n">row</span><span class="p">())</span>
+                <span class="n">taken</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">topitem</span><span class="p">)</span>
+                <span class="n">taken_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data_item</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">topitem</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span> <span class="k">if</span> <span class="n">topitem</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">item_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_selected_path</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="p">[])</span>
+                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">item_path</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                    <span class="n">data_item</span> <span class="o">=</span> <span class="n">data_item</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+                <span class="n">taken</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">takeChild</span><span class="p">(</span><span class="n">index</span><span class="o">.</span><span class="n">row</span><span class="p">()))</span>
+                <span class="n">taken_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data_item</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mi">0</span><span class="p">)))</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_selected_data</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span> <span class="k">if</span> <span class="n">parent_index</span><span class="o">.</span><span class="n">isValid</span><span class="p">()</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
+        <span class="c1"># insert the selected items at their new positions</span>
+        <span class="k">while</span> <span class="n">taken</span><span class="p">:</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="n">taken</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">item_data</span> <span class="o">=</span> <span class="n">taken_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">item</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">QTreeWidgetItem</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                    <span class="n">data</span><span class="p">[</span><span class="n">item</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mi">0</span><span class="p">)]</span> <span class="o">=</span> <span class="n">item_data</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">item</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mi">0</span><span class="p">)]</span> <span class="o">=</span> <span class="n">item_data</span>
+            <span class="k">if</span> <span class="n">position</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="c1"># append the items if position not specified</span>
+                <span class="k">if</span> <span class="n">parent_index</span><span class="o">.</span><span class="n">isValid</span><span class="p">()</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                    <span class="n">parent</span><span class="o">.</span><span class="n">insertChild</span><span class="p">(</span><span class="n">parent</span><span class="o">.</span><span class="n">childCount</span><span class="p">(),</span> <span class="n">item</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">insertTopLevelItem</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">topLevelItemCount</span><span class="p">(),</span> <span class="n">item</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># insert the items at the specified position</span>
+                <span class="k">if</span> <span class="n">parent_index</span><span class="o">.</span><span class="n">isValid</span><span class="p">()</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                    <span class="n">parent</span><span class="o">.</span><span class="n">insertChild</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">parent</span><span class="o">.</span><span class="n">childCount</span><span class="p">()),</span> <span class="n">item</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">insertTopLevelItem</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">topLevelItemCount</span><span class="p">()),</span> <span class="n">item</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span></div></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">pylost_widgets</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../pylost_widgets.html">pylost_widgets package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

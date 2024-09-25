@@ -1,0 +1,488 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PyLOSt.ui.settings.SGSettings &#8212; PyLOSt  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/alabaster.css" />
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for PyLOSt.ui.settings.SGSettings</h1><div class="highlight"><pre>
+<span></span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Created on Jul 12, 2018</span>
+
+<span class="sd">Retrieve instruments and algorithms from database and display in GUI. Add/edit/delete instruments and algorithms.</span>
+
+<span class="sd">@author: adapa</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+
+<span class="kn">from</span> <span class="nn">PyQt5</span> <span class="kn">import</span> <span class="n">uic</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtWidgets</span> <span class="kn">import</span> <span class="n">QMainWindow</span><span class="p">,</span> <span class="n">QListWidgetItem</span>
+
+<span class="kn">import</span> <span class="nn">PyLOSt</span>
+<span class="kn">from</span> <span class="nn">PyLOSt.databases.gs_table_classes</span> <span class="kn">import</span> <span class="n">Instruments</span><span class="p">,</span> <span class="n">Locations</span><span class="p">,</span> <span class="n">InstrTypes</span><span class="p">,</span> \
+    <span class="n">AlgoTypes</span><span class="p">,</span> <span class="n">Algorithms</span><span class="p">,</span> <span class="n">StitchSetupAlgoOptions</span>
+<span class="kn">from</span> <span class="nn">PyLOSt.ui.settings.SGLocations</span> <span class="kn">import</span> <span class="n">SGLocations</span>
+<span class="kn">from</span> <span class="nn">PyLOSt.ui.settings.SGSetupOptions</span> <span class="kn">import</span> <span class="n">SGSetupOptions</span>
+<span class="kn">from</span> <span class="nn">PyLOSt.ui.settings.SGInstrTypes</span> <span class="kn">import</span> <span class="n">SGInstrTypes</span>
+<span class="kn">from</span> <span class="nn">PyLOSt.ui.settings.SGAlgoOptions</span> <span class="kn">import</span> <span class="n">SGAlgoOptions</span>
+
+<span class="kn">from</span> <span class="nn">PyLOSt.util.resource_path</span> <span class="kn">import</span> <span class="n">resource_path</span>
+<span class="kn">from</span> <span class="nn">PyLOSt.util.commons</span> <span class="kn">import</span> <span class="n">alertMsg</span><span class="p">,</span> <span class="n">questionMsg</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="n">ui</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;ui&quot;</span><span class="p">,</span> <span class="s2">&quot;settings&quot;</span><span class="p">,</span> <span class="s2">&quot;settings_v1.ui&quot;</span><span class="p">)</span>
+<span class="n">qtCreatorFile</span> <span class="o">=</span> <span class="n">resource_path</span><span class="p">(</span><span class="n">ui</span><span class="p">)</span> <span class="c1"># Enter file here.</span>
+
+<span class="n">Ui_MainWindow</span><span class="p">,</span> <span class="n">QtBaseClass</span> <span class="o">=</span> <span class="n">uic</span><span class="o">.</span><span class="n">loadUiType</span><span class="p">(</span><span class="n">qtCreatorFile</span><span class="p">)</span>
+ 
+<div class="viewcode-block" id="SGSettings"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGSettings.SGSettings">[docs]</a><span class="k">class</span> <span class="nc">SGSettings</span><span class="p">(</span><span class="n">QMainWindow</span><span class="p">,</span> <span class="n">Ui_MainWindow</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">QMainWindow</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">parent</span><span class="p">)</span>
+        <span class="n">Ui_MainWindow</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setupUi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
+        
+        <span class="c1">########################## instruments ###############################</span>
+        <span class="c1"># Load instruments</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loadListInstr</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instrList</span><span class="o">.</span><span class="n">itemClicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">instrClick</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hideDetails</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">btnAdd</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">addNewInstr</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">btnSave</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">editInstr</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">btnDelete</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deleteInstr</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">btnSetupOptions</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">openSetupOptions</span><span class="p">)</span>
+        
+        <span class="c1"># Instrument types</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loadInstrTypes</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">insTypes</span><span class="o">.</span><span class="n">currentIndexChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">insTypeChange</span><span class="p">)</span>
+
+        <span class="c1"># Locations (instruments table)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loadInstrLocations</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">insLoc</span><span class="o">.</span><span class="n">currentIndexChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">locChange</span><span class="p">)</span>
+        <span class="c1">########################## instruments ###############################</span>
+        
+        <span class="c1">########################## Algorithms ###############################</span>
+        <span class="c1"># Load algorithms</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loadListAlgo</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">algoList</span><span class="o">.</span><span class="n">itemClicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">algoClick</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hideDetailsAlgo</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">btnAdd_algo</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">addNewAlgo</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">btnSave_algo</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">editAlgo</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">btnDelete_algo</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deleteAlgo</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">btnAlgoOptions</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">openAlgoOptions</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">btnGenAlgo</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">generateStitchAlgo</span><span class="p">)</span>
+         
+        <span class="c1"># Algorithm types</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loadAlgorTypes</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">algoTypes</span><span class="o">.</span><span class="n">currentIndexChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">algoTypeChange</span><span class="p">)</span>
+
+        <span class="c1"># Locations (instruments table)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loadAlgoLocations</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">algoLoc</span><span class="o">.</span><span class="n">currentIndexChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">locChangeAlgo</span><span class="p">)</span>
+        <span class="c1">########################## Algorithms ###############################</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">btnDone</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">done</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SGSettings.done"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGSettings.SGSettings.done">[docs]</a>    <span class="k">def</span> <span class="nf">done</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">loadInstruments</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+    <span class="c1">########################## instruments ###############################</span>
+<div class="viewcode-block" id="SGSettings.loadListInstr"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGSettings.SGSettings.loadListInstr">[docs]</a>    <span class="k">def</span> <span class="nf">loadListInstr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qins</span> <span class="o">=</span> <span class="n">Instruments</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instrList</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="n">QListWidgetItem</span><span class="p">()</span>
+        <span class="n">item</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="s1">&#39;Add New&#39;</span><span class="p">)</span>
+        <span class="n">item</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instrList</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">qins</span><span class="p">:</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="n">QListWidgetItem</span><span class="p">()</span>
+            <span class="n">item</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">it</span><span class="o">.</span><span class="n">instrName</span><span class="p">)</span>
+            <span class="n">item</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">it</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">instrList</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="n">item</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SGSettings.loadInstrTypes"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGSettings.SGSettings.loadInstrTypes">[docs]</a>    <span class="k">def</span> <span class="nf">loadInstrTypes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qtypes</span> <span class="o">=</span> <span class="n">InstrTypes</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">curInsTypeId</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">insTypes</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">insTypes</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="s1">&#39;Select instrument type&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">curInsTypeId</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">qtypes</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">insTypes</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="n">it</span><span class="o">.</span><span class="n">instrDesc</span><span class="p">,</span> <span class="n">it</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">insTypes</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="s1">&#39;Add New&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SGSettings.loadInstrLocations"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGSettings.SGSettings.loadInstrLocations">[docs]</a>    <span class="k">def</span> <span class="nf">loadInstrLocations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qloc</span> <span class="o">=</span> <span class="n">Locations</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">curLocId</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">insLoc</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">insLoc</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="s1">&#39;Select location&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">curLocId</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">qloc</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">insLoc</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="n">it</span><span class="o">.</span><span class="n">locationDesc</span><span class="p">,</span> <span class="n">it</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">insLoc</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="s1">&#39;Add New&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SGSettings.instrClick"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGSettings.SGSettings.instrClick">[docs]</a>    <span class="k">def</span> <span class="nf">instrClick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="n">cit</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="c1">#.toInt()[0])</span>
+        <span class="k">if</span> <span class="n">cit</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">hideDetails</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">btnAdd</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">hideDetails</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">btnSave</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">btnDelete</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">btnSetupOptions</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instrDetails</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="c1"># fill details</span>
+        <span class="k">if</span> <span class="n">Instruments</span><span class="o">.</span><span class="n">selectBy</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">cit</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="n">Instruments</span><span class="o">.</span><span class="n">selectBy</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">cit</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setCurData</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">insId</span><span class="o">.</span><span class="n">setReadOnly</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">clearData</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">insId</span><span class="o">.</span><span class="n">setReadOnly</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span></div>
+        
+<div class="viewcode-block" id="SGSettings.hideDetails"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGSettings.SGSettings.hideDetails">[docs]</a>    <span class="k">def</span> <span class="nf">hideDetails</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instrDetails</span><span class="o">.</span><span class="n">hide</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">btnAdd</span><span class="o">.</span><span class="n">hide</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">btnSave</span><span class="o">.</span><span class="n">hide</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">btnDelete</span><span class="o">.</span><span class="n">hide</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">btnSetupOptions</span><span class="o">.</span><span class="n">hide</span><span class="p">()</span></div>
+        
+<div class="viewcode-block" id="SGSettings.addNewInstr"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGSettings.SGSettings.addNewInstr">[docs]</a>    <span class="k">def</span> <span class="nf">addNewInstr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">getCurData</span><span class="p">()</span>
+            <span class="n">Instruments</span><span class="p">(</span><span class="n">instrId</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">iID</span><span class="p">,</span> <span class="n">instrName</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">iName</span><span class="p">,</span> <span class="n">instrType</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">iType</span><span class="p">,</span> <span class="n">instrLocation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">iLoc</span><span class="p">,</span> <span class="n">dataFormats</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">iDF</span><span class="p">,</span> <span class="n">addedBy</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">iAddBy</span><span class="p">,</span> <span class="n">dateAdded</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>   
+            <span class="n">alertMsg</span><span class="p">(</span><span class="s2">&quot;Error add instrument&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loadListInstr</span><span class="p">()</span></div>
+            
+<div class="viewcode-block" id="SGSettings.editInstr"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGSettings.SGSettings.editInstr">[docs]</a>    <span class="k">def</span> <span class="nf">editInstr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">getCurData</span><span class="p">()</span>
+            <span class="n">cit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">instrList</span><span class="o">.</span><span class="n">currentItem</span><span class="p">()</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="c1">#.toInt()[0])</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="n">Instruments</span><span class="o">.</span><span class="n">selectBy</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">cit</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">i</span><span class="o">.</span><span class="n">instrName</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">iName</span>
+            <span class="n">i</span><span class="o">.</span><span class="n">instrType</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">iType</span>
+            <span class="n">i</span><span class="o">.</span><span class="n">instrLocation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">iLoc</span>
+            <span class="n">i</span><span class="o">.</span><span class="n">dataFormats</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">iDF</span>
+            <span class="n">i</span><span class="o">.</span><span class="n">addedBy</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">iAddBy</span>
+            <span class="n">alertMsg</span><span class="p">(</span><span class="s2">&quot;Edit instrument&quot;</span><span class="p">,</span><span class="s2">&quot;Changes saved successfully&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">hideDetails</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>   
+            <span class="n">alertMsg</span><span class="p">(</span><span class="s2">&quot;Error edit instrument&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loadListInstr</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="SGSettings.deleteInstr"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGSettings.SGSettings.deleteInstr">[docs]</a>    <span class="k">def</span> <span class="nf">deleteInstr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">cit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">instrList</span><span class="o">.</span><span class="n">currentItem</span><span class="p">()</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="c1">#.toInt()[0]</span>
+            <span class="k">if</span> <span class="n">questionMsg</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Delete instrument&quot;</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="s2">&quot;Delete instrument (Yes/No?)&quot;</span><span class="p">):</span>
+                <span class="n">Instruments</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">cit</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>   
+            <span class="n">alertMsg</span><span class="p">(</span><span class="s2">&quot;Error delete instrument&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loadListInstr</span><span class="p">()</span>   
+        <span class="bp">self</span><span class="o">.</span><span class="n">hideDetails</span><span class="p">()</span></div>
+              
+<div class="viewcode-block" id="SGSettings.getCurData"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGSettings.SGSettings.getCurData">[docs]</a>    <span class="k">def</span> <span class="nf">getCurData</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iID</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">insId</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iName</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">insName</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iType</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">curInsTypeId</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iLoc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">curLocId</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iDF</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataFormats</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iAddBy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">addedBy</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">iType</span><span class="o">==-</span><span class="mi">1</span><span class="p">:</span> <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Please select instrument type&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">iLoc</span><span class="o">==-</span><span class="mi">1</span><span class="p">:</span> <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Please select location&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">iID</span><span class="o">==</span><span class="s1">&#39;&#39;</span><span class="p">:</span> <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Please add instrument id&#39;</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="SGSettings.setCurData"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGSettings.SGSettings.setCurData">[docs]</a>    <span class="k">def</span> <span class="nf">setCurData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">insId</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">instrId</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">insName</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">instrName</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">insTypes</span><span class="o">.</span><span class="n">setCurrentIndex</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">insTypes</span><span class="o">.</span><span class="n">findData</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">instrTypeID</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">insLoc</span><span class="o">.</span><span class="n">setCurrentIndex</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">insLoc</span><span class="o">.</span><span class="n">findData</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">instrLocationID</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataFormats</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">dataFormats</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addedBy</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">addedBy</span><span class="p">)</span></div>
+        
+<div class="viewcode-block" id="SGSettings.clearData"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGSettings.SGSettings.clearData">[docs]</a>    <span class="k">def</span> <span class="nf">clearData</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">insId</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">insName</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">insTypes</span><span class="o">.</span><span class="n">setCurrentIndex</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">insLoc</span><span class="o">.</span><span class="n">setCurrentIndex</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataFormats</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addedBy</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span></div>
+        
+<div class="viewcode-block" id="SGSettings.insTypeChange"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGSettings.SGSettings.insTypeChange">[docs]</a>    <span class="k">def</span> <span class="nf">insTypeChange</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">i</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">curInsTypeId</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">insTypes</span><span class="o">.</span><span class="n">itemData</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="c1">#.toInt()[0]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">curInsTypeId</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">itypeDialog</span> <span class="o">=</span> <span class="n">SGInstrTypes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">itypeDialog</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+            
+<div class="viewcode-block" id="SGSettings.locChange"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGSettings.SGSettings.locChange">[docs]</a>    <span class="k">def</span> <span class="nf">locChange</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">i</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">curLocId</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">insLoc</span><span class="o">.</span><span class="n">itemData</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="c1">#.toInt()[0]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">curLocId</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ilocDialog</span> <span class="o">=</span> <span class="n">SGLocations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ilocDialog</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+    
+<div class="viewcode-block" id="SGSettings.openSetupOptions"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGSettings.SGSettings.openSetupOptions">[docs]</a>    <span class="k">def</span> <span class="nf">openSetupOptions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">isetupDialog</span> <span class="o">=</span> <span class="n">SGSetupOptions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="bp">self</span><span class="o">.</span><span class="n">instrList</span><span class="o">.</span><span class="n">currentItem</span><span class="p">()</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">isetupDialog</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+    <span class="c1">########################## instruments ###############################</span>
+    
+    <span class="c1">########################## Algorithms ###############################</span>
+<div class="viewcode-block" id="SGSettings.loadListAlgo"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGSettings.SGSettings.loadListAlgo">[docs]</a>    <span class="k">def</span> <span class="nf">loadListAlgo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qalgos</span> <span class="o">=</span> <span class="n">Algorithms</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">algoList</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="n">QListWidgetItem</span><span class="p">()</span>
+        <span class="n">item</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="s1">&#39;Add New&#39;</span><span class="p">)</span>
+        <span class="n">item</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">algoList</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">qalgos</span><span class="p">:</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="n">QListWidgetItem</span><span class="p">()</span>
+            <span class="n">item</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">it</span><span class="o">.</span><span class="n">algoName</span><span class="p">)</span>
+            <span class="n">item</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">it</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">algoList</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="n">item</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SGSettings.loadAlgorTypes"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGSettings.SGSettings.loadAlgorTypes">[docs]</a>    <span class="k">def</span> <span class="nf">loadAlgorTypes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qalgotypes</span> <span class="o">=</span> <span class="n">AlgoTypes</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">curAlgoTypeId</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">algoTypes</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">algoTypes</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="s1">&#39;Select algorithm type&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">curAlgoTypeId</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">qalgotypes</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">algoTypes</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="n">it</span><span class="o">.</span><span class="n">algoTypeDesc</span><span class="p">,</span> <span class="n">it</span><span class="o">.</span><span class="n">id</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SGSettings.loadAlgoLocations"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGSettings.SGSettings.loadAlgoLocations">[docs]</a>    <span class="k">def</span> <span class="nf">loadAlgoLocations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">curAlgoLocId</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">algoLoc</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">algoLoc</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="s1">&#39;Select location&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">curAlgoLocId</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">qloc</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">algoLoc</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="n">it</span><span class="o">.</span><span class="n">locationDesc</span><span class="p">,</span> <span class="n">it</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">algoLoc</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="s1">&#39;Add New&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SGSettings.algoClick"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGSettings.SGSettings.algoClick">[docs]</a>    <span class="k">def</span> <span class="nf">algoClick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="n">cit</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="c1">#.toInt()[0]</span>
+        <span class="k">if</span> <span class="n">cit</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">hideDetailsAlgo</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">btnAdd_algo</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">hideDetailsAlgo</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">btnSave_algo</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">btnDelete_algo</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">algoDetails</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="c1"># fill details</span>
+        <span class="k">if</span> <span class="n">Algorithms</span><span class="o">.</span><span class="n">selectBy</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">cit</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="n">Algorithms</span><span class="o">.</span><span class="n">selectBy</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">cit</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setCurDataAlgo</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">clearDataAlgo</span><span class="p">()</span></div>
+        
+<div class="viewcode-block" id="SGSettings.hideDetailsAlgo"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGSettings.SGSettings.hideDetailsAlgo">[docs]</a>    <span class="k">def</span> <span class="nf">hideDetailsAlgo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">algoDetails</span><span class="o">.</span><span class="n">hide</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">btnAdd_algo</span><span class="o">.</span><span class="n">hide</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">btnSave_algo</span><span class="o">.</span><span class="n">hide</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">btnDelete_algo</span><span class="o">.</span><span class="n">hide</span><span class="p">()</span></div>
+        
+<div class="viewcode-block" id="SGSettings.addNewAlgo"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGSettings.SGSettings.addNewAlgo">[docs]</a>    <span class="k">def</span> <span class="nf">addNewAlgo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">getCurDataAlgo</span><span class="p">()</span>
+            <span class="n">Algorithms</span><span class="p">(</span><span class="n">algoName</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">aName</span><span class="p">,</span> <span class="n">algoDesc</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">aDesc</span><span class="p">,</span> <span class="n">algoType</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">aType</span><span class="p">,</span> <span class="n">functionName</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">afunName</span><span class="p">,</span> <span class="n">addedBy</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">aAddBy</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">aLoc</span><span class="p">,</span> <span class="n">dateAdded</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>   
+            <span class="n">alertMsg</span><span class="p">(</span><span class="s2">&quot;Error add algo&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loadListAlgo</span><span class="p">()</span></div>
+            
+<div class="viewcode-block" id="SGSettings.editAlgo"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGSettings.SGSettings.editAlgo">[docs]</a>    <span class="k">def</span> <span class="nf">editAlgo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">getCurDataAlgo</span><span class="p">()</span>
+            <span class="n">cit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">algoList</span><span class="o">.</span><span class="n">currentItem</span><span class="p">()</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="c1">#.toInt()[0]</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">Algorithms</span><span class="o">.</span><span class="n">selectBy</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">cit</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">a</span><span class="o">.</span><span class="n">algoName</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">aName</span>
+            <span class="n">a</span><span class="o">.</span><span class="n">algoDesc</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">aDesc</span>
+            <span class="n">a</span><span class="o">.</span><span class="n">algoType</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">aType</span>
+            <span class="n">a</span><span class="o">.</span><span class="n">functionName</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">afunName</span>
+            <span class="n">a</span><span class="o">.</span><span class="n">addedBy</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">aAddBy</span>
+            <span class="n">a</span><span class="o">.</span><span class="n">location</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">aLoc</span>
+            <span class="n">alertMsg</span><span class="p">(</span><span class="s2">&quot;Edit algorithm&quot;</span><span class="p">,</span><span class="s2">&quot;Changes saved successfully&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">hideDetailsAlgo</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>   
+            <span class="n">alertMsg</span><span class="p">(</span><span class="s2">&quot;Error edit algo&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loadListAlgo</span><span class="p">()</span></div>
+    
+<div class="viewcode-block" id="SGSettings.deleteAlgo"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGSettings.SGSettings.deleteAlgo">[docs]</a>    <span class="k">def</span> <span class="nf">deleteAlgo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">cit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">algoList</span><span class="o">.</span><span class="n">currentItem</span><span class="p">()</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="c1">#.toInt()[0]</span>
+            <span class="k">if</span> <span class="n">questionMsg</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Delete algorithm&quot;</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="s2">&quot;Delete algorithm (Yes/No?)&quot;</span><span class="p">):</span>
+                <span class="n">Algorithms</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">cit</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>   
+            <span class="n">alertMsg</span><span class="p">(</span><span class="s2">&quot;Error delete algo&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loadListAlgo</span><span class="p">()</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">hideDetailsAlgo</span><span class="p">()</span>  </div>
+              
+<div class="viewcode-block" id="SGSettings.getCurDataAlgo"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGSettings.SGSettings.getCurDataAlgo">[docs]</a>    <span class="k">def</span> <span class="nf">getCurDataAlgo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">aName</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">algoName</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">aDesc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">algoDesc</span><span class="o">.</span><span class="n">toPlainText</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">aType</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">curAlgoTypeId</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">afunName</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">funName</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">aAddBy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">addedByAlgo</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">aLoc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">curAlgoLocId</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">aType</span><span class="o">==-</span><span class="mi">1</span><span class="p">:</span> <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Please select algo type&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">aLoc</span><span class="o">==-</span><span class="mi">1</span><span class="p">:</span> <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Please select location&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">aName</span><span class="o">==</span><span class="s1">&#39;&#39;</span><span class="p">:</span> <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Please add algo name&#39;</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="SGSettings.setCurDataAlgo"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGSettings.SGSettings.setCurDataAlgo">[docs]</a>    <span class="k">def</span> <span class="nf">setCurDataAlgo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">a</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">algoName</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">algoName</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">algoDesc</span><span class="o">.</span><span class="n">setPlainText</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">algoDesc</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">algoTypes</span><span class="o">.</span><span class="n">setCurrentIndex</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">algoTypes</span><span class="o">.</span><span class="n">findData</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">algoTypeID</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">funName</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">functionName</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addedByAlgo</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">addedBy</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">algoLoc</span><span class="o">.</span><span class="n">setCurrentIndex</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">algoLoc</span><span class="o">.</span><span class="n">findData</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">locationID</span><span class="p">))</span></div>
+        
+<div class="viewcode-block" id="SGSettings.clearDataAlgo"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGSettings.SGSettings.clearDataAlgo">[docs]</a>    <span class="k">def</span> <span class="nf">clearDataAlgo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">algoName</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">algoDesc</span><span class="o">.</span><span class="n">setPlainText</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">algoTypes</span><span class="o">.</span><span class="n">setCurrentIndex</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">funName</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addedByAlgo</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">algoLoc</span><span class="o">.</span><span class="n">setCurrentIndex</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
+        
+<div class="viewcode-block" id="SGSettings.algoTypeChange"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGSettings.SGSettings.algoTypeChange">[docs]</a>    <span class="k">def</span> <span class="nf">algoTypeChange</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">i</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">curAlgoTypeId</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">algoTypes</span><span class="o">.</span><span class="n">itemData</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="c1">#.toInt()[0]</span></div>
+            
+<div class="viewcode-block" id="SGSettings.locChangeAlgo"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGSettings.SGSettings.locChangeAlgo">[docs]</a>    <span class="k">def</span> <span class="nf">locChangeAlgo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">i</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">curAlgoLocId</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">algoLoc</span><span class="o">.</span><span class="n">itemData</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="c1">#.toInt()[0]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">curAlgoLocId</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">iqlgolocDialog</span> <span class="o">=</span> <span class="n">SGLocations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">iqlgolocDialog</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+            
+<div class="viewcode-block" id="SGSettings.openAlgoOptions"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGSettings.SGSettings.openAlgoOptions">[docs]</a>    <span class="k">def</span> <span class="nf">openAlgoOptions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">algoDialog</span> <span class="o">=</span> <span class="n">SGAlgoOptions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="bp">self</span><span class="o">.</span><span class="n">algoList</span><span class="o">.</span><span class="n">currentItem</span><span class="p">()</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span><span class="c1">#.toInt()[0])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">algoDialog</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="SGSettings.generateStitchAlgo"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGSettings.SGSettings.generateStitchAlgo">[docs]</a>    <span class="k">def</span> <span class="nf">generateStitchAlgo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">questionMsg</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Generate algorithm&quot;</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="s2">&quot;This creates {function name}.py file in&quot;</span>
+                                                           <span class="s2">&quot;&#39;/PyLOSt/stitsch_algorithms/&#39; folder. &quot;</span>
+                                                           <span class="s2">&quot;Do you want to continue (Yes/No?)&quot;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">getCurDataAlgo</span><span class="p">()</span>
+                <span class="n">f_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;stitch_algorithms&#39;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">afunName</span><span class="o">+</span><span class="s1">&#39;.py&#39;</span><span class="p">)</span>
+                <span class="n">base_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">PyLOSt</span><span class="o">.</span><span class="vm">__file__</span><span class="p">))</span>
+                <span class="n">f_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="n">f_path</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">f_path</span><span class="p">):</span>
+                    <span class="n">alertMsg</span><span class="p">(</span><span class="s1">&#39;File exist&#39;</span><span class="p">,</span><span class="s1">&#39;Algorithm already exist&#39;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">f_path</span><span class="p">,</span><span class="s1">&#39;w+&#39;</span><span class="p">)</span> <span class="c1"># create file if it does not exist</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;class &#39;</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">afunName</span><span class="o">+</span><span class="s1">&#39;:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">qopts</span> <span class="o">=</span> <span class="n">StitchSetupAlgoOptions</span><span class="o">.</span><span class="n">selectBy</span><span class="p">(</span><span class="n">algoID</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">algoList</span><span class="o">.</span><span class="n">currentItem</span><span class="p">()</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+                    <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">qopts</span><span class="p">:</span>
+                        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="o">+</span><span class="n">it</span><span class="o">.</span><span class="n">option</span><span class="o">+</span><span class="s1">&#39;=None</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                        <span class="c1">#TODO: set algorithm option to their default values</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">def updateParams(self,h5StAttrs):</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">qopts</span><span class="p">:</span>
+                        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t\t</span><span class="s1">if &quot;&#39;</span><span class="o">+</span><span class="n">it</span><span class="o">.</span><span class="n">option</span><span class="o">+</span><span class="s1">&#39;&quot; in h5StAttrs: self.&#39;</span><span class="o">+</span><span class="n">it</span><span class="o">.</span><span class="n">option</span><span class="o">+</span><span class="s1">&#39; = h5StAttrs[&quot;&#39;</span><span class="o">+</span><span class="n">it</span><span class="o">.</span><span class="n">option</span><span class="o">+</span><span class="s1">&#39;&quot;]</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t\t</span><span class="s1">if &quot;measurement_entry&quot; in h5StAttrs: self.measurement_entry = h5StAttrs[&quot;measurement_entry&quot;]</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">def stitch(self):</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t\t</span><span class="s1">#Write your code here&#39;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;generateStitchAlgo &lt;- SGSettings&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div></div>
+
+    <span class="c1">########################## Algorithms ###############################</span>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../index.html">PyLOSt</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../PyLOSt.html">PyLOSt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quick_guide.html">Quick Guide</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

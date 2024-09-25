@@ -1,0 +1,11 @@
+<h1>Interpolate widget guide</h1>
+<p>Interpolate data with one of the following ways. If the data is of type MetrologyData, detector dimesnions are taken from its attributes, else last two dimensions are used for N-dimensional data. Interpolation is done only in either 1D or 2D, any higher dimensions are looped over.</p>
+<ul>
+<li>Interpolate nan and inf values.</li>
+<li>Interpolate to a new pixel size in X and/or Y</li>
+<li>Interpolate subpixel offsets between subapertures, due to non-integer-pixel translations of motors</li>
+</ul>
+<p>Interpolation uses <em>interp1d</em> or <em>interp2d</em> functions from <em>scipy.interpolate</em> module.</p>
+<h3>Instructions to use interpolate</h3>
+<p><video controls="controls" width="500" height="250">
+<source src="videos/interpolate.mp4" type="video/mp4" /></video></p>

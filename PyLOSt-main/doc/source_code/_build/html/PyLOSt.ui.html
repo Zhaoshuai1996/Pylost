@@ -1,0 +1,484 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>PyLOSt.ui package &#8212; PyLOSt  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="PyLOSt.ui.settings package" href="PyLOSt.ui.settings.html" />
+    <link rel="prev" title="PyLOSt.databases package" href="PyLOSt.databases.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="pylost-ui-package">
+<h1>PyLOSt.ui package<a class="headerlink" href="#pylost-ui-package" title="Permalink to this headline">¶</a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="PyLOSt.ui.settings.html">PyLOSt.ui.settings package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.ui.settings.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.ui.settings.html#module-PyLOSt.ui.settings.SGAlgoOptions">PyLOSt.ui.settings.SGAlgoOptions module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.ui.settings.html#module-PyLOSt.ui.settings.SGEditMetaData">PyLOSt.ui.settings.SGEditMetaData module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.ui.settings.html#module-PyLOSt.ui.settings.SGInstrTypes">PyLOSt.ui.settings.SGInstrTypes module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.ui.settings.html#module-PyLOSt.ui.settings.SGLocations">PyLOSt.ui.settings.SGLocations module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.ui.settings.html#module-PyLOSt.ui.settings.SGMoreOptions">PyLOSt.ui.settings.SGMoreOptions module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.ui.settings.html#module-PyLOSt.ui.settings.SGNewOption">PyLOSt.ui.settings.SGNewOption module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.ui.settings.html#module-PyLOSt.ui.settings.SGNewStitchSetup">PyLOSt.ui.settings.SGNewStitchSetup module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.ui.settings.html#module-PyLOSt.ui.settings.SGSettings">PyLOSt.ui.settings.SGSettings module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.ui.settings.html#module-PyLOSt.ui.settings.SGSetupOptions">PyLOSt.ui.settings.SGSetupOptions module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.ui.settings.html#module-PyLOSt.ui.settings">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="PyLOSt.ui.simulations.html">PyLOSt.ui.simulations package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.ui.simulations.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.ui.simulations.html#module-PyLOSt.ui.simulations.SGSimulations">PyLOSt.ui.simulations.SGSimulations module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.ui.simulations.html#module-PyLOSt.ui.simulations.data_structures_sample">PyLOSt.ui.simulations.data_structures_sample module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.ui.simulations.html#module-PyLOSt.ui.simulations.sim_fiz">PyLOSt.ui.simulations.sim_fiz module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.ui.simulations.html#module-PyLOSt.ui.simulations">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="PyLOSt.ui.stitch_algorithms.html">PyLOSt.ui.stitch_algorithms package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.ui.stitch_algorithms.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="PyLOSt.ui.stitch_algorithms.util.html">PyLOSt.ui.stitch_algorithms.util package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="PyLOSt.ui.stitch_algorithms.util.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="PyLOSt.ui.stitch_algorithms.util.html#module-PyLOSt.ui.stitch_algorithms.util.best_ellipse_parameters_finder_script_xshift">PyLOSt.ui.stitch_algorithms.util.best_ellipse_parameters_finder_script_xshift module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="PyLOSt.ui.stitch_algorithms.util.html#module-PyLOSt.ui.stitch_algorithms.util.remove_best_ellipse">PyLOSt.ui.stitch_algorithms.util.remove_best_ellipse module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="PyLOSt.ui.stitch_algorithms.util.html#module-PyLOSt.ui.stitch_algorithms.util.slp2hgt">PyLOSt.ui.stitch_algorithms.util.slp2hgt module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="PyLOSt.ui.stitch_algorithms.util.html#module-PyLOSt.ui.stitch_algorithms.util.util_fast">PyLOSt.ui.stitch_algorithms.util.util_fast module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="PyLOSt.ui.stitch_algorithms.util.html#module-PyLOSt.ui.stitch_algorithms.util.util_stitching">PyLOSt.ui.stitch_algorithms.util.util_stitching module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="PyLOSt.ui.stitch_algorithms.util.html#module-PyLOSt.ui.stitch_algorithms.util">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.ui.stitch_algorithms.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.ui.stitch_algorithms.html#module-PyLOSt.ui.stitch_algorithms.global_optimization">PyLOSt.ui.stitch_algorithms.global_optimization module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.ui.stitch_algorithms.html#module-PyLOSt.ui.stitch_algorithms.global_optimization_fast">PyLOSt.ui.stitch_algorithms.global_optimization_fast module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.ui.stitch_algorithms.html#module-PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch">PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.ui.stitch_algorithms.html#module-PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast">PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.ui.stitch_algorithms.html#module-PyLOSt.ui.stitch_algorithms.progressive_stitch">PyLOSt.ui.stitch_algorithms.progressive_stitch module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.ui.stitch_algorithms.html#module-PyLOSt.ui.stitch_algorithms.simple_average">PyLOSt.ui.stitch_algorithms.simple_average module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.ui.stitch_algorithms.html#module-PyLOSt.ui.stitch_algorithms">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="module-PyLOSt.ui.hdf5widget_custom">
+<span id="pylost-ui-hdf5widget-custom-module"></span><h2>PyLOSt.ui.hdf5widget_custom module<a class="headerlink" href="#module-PyLOSt.ui.hdf5widget_custom" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">PyLOSt.ui.hdf5widget_custom.</span></span><span class="sig-name descname"><span class="pre">Hdf5TreeViewExample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filenames</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/hdf5widget_custom.html#Hdf5TreeViewExample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QMainWindow</span></code></p>
+<p>This window show an example of use of a Hdf5TreeView.</p>
+<p>The tree is initialized with a list of filenames. A panel allow to play
+with internal property configuration of the widget, and a text screen
+allow to display events.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.addExtCurve">
+<span class="sig-name descname"><span class="pre">addExtCurve</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/hdf5widget_custom.html#Hdf5TreeViewExample.addExtCurve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.addExtCurve" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.addExtSurf">
+<span class="sig-name descname"><span class="pre">addExtSurf</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/hdf5widget_custom.html#Hdf5TreeViewExample.addExtSurf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.addExtSurf" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.addNewSetup">
+<span class="sig-name descname"><span class="pre">addNewSetup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/hdf5widget_custom.html#Hdf5TreeViewExample.addNewSetup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.addNewSetup" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.additionalComments">
+<span class="sig-name descname"><span class="pre">additionalComments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/hdf5widget_custom.html#Hdf5TreeViewExample.additionalComments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.additionalComments" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.aplyOutMask">
+<span class="sig-name descname"><span class="pre">aplyOutMask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5dataObj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pix_sz</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h5data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/hdf5widget_custom.html#Hdf5TreeViewExample.aplyOutMask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.aplyOutMask" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply output mask if present. Used on stitched data before plotting</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>h5dataObj</strong> – Stitched data group object</p></li>
+<li><p><strong>pix_sz</strong> – Pixel size</p></li>
+<li><p><strong>h5data</strong> – Data to apply mask</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Masked data</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.avgStitchedScans">
+<span class="sig-name descname"><span class="pre">avgStitchedScans</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/hdf5widget_custom.html#Hdf5TreeViewExample.avgStitchedScans"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.avgStitchedScans" title="Permalink to this definition">¶</a></dt>
+<dd><p>Average stitched scans
+:return:</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.closeAndSyncCustomContextMenu">
+<span class="sig-name descname"><span class="pre">closeAndSyncCustomContextMenu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/hdf5widget_custom.html#Hdf5TreeViewExample.closeAndSyncCustomContextMenu"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.closeAndSyncCustomContextMenu" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called to populate the context menu</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>event</strong> (<em>silx.gui.hdf5.Hdf5ContextMenuEvent</em>) – Event
+containing expected information to populate the context menu</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.closeEvent">
+<span class="sig-name descname"><span class="pre">closeEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">QCloseEvent</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/hdf5widget_custom.html#Hdf5TreeViewExample.closeEvent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.closeEvent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.compareAvgDiff">
+<span class="sig-name descname"><span class="pre">compareAvgDiff</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/hdf5widget_custom.html#Hdf5TreeViewExample.compareAvgDiff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.compareAvgDiff" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create average and difference of the images that are open</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.compareResults">
+<span class="sig-name descname"><span class="pre">compareResults</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/hdf5widget_custom.html#Hdf5TreeViewExample.compareResults"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.compareResults" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot and compare images and/or curves. Used for comparing different stitching results
+:return:</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.createTreeViewConfigurationPanel">
+<span class="sig-name descname"><span class="pre">createTreeViewConfigurationPanel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">treeview</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/hdf5widget_custom.html#Hdf5TreeViewExample.createTreeViewConfigurationPanel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.createTreeViewConfigurationPanel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a configuration panel to allow to play with widget states</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.customContextMenu">
+<span class="sig-name descname"><span class="pre">customContextMenu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/hdf5widget_custom.html#Hdf5TreeViewExample.customContextMenu"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.customContextMenu" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called to populate the context menu</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>event</strong> (<em>silx.gui.hdf5.Hdf5ContextMenuEvent</em>) – Event
+containing expected information to populate the context menu</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.delStitchGroups">
+<span class="sig-name descname"><span class="pre">delStitchGroups</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5stitch</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/hdf5widget_custom.html#Hdf5TreeViewExample.delStitchGroups"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.delStitchGroups" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.displayData">
+<span class="sig-name descname"><span class="pre">displayData</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/hdf5widget_custom.html#Hdf5TreeViewExample.displayData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.displayData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called to update the dataviewer with the selected data.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.displayEvent">
+<span class="sig-name descname"><span class="pre">displayEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eventName</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/hdf5widget_custom.html#Hdf5TreeViewExample.displayEvent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.displayEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called to log event in widget</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.editMeta">
+<span class="sig-name descname"><span class="pre">editMeta</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/hdf5widget_custom.html#Hdf5TreeViewExample.editMeta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.editMeta" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.exportToFile">
+<span class="sig-name descname"><span class="pre">exportToFile</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/hdf5widget_custom.html#Hdf5TreeViewExample.exportToFile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.exportToFile" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.finish">
+<span class="sig-name descname"><span class="pre">finish</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/hdf5widget_custom.html#Hdf5TreeViewExample.finish"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.finish" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.getEdgeExclMask">
+<span class="sig-name descname"><span class="pre">getEdgeExclMask</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/hdf5widget_custom.html#Hdf5TreeViewExample.getEdgeExclMask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.getEdgeExclMask" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create mask with specified number of edge pixels excluded
+:return:</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.getMxArr">
+<span class="sig-name descname"><span class="pre">getMxArr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mXArr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stitch_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pix_sz</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/hdf5widget_custom.html#Hdf5TreeViewExample.getMxArr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.getMxArr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get translation offset array in pixels</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mXArr</strong> – Translation offsets in mm</p></li>
+<li><p><strong>stitch_step</strong> – Stitching step in mm</p></li>
+<li><p><strong>pix_sz</strong> – Pixel size</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.getNewWidget">
+<span class="sig-name descname"><span class="pre">getNewWidget</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/hdf5widget_custom.html#Hdf5TreeViewExample.getNewWidget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.getNewWidget" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.getSelectedNodeLoc">
+<span class="sig-name descname"><span class="pre">getSelectedNodeLoc</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/hdf5widget_custom.html#Hdf5TreeViewExample.getSelectedNodeLoc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.getSelectedNodeLoc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get selected h5 node
+:return:</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.getStdScans">
+<span class="sig-name descname"><span class="pre">getStdScans</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/hdf5widget_custom.html#Hdf5TreeViewExample.getStdScans"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.getStdScans" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get standard deviation of scans
+:return:</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.initAvgDiffPlots">
+<span class="sig-name descname"><span class="pre">initAvgDiffPlots</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/hdf5widget_custom.html#Hdf5TreeViewExample.initAvgDiffPlots"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.initAvgDiffPlots" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize plot widgets for plotting average and difference
+:return:</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.initializePlotWidgets">
+<span class="sig-name descname"><span class="pre">initializePlotWidgets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/hdf5widget_custom.html#Hdf5TreeViewExample.initializePlotWidgets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.initializePlotWidgets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize plot widgets for comparing stitched results
+:return:</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.intSlp2Hgt">
+<span class="sig-name descname"><span class="pre">intSlp2Hgt</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/hdf5widget_custom.html#Hdf5TreeViewExample.intSlp2Hgt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.intSlp2Hgt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Integrate slope to height
+:return:</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.openSimu">
+<span class="sig-name descname"><span class="pre">openSimu</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/hdf5widget_custom.html#Hdf5TreeViewExample.openSimu"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.openSimu" title="Permalink to this definition">¶</a></dt>
+<dd><p>Open simulation dialog
+:return:</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.plotData">
+<span class="sig-name descname"><span class="pre">plotData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pix_sz</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legnd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">binX</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">binY</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iPlt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/hdf5widget_custom.html#Hdf5TreeViewExample.plotData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.plotData" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.removeObj">
+<span class="sig-name descname"><span class="pre">removeObj</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5Obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/hdf5widget_custom.html#Hdf5TreeViewExample.removeObj"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.removeObj" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove an object from h5 file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>h5Obj</strong> – Object to remove</p></li>
+<li><p><strong>model</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.saveABBA">
+<span class="sig-name descname"><span class="pre">saveABBA</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/hdf5widget_custom.html#Hdf5TreeViewExample.saveABBA"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.saveABBA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save ABBA average. AB and BA have to be loaded to the plots
+:return:</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.saveMask">
+<span class="sig-name descname"><span class="pre">saveMask</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/hdf5widget_custom.html#Hdf5TreeViewExample.saveMask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.saveMask" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save mask - input/output mask
+:return:</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.setDType">
+<span class="sig-name descname"><span class="pre">setDType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dt</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/hdf5widget_custom.html#Hdf5TreeViewExample.setDType"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.setDType" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.setFitType">
+<span class="sig-name descname"><span class="pre">setFitType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ft</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/hdf5widget_custom.html#Hdf5TreeViewExample.setFitType"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.setFitType" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.setMType">
+<span class="sig-name descname"><span class="pre">setMType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mt</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/hdf5widget_custom.html#Hdf5TreeViewExample.setMType"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.setMType" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.stitchData">
+<span class="sig-name descname"><span class="pre">stitchData</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/hdf5widget_custom.html#Hdf5TreeViewExample.stitchData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.stitchData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call the relevant stitching algorithm
+:return:</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.syncH5Obj">
+<span class="sig-name descname"><span class="pre">syncH5Obj</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5Obj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/hdf5widget_custom.html#Hdf5TreeViewExample.syncH5Obj"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.syncH5Obj" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.useAsyncLoad">
+<span class="sig-name descname"><span class="pre">useAsyncLoad</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">useAsync</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/hdf5widget_custom.html#Hdf5TreeViewExample.useAsyncLoad"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.hdf5widget_custom.Hdf5TreeViewExample.useAsyncLoad" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="PyLOSt.ui.hdf5widget_custom.main">
+<span class="sig-prename descclassname"><span class="pre">PyLOSt.ui.hdf5widget_custom.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filenames</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/hdf5widget_custom.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.hdf5widget_custom.main" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filenames</strong> – list of file paths</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-PyLOSt.ui">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-PyLOSt.ui" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">PyLOSt</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="PyLOSt.html">PyLOSt package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="PyLOSt.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="PyLOSt.algorithms.html">PyLOSt.algorithms package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="PyLOSt.data_in.html">PyLOSt.data_in package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="PyLOSt.databases.html">PyLOSt.databases package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">PyLOSt.ui package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-PyLOSt.ui.hdf5widget_custom">PyLOSt.ui.hdf5widget_custom module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-PyLOSt.ui">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="PyLOSt.util.html">PyLOSt.util package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.html#module-PyLOSt.SG_gui">PyLOSt.SG_gui module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.html#module-PyLOSt.default_rc">PyLOSt.default_rc module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.html#module-PyLOSt">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="quick_guide.html">Quick Guide</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="PyLOSt.html">PyLOSt package</a><ul>
+      <li>Previous: <a href="PyLOSt.databases.html" title="previous chapter">PyLOSt.databases package</a></li>
+      <li>Next: <a href="PyLOSt.ui.settings.html" title="next chapter">PyLOSt.ui.settings package</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/PyLOSt.ui.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

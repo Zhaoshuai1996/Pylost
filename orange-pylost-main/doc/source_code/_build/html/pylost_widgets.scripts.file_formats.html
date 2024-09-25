@@ -1,0 +1,379 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>pylost_widgets.scripts.file_formats package &#8212; pylost_widgets  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pylost_widgets.scripts.file_formats.esrf package" href="pylost_widgets.scripts.file_formats.esrf.html" />
+    <link rel="prev" title="pylost_widgets.scripts package" href="pylost_widgets.scripts.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="pylost-widgets-scripts-file-formats-package">
+<h1>pylost_widgets.scripts.file_formats package<a class="headerlink" href="#pylost-widgets-scripts-file-formats-package" title="Permalink to this headline">¶</a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pylost_widgets.scripts.file_formats.esrf.html">pylost_widgets.scripts.file_formats.esrf package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pylost_widgets.scripts.file_formats.esrf.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pylost_widgets.scripts.file_formats.esrf.html#module-pylost_widgets.scripts.file_formats.esrf.keyence">pylost_widgets.scripts.file_formats.esrf.keyence module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pylost_widgets.scripts.file_formats.esrf.html#module-pylost_widgets.scripts.file_formats.esrf.vk4extract">pylost_widgets.scripts.file_formats.esrf.vk4extract module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pylost_widgets.scripts.file_formats.esrf.html#author">Author</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pylost_widgets.scripts.file_formats.esrf.html#created">Created</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pylost_widgets.scripts.file_formats.esrf.html#last-modified">Last Modified</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pylost_widgets.scripts.file_formats.esrf.html#module-pylost_widgets.scripts.file_formats.esrf">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="module-pylost_widgets.scripts.file_formats.esrf_readers">
+<span id="pylost-widgets-scripts-file-formats-esrf-readers-module"></span><h2>pylost_widgets.scripts.file_formats.esrf_readers module<a class="headerlink" href="#module-pylost_widgets.scripts.file_formats.esrf_readers" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.file_formats.esrf_readers.KeyenceReader">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pylost_widgets.scripts.file_formats.esrf_readers.</span></span><span class="sig-name descname"><span class="pre">KeyenceReader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/file_formats/esrf_readers.html#KeyenceReader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.file_formats.esrf_readers.KeyenceReader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Orange.data.io.FileFormat</span></code></p>
+<p>File reader for Zygo MetroPro/MX formats dat, datx</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.file_formats.esrf_readers.KeyenceReader.DESCRIPTION">
+<span class="sig-name descname"><span class="pre">DESCRIPTION</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'Keyence</span> <span class="pre">file</span> <span class="pre">reader'</span></em><a class="headerlink" href="#pylost_widgets.scripts.file_formats.esrf_readers.KeyenceReader.DESCRIPTION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.file_formats.esrf_readers.KeyenceReader.EXTENSIONS">
+<span class="sig-name descname"><span class="pre">EXTENSIONS</span></span><em class="property"> <span class="pre">=</span> <span class="pre">('.vk4',)</span></em><a class="headerlink" href="#pylost_widgets.scripts.file_formats.esrf_readers.KeyenceReader.EXTENSIONS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.file_formats.esrf_readers.KeyenceReader.PARAMS">
+<span class="sig-name descname"><span class="pre">PARAMS</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'instr_scale_factor':</span> <span class="pre">1.0}</span></em><a class="headerlink" href="#pylost_widgets.scripts.file_formats.esrf_readers.KeyenceReader.PARAMS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.file_formats.esrf_readers.KeyenceReader.PRIORITY">
+<span class="sig-name descname"><span class="pre">PRIORITY</span></span><em class="property"> <span class="pre">=</span> <span class="pre">3</span></em><a class="headerlink" href="#pylost_widgets.scripts.file_formats.esrf_readers.KeyenceReader.PRIORITY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.file_formats.esrf_readers.KeyenceReader.SUPPORT_COMPRESSED">
+<span class="sig-name descname"><span class="pre">SUPPORT_COMPRESSED</span></span><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#pylost_widgets.scripts.file_formats.esrf_readers.KeyenceReader.SUPPORT_COMPRESSED" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.file_formats.esrf_readers.KeyenceReader.SUPPORT_SPARSE_DATA">
+<span class="sig-name descname"><span class="pre">SUPPORT_SPARSE_DATA</span></span><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#pylost_widgets.scripts.file_formats.esrf_readers.KeyenceReader.SUPPORT_SPARSE_DATA" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.file_formats.esrf_readers.KeyenceReader.clear_output_before_loading">
+<span class="sig-name descname"><span class="pre">clear_output_before_loading</span></span><em class="property"> <span class="pre">=</span> <span class="pre">True</span></em><a class="headerlink" href="#pylost_widgets.scripts.file_formats.esrf_readers.KeyenceReader.clear_output_before_loading" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.file_formats.esrf_readers.KeyenceReader.data_standard_format">
+<span class="sig-name descname"><span class="pre">data_standard_format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/file_formats/esrf_readers.html#KeyenceReader.data_standard_format"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.file_formats.esrf_readers.KeyenceReader.data_standard_format" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert data in standard format readable by orange pylost widgets, e.g. import heights / slopes_x as MetrologyData from the raw file data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>dict</em>) – Raw file data</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Standard format data</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.file_formats.esrf_readers.KeyenceReader.read">
+<span class="sig-name descname"><span class="pre">read</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/file_formats/esrf_readers.html#KeyenceReader.read"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.file_formats.esrf_readers.KeyenceReader.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load Zygo dat or datx file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Loaded data</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pylost_widgets.scripts.file_formats.soleil_readers">
+<span id="pylost-widgets-scripts-file-formats-soleil-readers-module"></span><h2>pylost_widgets.scripts.file_formats.soleil_readers module<a class="headerlink" href="#module-pylost_widgets.scripts.file_formats.soleil_readers" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pylost_widgets.scripts.file_formats.soleil_readers.</span></span><span class="sig-name descname"><span class="pre">MINTNexusReader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/file_formats/soleil_readers.html#MINTNexusReader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.H5Reader" title="pylost_widgets.util.ow_filereaders.H5Reader"><code class="xref py py-class docutils literal notranslate"><span class="pre">pylost_widgets.util.ow_filereaders.H5Reader</span></code></a></p>
+<p>File reader for hdf5 formats</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader.DESCRIPTION">
+<span class="sig-name descname"><span class="pre">DESCRIPTION</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'Nexus</span> <span class="pre">file</span> <span class="pre">reader</span> <span class="pre">for</span> <span class="pre">the</span> <span class="pre">SOLEIL</span> <span class="pre">MINT</span> <span class="pre">instrument</span> <span class="pre">data'</span></em><a class="headerlink" href="#pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader.DESCRIPTION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader.EXTENSIONS">
+<span class="sig-name descname"><span class="pre">EXTENSIONS</span></span><em class="property"> <span class="pre">=</span> <span class="pre">('.nxs',)</span></em><a class="headerlink" href="#pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader.EXTENSIONS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader.PRIORITY">
+<span class="sig-name descname"><span class="pre">PRIORITY</span></span><em class="property"> <span class="pre">=</span> <span class="pre">2</span></em><a class="headerlink" href="#pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader.PRIORITY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader.SUPPORT_COMPRESSED">
+<span class="sig-name descname"><span class="pre">SUPPORT_COMPRESSED</span></span><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader.SUPPORT_COMPRESSED" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader.SUPPORT_SPARSE_DATA">
+<span class="sig-name descname"><span class="pre">SUPPORT_SPARSE_DATA</span></span><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader.SUPPORT_SPARSE_DATA" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader.clear_output_before_loading">
+<span class="sig-name descname"><span class="pre">clear_output_before_loading</span></span><em class="property"> <span class="pre">=</span> <span class="pre">True</span></em><a class="headerlink" href="#pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader.clear_output_before_loading" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader.data_standard_format">
+<span class="sig-name descname"><span class="pre">data_standard_format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/file_formats/soleil_readers.html#MINTNexusReader.data_standard_format"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader.data_standard_format" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert data in standard format readable by orange pylost widgets, e.g. import heights / slopes_x as MetrologyData from the raw file data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>dict</em>) – Raw file data</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Standard format data</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader.dump_to_dict">
+<span class="sig-name descname"><span class="pre">dump_to_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">asarray</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dereference_links</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_attributes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">errors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'raise'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/file_formats/soleil_readers.html#MINTNexusReader.dump_to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader.dump_to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader.exclude_interferograms">
+<span class="sig-name descname"><span class="pre">exclude_interferograms</span></span><em class="property"> <span class="pre">=</span> <span class="pre">True</span></em><a class="headerlink" href="#pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader.exclude_interferograms" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader.get_exclude_names">
+<span class="sig-name descname"><span class="pre">get_exclude_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/file_formats/soleil_readers.html#MINTNexusReader.get_exclude_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader.get_exclude_names" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader.get_file_data">
+<span class="sig-name descname"><span class="pre">get_file_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h5obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/file_formats/soleil_readers.html#MINTNexusReader.get_file_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader.get_file_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader.get_scan">
+<span class="sig-name descname"><span class="pre">get_scan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h5scan</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/file_formats/soleil_readers.html#MINTNexusReader.get_scan"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader.get_scan" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader.get_scans">
+<span class="sig-name descname"><span class="pre">get_scans</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h5entry</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/file_formats/soleil_readers.html#MINTNexusReader.get_scans"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader.get_scans" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader.load_first_entry">
+<span class="sig-name descname"><span class="pre">load_first_entry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h5f</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/file_formats/soleil_readers.html#MINTNexusReader.load_first_entry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader.load_first_entry" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader.read">
+<span class="sig-name descname"><span class="pre">read</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/file_formats/soleil_readers.html#MINTNexusReader.read"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reader for nexus file formats. It opens a dialog and provides option to load partially a single group in file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Formatted file data as dictionary</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader.scale_height">
+<span class="sig-name descname"><span class="pre">scale_height</span></span><em class="property"> <span class="pre">=</span> <span class="pre">1.0</span></em><a class="headerlink" href="#pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader.scale_height" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader.scale_motor_x">
+<span class="sig-name descname"><span class="pre">scale_motor_x</span></span><em class="property"> <span class="pre">=</span> <span class="pre">1.0</span></em><a class="headerlink" href="#pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader.scale_motor_x" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader.scale_motor_y">
+<span class="sig-name descname"><span class="pre">scale_motor_y</span></span><em class="property"> <span class="pre">=</span> <span class="pre">1.0</span></em><a class="headerlink" href="#pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader.scale_motor_y" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader.write_file">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">write_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/file_formats/soleil_readers.html#MINTNexusReader.write_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusReader.write_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>H5 writer to save dictionary data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>) – Save file name</p></li>
+<li><p><strong>data</strong> (<em>dict</em>) – Dictionary data</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusTreeDialog">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pylost_widgets.scripts.file_formats.soleil_readers.</span></span><span class="sig-name descname"><span class="pre">MINTNexusTreeDialog</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/file_formats/soleil_readers.html#MINTNexusTreeDialog"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusTreeDialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.H5TreeDialog" title="pylost_widgets.util.ow_filereaders.H5TreeDialog"><code class="xref py py-class docutils literal notranslate"><span class="pre">pylost_widgets.util.ow_filereaders.H5TreeDialog</span></code></a></p>
+<p>Dialog for loading HDF5 files</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusTreeDialog.get_params">
+<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/file_formats/soleil_readers.html#MINTNexusTreeDialog.get_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.file_formats.soleil_readers.MINTNexusTreeDialog.get_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pylost_widgets.scripts.file_formats">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pylost_widgets.scripts.file_formats" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">pylost_widgets</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="pylost_widgets.html">pylost_widgets package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pylost_widgets.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="pylost_widgets.config.html">pylost_widgets.config package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pylost_widgets.icons.html">pylost_widgets.icons package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pylost_widgets.learning.html">pylost_widgets.learning package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="pylost_widgets.scripts.html">pylost_widgets.scripts package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="pylost_widgets.scripts.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pylost_widgets.scripts.html#module-pylost_widgets.scripts">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pylost_widgets.util.html">pylost_widgets.util package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pylost_widgets.widgets.html">pylost_widgets.widgets package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pylost_widgets.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pylost_widgets.html#module-pylost_widgets.test_widget">pylost_widgets.test_widget module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pylost_widgets.html#module-pylost_widgets">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="pylost_widgets.html">pylost_widgets package</a><ul>
+  <li><a href="pylost_widgets.scripts.html">pylost_widgets.scripts package</a><ul>
+      <li>Previous: <a href="pylost_widgets.scripts.html" title="previous chapter">pylost_widgets.scripts package</a></li>
+      <li>Next: <a href="pylost_widgets.scripts.file_formats.esrf.html" title="next chapter">pylost_widgets.scripts.file_formats.esrf package</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/pylost_widgets.scripts.file_formats.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

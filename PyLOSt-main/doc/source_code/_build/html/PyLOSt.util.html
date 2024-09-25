@@ -1,0 +1,334 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>PyLOSt.util package &#8212; PyLOSt  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Quick Guide" href="quick_guide.html" />
+    <link rel="prev" title="PyLOSt.ui.stitch_algorithms.util package" href="PyLOSt.ui.stitch_algorithms.util.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="pylost-util-package">
+<h1>PyLOSt.util package<a class="headerlink" href="#pylost-util-package" title="Permalink to this headline">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="module-PyLOSt.util.FuncThread">
+<span id="pylost-util-functhread-module"></span><h2>PyLOSt.util.FuncThread module<a class="headerlink" href="#module-PyLOSt.util.FuncThread" title="Permalink to this headline">¶</a></h2>
+<p>Created on Apr 5, 2018</p>
+<p>&#64;author: ADAPA</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="PyLOSt.util.FuncThread.FuncThread">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">PyLOSt.util.FuncThread.</span></span><span class="sig-name descname"><span class="pre">FuncThread</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/util/FuncThread.html#FuncThread"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.util.FuncThread.FuncThread" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">threading.Thread</span></code></p>
+<p>Threading class used for wrapping a function in a thread and to run it in parallel</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.util.FuncThread.FuncThread.finished">
+<span class="sig-name descname"><span class="pre">finished</span></span><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#PyLOSt.util.FuncThread.FuncThread.finished" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.util.FuncThread.FuncThread.retObj">
+<span class="sig-name descname"><span class="pre">retObj</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#PyLOSt.util.FuncThread.FuncThread.retObj" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.util.FuncThread.FuncThread.retVal">
+<span class="sig-name descname"><span class="pre">retVal</span></span><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#PyLOSt.util.FuncThread.FuncThread.retVal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.util.FuncThread.FuncThread.start">
+<span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/util/FuncThread.html#FuncThread.start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.util.FuncThread.FuncThread.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start the thread’s activity.</p>
+<p>It must be called at most once per thread object. It arranges for the
+object’s run() method to be invoked in a separate thread of control.</p>
+<p>This method will raise a RuntimeError if called more than once on the
+same thread object.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.util.FuncThread.FuncThread.target_with_callback">
+<span class="sig-name descname"><span class="pre">target_with_callback</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/util/FuncThread.html#FuncThread.target_with_callback"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.util.FuncThread.FuncThread.target_with_callback" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-PyLOSt.util.Overlay">
+<span id="pylost-util-overlay-module"></span><h2>PyLOSt.util.Overlay module<a class="headerlink" href="#module-PyLOSt.util.Overlay" title="Permalink to this headline">¶</a></h2>
+<p>Created on Mar 29, 2018</p>
+<p>Animation of a wheel when a process is running in the background for a long time e.g. converting raw format to h5</p>
+<p>&#64;author: ADAPA</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="PyLOSt.util.Overlay.Overlay">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">PyLOSt.util.Overlay.</span></span><span class="sig-name descname"><span class="pre">Overlay</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/util/Overlay.html#Overlay"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.util.Overlay.Overlay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QWidget</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.util.Overlay.Overlay.paintEvent">
+<span class="sig-name descname"><span class="pre">paintEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">QPaintEvent</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/util/Overlay.html#Overlay.paintEvent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.util.Overlay.Overlay.paintEvent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.util.Overlay.Overlay.showEvent">
+<span class="sig-name descname"><span class="pre">showEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">QShowEvent</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/util/Overlay.html#Overlay.showEvent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.util.Overlay.Overlay.showEvent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.util.Overlay.Overlay.stop">
+<span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/util/Overlay.html#Overlay.stop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.util.Overlay.Overlay.stop" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.util.Overlay.Overlay.timerEvent">
+<span class="sig-name descname"><span class="pre">timerEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">QTimerEvent</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/util/Overlay.html#Overlay.timerEvent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.util.Overlay.Overlay.timerEvent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-PyLOSt.util.commons">
+<span id="pylost-util-commons-module"></span><h2>PyLOSt.util.commons module<a class="headerlink" href="#module-PyLOSt.util.commons" title="Permalink to this headline">¶</a></h2>
+<p>Created on Jul 16, 2018</p>
+<p>&#64;author: adapa</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="PyLOSt.util.commons.alertMsg">
+<span class="sig-prename descclassname"><span class="pre">PyLOSt.util.commons.</span></span><span class="sig-name descname"><span class="pre">alertMsg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/util/commons.html#alertMsg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.util.commons.alertMsg" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="PyLOSt.util.commons.c2arr_to_nparr">
+<span class="sig-prename descclassname"><span class="pre">PyLOSt.util.commons.</span></span><span class="sig-name descname"><span class="pre">c2arr_to_nparr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c2arr</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/util/commons.html#c2arr_to_nparr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.util.commons.c2arr_to_nparr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.util.commons.c_float_pp">
+<span class="sig-prename descclassname"><span class="pre">PyLOSt.util.commons.</span></span><span class="sig-name descname"><span class="pre">c_float_pp</span></span><a class="headerlink" href="#PyLOSt.util.commons.c_float_pp" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">PyLOSt.util.commons.LP_LP_c_float</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.util.commons.c_ubyte_p">
+<span class="sig-prename descclassname"><span class="pre">PyLOSt.util.commons.</span></span><span class="sig-name descname"><span class="pre">c_ubyte_p</span></span><a class="headerlink" href="#PyLOSt.util.commons.c_ubyte_p" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">PyLOSt.util.commons.LP_c_ubyte</span></code></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="PyLOSt.util.commons.carr_to_nparr">
+<span class="sig-prename descclassname"><span class="pre">PyLOSt.util.commons.</span></span><span class="sig-name descname"><span class="pre">carr_to_nparr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">carr</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/util/commons.html#carr_to_nparr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.util.commons.carr_to_nparr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="PyLOSt.util.commons.ct_toList">
+<span class="sig-prename descclassname"><span class="pre">PyLOSt.util.commons.</span></span><span class="sig-name descname"><span class="pre">ct_toList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/util/commons.html#ct_toList"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.util.commons.ct_toList" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="PyLOSt.util.commons.ct_toMat">
+<span class="sig-prename descclassname"><span class="pre">PyLOSt.util.commons.</span></span><span class="sig-name descname"><span class="pre">ct_toMat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/util/commons.html#ct_toMat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.util.commons.ct_toMat" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="PyLOSt.util.commons.float2D">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">PyLOSt.util.commons.</span></span><span class="sig-name descname"><span class="pre">float2D</span></span><a class="reference internal" href="_modules/PyLOSt/util/commons.html#float2D"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.util.commons.float2D" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_ctypes.Structure</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.util.commons.float2D.X">
+<span class="sig-name descname"><span class="pre">X</span></span><a class="headerlink" href="#PyLOSt.util.commons.float2D.X" title="Permalink to this definition">¶</a></dt>
+<dd><p>Structure/Union member</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.util.commons.float2D.Y">
+<span class="sig-name descname"><span class="pre">Y</span></span><a class="headerlink" href="#PyLOSt.util.commons.float2D.Y" title="Permalink to this definition">¶</a></dt>
+<dd><p>Structure/Union member</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="PyLOSt.util.commons.infoMsg">
+<span class="sig-prename descclassname"><span class="pre">PyLOSt.util.commons.</span></span><span class="sig-name descname"><span class="pre">infoMsg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/util/commons.html#infoMsg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.util.commons.infoMsg" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="PyLOSt.util.commons.int2D">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">PyLOSt.util.commons.</span></span><span class="sig-name descname"><span class="pre">int2D</span></span><a class="reference internal" href="_modules/PyLOSt/util/commons.html#int2D"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.util.commons.int2D" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_ctypes.Structure</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.util.commons.int2D.X">
+<span class="sig-name descname"><span class="pre">X</span></span><a class="headerlink" href="#PyLOSt.util.commons.int2D.X" title="Permalink to this definition">¶</a></dt>
+<dd><p>Structure/Union member</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.util.commons.int2D.Y">
+<span class="sig-name descname"><span class="pre">Y</span></span><a class="headerlink" href="#PyLOSt.util.commons.int2D.Y" title="Permalink to this definition">¶</a></dt>
+<dd><p>Structure/Union member</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="PyLOSt.util.commons.print_mat">
+<span class="sig-prename descclassname"><span class="pre">PyLOSt.util.commons.</span></span><span class="sig-name descname"><span class="pre">print_mat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/util/commons.html#print_mat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.util.commons.print_mat" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="PyLOSt.util.commons.questionMsg">
+<span class="sig-prename descclassname"><span class="pre">PyLOSt.util.commons.</span></span><span class="sig-name descname"><span class="pre">questionMsg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Title'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Yes/No?'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/util/commons.html#questionMsg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.util.commons.questionMsg" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="PyLOSt.util.commons.uint2D">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">PyLOSt.util.commons.</span></span><span class="sig-name descname"><span class="pre">uint2D</span></span><a class="reference internal" href="_modules/PyLOSt/util/commons.html#uint2D"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.util.commons.uint2D" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_ctypes.Structure</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.util.commons.uint2D.X">
+<span class="sig-name descname"><span class="pre">X</span></span><a class="headerlink" href="#PyLOSt.util.commons.uint2D.X" title="Permalink to this definition">¶</a></dt>
+<dd><p>Structure/Union member</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.util.commons.uint2D.Y">
+<span class="sig-name descname"><span class="pre">Y</span></span><a class="headerlink" href="#PyLOSt.util.commons.uint2D.Y" title="Permalink to this definition">¶</a></dt>
+<dd><p>Structure/Union member</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-PyLOSt.util.resource_path">
+<span id="pylost-util-resource-path-module"></span><h2>PyLOSt.util.resource_path module<a class="headerlink" href="#module-PyLOSt.util.resource_path" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="PyLOSt.util.resource_path.resource_path">
+<span class="sig-prename descclassname"><span class="pre">PyLOSt.util.resource_path.</span></span><span class="sig-name descname"><span class="pre">resource_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">relative_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/util/resource_path.html#resource_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.util.resource_path.resource_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get absolute path to resource</p>
+</dd></dl>
+
+</section>
+<section id="module-PyLOSt.util">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-PyLOSt.util" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">PyLOSt</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="PyLOSt.html">PyLOSt package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="PyLOSt.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="PyLOSt.algorithms.html">PyLOSt.algorithms package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="PyLOSt.data_in.html">PyLOSt.data_in package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="PyLOSt.databases.html">PyLOSt.databases package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="PyLOSt.ui.html">PyLOSt.ui package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">PyLOSt.util package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-PyLOSt.util.FuncThread">PyLOSt.util.FuncThread module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-PyLOSt.util.Overlay">PyLOSt.util.Overlay module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-PyLOSt.util.commons">PyLOSt.util.commons module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-PyLOSt.util.resource_path">PyLOSt.util.resource_path module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-PyLOSt.util">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.html#module-PyLOSt.SG_gui">PyLOSt.SG_gui module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.html#module-PyLOSt.default_rc">PyLOSt.default_rc module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.html#module-PyLOSt">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="quick_guide.html">Quick Guide</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="PyLOSt.html">PyLOSt package</a><ul>
+      <li>Previous: <a href="PyLOSt.ui.stitch_algorithms.util.html" title="previous chapter">PyLOSt.ui.stitch_algorithms.util package</a></li>
+      <li>Next: <a href="quick_guide.html" title="next chapter">Quick Guide</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/PyLOSt.util.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,489 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PyLOSt.data_in.msi.read_opd &#8212; PyLOSt  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/alabaster.css" />
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for PyLOSt.data_in.msi.read_opd</h1><div class="highlight"><pre>
+<div class="viewcode-block" id="Read_opd_file"><a class="viewcode-back" href="../../../../PyLOSt.data_in.msi.html#PyLOSt.data_in.msi.read_opd.Read_opd_file">[docs]</a><span></span><span class="k">def</span> <span class="nf">Read_opd_file</span><span class="p">(</span><span class="n">fileName</span><span class="p">,</span> <span class="n">showImg</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The function is written in python 2.7, in window7.</span>
+<span class="sd">    The function is based on a matlab code file: READOPD.</span>
+<span class="sd">    The function can read a OPD file and show us an image, which is a picture(of a piece of miroi, for example)</span>
+<span class="sd">    If you wanna run this code, please check that you have well installed the numpy, matplotlib modules</span>
+
+<span class="sd">    :param fileName: opd file path</span>
+<span class="sd">    :param showImg: Display raw image</span>
+<span class="sd">    :return: Raw data as dictionary</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="kn">import</span> <span class="nn">os</span>
+    <span class="kn">import</span> <span class="nn">sys</span>
+    <span class="kn">import</span> <span class="nn">struct</span>
+    <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+    <span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+
+    <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">fid</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">fileName</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span>
+
+    <span class="c1"># initial the value</span>
+    <span class="n">scaleByWavelength</span> <span class="o">=</span> <span class="mi">0</span>    <span class="c1">#if set to 1, will scale the opd by the wavelength</span>
+    <span class="n">fileIndex</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">badpixelValue</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="n">rotate</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="c1">#We read the data from the beginning of the file</span>
+    <span class="n">fid</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">signature_general_decode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">name_general_decode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">type_general_decode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">len_general_decode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+    <span class="n">attr_general_decode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="n">signature_general</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&lt;2c&quot;</span><span class="p">,</span> <span class="n">signature_general_decode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="c1">#unpack the binary data to get the value of the signature</span>
+    <span class="n">name_general</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&lt;16s&quot;</span><span class="p">,</span> <span class="n">name_general_decode</span><span class="p">)</span>
+    <span class="n">name_general</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">name_general</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">x00&#39;</span><span class="p">)</span> <span class="c1">#Remove Extra Whitespace</span>
+    <span class="n">name_general</span> <span class="o">=</span> <span class="n">name_general</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="c1"># The result of unpacking is a tuple, what we want is just the first element of the tuple.</span>
+    <span class="n">name_general</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">name_general</span><span class="p">)[</span><span class="mi">2</span><span class="p">:]</span><span class="c1">#&quot;Remove unmeaningful symbols, ( and &quot;.</span>
+    <span class="n">type_general</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&lt;h&quot;</span><span class="p">,</span> <span class="n">type_general_decode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="c1">#unpack the binary data to get the value of the name</span>
+    <span class="n">len_general</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&lt;l&quot;</span><span class="p">,</span> <span class="n">len_general_decode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="c1">#unpack the binary data to get the value of the length</span>
+    <span class="n">attr_general</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&lt;H&quot;</span><span class="p">,</span> <span class="n">attr_general_decode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="c1">#unpack the binary data to get the value of the attribute</span>
+
+    <span class="n">BLCK_SIZE</span> <span class="o">=</span> <span class="mi">24</span> <span class="c1"># in every row of the second part(also block part),it has 24 bytes.(16+2+4+2=24)</span>
+    <span class="n">BPF</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;1e+38&#39;</span><span class="p">)</span>
+    <span class="n">num_blcks</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">len_general</span> <span class="o">/</span> <span class="n">BLCK_SIZE</span><span class="p">)</span> <span class="c1">#number of row</span>
+    <span class="n">counter</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">mult_offset</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">offset</span> <span class="o">=</span> <span class="mi">0</span>
+
+
+    <span class="c1">#read the block</span>
+    <span class="n">block_name</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">block_type</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">block_len</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">block_attr</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="n">num_blcks</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)):</span>
+        <span class="n">name_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
+        <span class="n">type_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">len_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+        <span class="n">attr_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="n">name_decode</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&lt;16s&quot;</span><span class="p">,</span> <span class="n">name_encode</span><span class="p">)</span>
+        <span class="n">name_decode</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">name_decode</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">x00&#39;</span><span class="p">)</span>
+        <span class="n">name_decode</span> <span class="o">=</span> <span class="n">name_decode</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">name_decode</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">name_decode</span><span class="p">)[</span><span class="mi">3</span><span class="p">:]</span>
+        <span class="n">type_decode</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&lt;h&quot;</span><span class="p">,</span> <span class="n">type_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">len_decode</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&lt;l&quot;</span><span class="p">,</span> <span class="n">len_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">attr_decode</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&lt;H&quot;</span><span class="p">,</span> <span class="n">attr_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">block_name</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name_decode</span><span class="p">)</span>
+        <span class="n">block_type</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">type_decode</span><span class="p">)</span>
+        <span class="n">block_len</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">len_decode</span><span class="p">)</span>
+        <span class="n">block_attr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">attr_decode</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">len_decode</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">counter</span> <span class="o">=</span> <span class="n">counter</span> <span class="o">+</span> <span class="mi">1</span>
+
+    <span class="n">phaseSize</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">mult_decode</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">fid</span><span class="o">.</span><span class="n">tell</span><span class="p">())</span>
+
+    <span class="c1">#Ususlly we have read 6002 bytes right here.</span>
+
+    <span class="c1"># read the data from data blocks</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">249</span><span class="p">):</span> <span class="c1">#Acuually there are 250 rows in the second part(block part), but the first row is for itself,</span>
+                            <span class="c1"># for axample, the length value in the first row means the length of the block part(so there id no data correspondent in the third part)</span>
+                            <span class="c1">#so to read the third part, we just use the rest 249 rows, so we have i in range(0,249), not range(0,250)</span>
+        <span class="k">if</span> <span class="n">block_len</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">block_name</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;RAW DATA&quot;</span><span class="p">:</span>
+                <span class="nb">print</span> <span class="p">(</span><span class="s2">&quot;RAW DATA </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span><span class="p">(</span><span class="n">fid</span><span class="o">.</span><span class="n">tell</span><span class="p">()))</span>
+                <span class="n">rows_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">rows</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&lt;H&quot;</span><span class="p">,</span> <span class="n">rows_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">cols_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">cols</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&lt;H&quot;</span><span class="p">,</span> <span class="n">cols_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">elsize_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">elsize</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&lt;h&quot;</span><span class="p">,</span> <span class="n">elsize_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+                <span class="k">if</span> <span class="n">elsize</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+                    <span class="nb">format</span> <span class="o">=</span> <span class="s2">&quot;f&quot;</span>
+                    <span class="n">way_decode</span> <span class="o">=</span> <span class="s2">&quot;&lt;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">cols</span> <span class="o">*</span> <span class="n">rows</span><span class="p">)</span> <span class="o">+</span> <span class="nb">format</span>
+                <span class="k">elif</span> <span class="n">elsize</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="nb">format</span> <span class="o">=</span> <span class="s2">&quot;h&quot;</span>
+                    <span class="n">way_decode</span> <span class="o">=</span> <span class="s2">&quot;&lt;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">cols</span> <span class="o">*</span> <span class="n">rows</span><span class="p">)</span> <span class="o">+</span> <span class="nb">format</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">format</span> <span class="o">=</span> <span class="s2">&quot;c&quot;</span>
+                    <span class="n">way_decode</span> <span class="o">=</span> <span class="s2">&quot;&lt;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">cols</span> <span class="o">*</span> <span class="n">rows</span><span class="p">)</span> <span class="o">+</span> <span class="nb">format</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">cols</span> <span class="o">*</span> <span class="n">rows</span><span class="p">)</span> <span class="o">&gt;</span> <span class="p">(</span><span class="mi">1000</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">):</span>
+                    <span class="n">fileIndex</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">tell</span><span class="p">()</span>
+                    <span class="n">rows1</span> <span class="o">=</span> <span class="n">rows</span>
+                    <span class="n">cols1</span> <span class="o">=</span> <span class="n">cols</span>
+                    <span class="n">way1_decode</span> <span class="o">=</span> <span class="n">way_decode</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">arrayTmp_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">cols</span> <span class="o">*</span> <span class="n">rows</span> <span class="o">*</span> <span class="n">elsize</span><span class="p">)</span>
+                    <span class="n">arrayTmp</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">way_decode</span><span class="p">,</span> <span class="n">arrayTmp_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">arrayTmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">arrayTmp</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">block_name</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;RAW_DATA&quot;</span><span class="p">:</span>
+                <span class="nb">print</span> <span class="p">(</span><span class="s2">&quot;RAW_DATA </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">fid</span><span class="o">.</span><span class="n">tell</span><span class="p">()))</span>
+                <span class="n">rows_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">rows</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&lt;H&quot;</span><span class="p">,</span> <span class="n">rows_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">cols_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">cols</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&lt;H&quot;</span><span class="p">,</span> <span class="n">cols_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+                <span class="n">elsize</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">elsize</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&lt;h&quot;</span><span class="p">,</span> <span class="n">elsize</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">elsize</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+                    <span class="n">prec</span> <span class="o">=</span> <span class="s2">&quot;float&quot;</span>
+                    <span class="n">n</span> <span class="o">=</span> <span class="mi">4</span>
+                    <span class="nb">format</span> <span class="o">=</span> <span class="s2">&quot;f&quot;</span>
+                    <span class="n">way_decode</span> <span class="o">=</span> <span class="s2">&quot;&lt;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">cols</span> <span class="o">*</span> <span class="n">rows</span><span class="p">)</span> <span class="o">+</span> <span class="nb">format</span>
+                <span class="k">elif</span> <span class="n">elsize</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">prec</span> <span class="o">=</span> <span class="s2">&quot;short&quot;</span>
+                    <span class="n">n</span> <span class="o">=</span> <span class="mi">2</span>
+                    <span class="nb">format</span> <span class="o">=</span> <span class="s2">&quot;h&quot;</span>
+                    <span class="n">way_decode</span> <span class="o">=</span> <span class="s2">&quot;&lt;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">cols</span> <span class="o">*</span> <span class="n">rows</span><span class="p">)</span> <span class="o">+</span> <span class="nb">format</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">prec</span> <span class="o">=</span> <span class="s2">&quot;char&quot;</span>
+                    <span class="n">n</span> <span class="o">=</span> <span class="mi">1</span>
+                    <span class="nb">format</span> <span class="o">=</span> <span class="s2">&quot;c&quot;</span>
+                    <span class="n">way_decode</span> <span class="o">=</span> <span class="s2">&quot;&lt;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">cols</span> <span class="o">*</span> <span class="n">rows</span><span class="p">)</span> <span class="o">+</span> <span class="nb">format</span>
+
+                <span class="k">if</span> <span class="p">(</span><span class="n">cols</span> <span class="o">*</span> <span class="n">rows</span><span class="p">)</span> <span class="o">&gt;</span> <span class="p">(</span><span class="mi">1000</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">):</span>
+                    <span class="n">fileIndex</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">tell</span><span class="p">()</span>
+                    <span class="n">rows1</span> <span class="o">=</span> <span class="n">rows</span>
+                    <span class="n">cols1</span> <span class="o">=</span> <span class="n">cols</span>
+                    <span class="n">way1_decode</span> <span class="o">=</span> <span class="n">way_decode</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">arrayTmp_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">rows</span> <span class="o">*</span> <span class="n">cols</span> <span class="o">*</span> <span class="n">elsize</span><span class="p">)</span>
+                    <span class="n">arrayTmp</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">way_decode</span><span class="p">,</span> <span class="n">arrayTmp_encode</span><span class="p">)</span>
+                    <span class="n">arrayTmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">arrayTmp</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">block_name</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;SAMPLE_DATA&quot;</span><span class="p">:</span>
+                <span class="nb">print</span> <span class="p">(</span><span class="s2">&quot;SAMPLE_DATA </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">fid</span><span class="o">.</span><span class="n">tell</span><span class="p">()))</span>
+                <span class="n">rows_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">rows</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&lt;H&quot;</span><span class="p">,</span> <span class="n">rows_encode</span><span class="p">)</span>
+                <span class="n">cols_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">cols</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&lt;H&quot;</span><span class="p">,</span> <span class="n">cols_encode</span><span class="p">)</span>
+
+                <span class="n">elsize</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">elsize</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&lt;h&quot;</span><span class="p">,</span> <span class="n">elsize</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">elsize</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+                    <span class="nb">format</span> <span class="o">=</span> <span class="s2">&quot;f&quot;</span>
+                    <span class="n">way_decode</span> <span class="o">=</span> <span class="s2">&quot;&lt;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">cols</span> <span class="o">*</span> <span class="n">rows</span><span class="p">)</span> <span class="o">+</span> <span class="nb">format</span>
+                <span class="k">elif</span> <span class="n">elsize</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="nb">format</span> <span class="o">=</span> <span class="s2">&quot;h&quot;</span>
+                    <span class="n">way_decode</span> <span class="o">=</span> <span class="s2">&quot;&lt;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">cols</span> <span class="o">*</span> <span class="n">rows</span><span class="p">)</span> <span class="o">+</span> <span class="nb">format</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">format</span> <span class="o">=</span> <span class="s2">&quot;c&quot;</span>
+                    <span class="n">way_decode</span> <span class="o">=</span> <span class="s2">&quot;&lt;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">cols</span> <span class="o">*</span> <span class="n">rows</span><span class="p">)</span> <span class="o">+</span> <span class="nb">format</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">cols</span> <span class="o">*</span> <span class="n">rows</span><span class="p">)</span> <span class="o">&gt;</span> <span class="p">(</span><span class="mi">1000</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">):</span>
+                    <span class="n">fileIndex</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">tell</span><span class="p">()</span>
+                    <span class="n">rows1</span> <span class="o">=</span> <span class="n">rows</span>
+                    <span class="n">cols1</span> <span class="o">=</span> <span class="n">cols</span>
+                    <span class="n">way1_decode</span> <span class="o">=</span> <span class="n">way_decode</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">arrayTmp_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">rows</span> <span class="o">*</span> <span class="n">cols</span> <span class="o">*</span> <span class="n">elsize</span><span class="p">)</span>
+                    <span class="n">arrayTmp</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">way_decode</span><span class="p">,</span> <span class="n">arrayTmp_encode</span><span class="p">)</span>
+                    <span class="n">arrayTmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">arrayTmp</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">block_name</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;OPD&quot;</span><span class="p">:</span>
+                <span class="nb">print</span> <span class="p">(</span><span class="s2">&quot;OPD </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">fid</span><span class="o">.</span><span class="n">tell</span><span class="p">()))</span>
+                <span class="n">rows_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">rows</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&lt;H&quot;</span><span class="p">,</span> <span class="n">rows_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">cols_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">cols</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&lt;H&quot;</span><span class="p">,</span> <span class="n">cols_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">elsize</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">elsize</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&lt;h&quot;</span><span class="p">,</span> <span class="n">elsize</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">elsize</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+                    <span class="nb">format</span> <span class="o">=</span> <span class="s2">&quot;f&quot;</span>
+                    <span class="n">way_decode</span> <span class="o">=</span> <span class="s2">&quot;&lt;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">cols</span> <span class="o">*</span> <span class="n">rows</span><span class="p">)</span> <span class="o">+</span> <span class="nb">format</span>
+                <span class="k">elif</span> <span class="n">elsize</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="nb">format</span> <span class="o">=</span> <span class="s2">&quot;h&quot;</span>
+                    <span class="n">way_decode</span> <span class="o">=</span> <span class="s2">&quot;&lt;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">cols</span> <span class="o">*</span> <span class="n">rows</span><span class="p">)</span> <span class="o">+</span> <span class="nb">format</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">format</span> <span class="o">=</span> <span class="s2">&quot;c&quot;</span>
+                    <span class="n">way_decode</span> <span class="o">=</span> <span class="s2">&quot;&lt;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">cols</span> <span class="o">*</span> <span class="n">rows</span><span class="p">)</span> <span class="o">+</span> <span class="nb">format</span>
+
+                <span class="k">if</span> <span class="p">(</span><span class="n">cols</span> <span class="o">*</span> <span class="n">rows</span><span class="p">)</span> <span class="o">&gt;</span> <span class="p">(</span><span class="mi">1000</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">):</span>
+                    <span class="n">fileIndex</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">tell</span><span class="p">()</span>
+                    <span class="n">rows1</span> <span class="o">=</span> <span class="n">rows</span>
+                    <span class="n">cols1</span> <span class="o">=</span> <span class="n">cols</span>
+                    <span class="n">way1_decode</span> <span class="o">=</span> <span class="n">way_decode</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">arrayTmp_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">rows</span> <span class="o">*</span> <span class="n">cols</span> <span class="o">*</span> <span class="n">elsize</span><span class="p">)</span>
+                    <span class="n">arrayTmp</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">way_decode</span><span class="p">,</span> <span class="n">arrayTmp_encode</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="n">cols</span> <span class="o">*</span> <span class="n">rows</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)):</span>
+                        <span class="n">arrayTmp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">arrayTmp</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mi">5</span><span class="p">)</span>
+                    <span class="n">arrayTmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">arrayTmp</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">block_name</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Image&quot;</span><span class="p">:</span>
+                <span class="c1">#print (&quot;OPD %d&quot; % (fid.tell()))</span>
+                <span class="n">rows_image_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">rows_image</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&lt;H&quot;</span><span class="p">,</span> <span class="n">rows_image_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">cols_image_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">cols_image</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&lt;H&quot;</span><span class="p">,</span> <span class="n">cols_image_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">elsize_image</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">elsize_image</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&lt;h&quot;</span><span class="p">,</span> <span class="n">elsize_image</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">elsize</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+                    <span class="nb">format</span> <span class="o">=</span> <span class="s2">&quot;f&quot;</span>
+                    <span class="n">way_image_decode</span> <span class="o">=</span> <span class="s2">&quot;&lt;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">cols_image</span> <span class="o">*</span> <span class="n">rows_image</span><span class="p">)</span> <span class="o">+</span> <span class="nb">format</span>
+                <span class="k">elif</span> <span class="n">elsize</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="nb">format</span> <span class="o">=</span> <span class="s2">&quot;h&quot;</span>
+                    <span class="n">way_image_decode</span> <span class="o">=</span> <span class="s2">&quot;&lt;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">cols_image</span> <span class="o">*</span> <span class="n">rows_image</span><span class="p">)</span> <span class="o">+</span> <span class="nb">format</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">format</span> <span class="o">=</span> <span class="s2">&quot;c&quot;</span>
+                    <span class="n">way_image_decode</span> <span class="o">=</span> <span class="s2">&quot;&lt;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">cols_image</span> <span class="o">*</span> <span class="n">rows_image</span><span class="p">)</span> <span class="o">+</span> <span class="nb">format</span>
+
+                <span class="n">arrayTmp_image_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">rows_image</span> <span class="o">*</span> <span class="n">cols_image</span> <span class="o">*</span> <span class="n">elsize_image</span><span class="p">)</span>
+                <span class="n">arrayTmp_image</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&lt;307200c&quot;</span><span class="p">,</span> <span class="n">arrayTmp_image_encode</span><span class="p">)</span>
+
+                <span class="c1">#print &quot;the length of image is &quot;+str(len(arrayTmp_image_encode))</span>
+                <span class="c1">#print &quot;the rows of image is &quot;+str(rows_image)</span>
+                <span class="c1">#print &quot;the cols of image is &quot;+str(cols_image)</span>
+                <span class="c1">#print &quot;the elsize of image is &quot;+str(elsize_image)</span>
+
+            <span class="k">elif</span> <span class="n">block_name</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Wavelength&quot;</span><span class="p">:</span>
+                <span class="n">wavelength_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+                <span class="n">wavelength_decode</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&lt;f&quot;</span><span class="p">,</span> <span class="n">wavelength_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">d</span><span class="p">[</span><span class="n">block_name</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="n">wavelength_decode</span>
+
+            <span class="k">elif</span> <span class="n">block_name</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;StageX&quot;</span><span class="p">:</span>
+                <span class="n">stagex_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+                <span class="n">stagex_decode</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&lt;f&quot;</span><span class="p">,</span> <span class="n">stagex_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">d</span><span class="p">[</span><span class="n">block_name</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="n">stagex_decode</span><span class="o">*</span><span class="mf">25.4</span> <span class="c1">#inches to mm</span>
+
+            <span class="k">elif</span> <span class="n">block_name</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;StageY&quot;</span><span class="p">:</span>
+                <span class="n">stagey_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+                <span class="n">stagey_decode</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&lt;f&quot;</span><span class="p">,</span> <span class="n">stagey_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">d</span><span class="p">[</span><span class="n">block_name</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="n">stagey_decode</span><span class="o">*</span><span class="mf">25.4</span> <span class="c1">#inches to mm</span>
+
+            <span class="k">elif</span> <span class="n">block_name</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Mult&quot;</span><span class="p">:</span>
+                <span class="n">mult_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">mult_decode</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&lt;h&quot;</span><span class="p">,</span> <span class="n">mult_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="k">elif</span> <span class="n">block_name</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Aspect&quot;</span><span class="p">:</span>
+                <span class="n">aspect_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+                <span class="n">aspect_decode</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&lt;f&quot;</span><span class="p">,</span> <span class="n">aspect_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="k">elif</span> <span class="n">block_name</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Pixel_size&quot;</span><span class="p">:</span>
+                <span class="n">pixel_size_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+                <span class="n">pixel_size_decode</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&lt;f&quot;</span><span class="p">,</span> <span class="n">pixel_size_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">d</span><span class="p">[</span><span class="n">block_name</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="n">pixel_size_decode</span>
+                
+            <span class="k">elif</span> <span class="n">block_name</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Date&quot;</span><span class="p">:</span>
+                <span class="n">date_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+                <span class="n">d</span><span class="p">[</span><span class="n">block_name</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="n">date_encode</span>
+
+            <span class="k">elif</span> <span class="n">block_type</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mi">12</span><span class="p">:</span>
+                <span class="n">fid</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">block_len</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># long</span>
+            <span class="k">elif</span> <span class="n">block_type</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mi">8</span><span class="p">:</span>
+                <span class="n">fid</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">block_len</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># double</span>
+
+            <span class="k">elif</span> <span class="n">block_type</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mi">7</span><span class="p">:</span>
+                <span class="n">fid</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">block_len</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># float</span>
+
+            <span class="k">elif</span> <span class="n">block_type</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mi">6</span><span class="p">:</span>
+                <span class="n">fid</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">block_len</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># short</span>
+
+            <span class="k">elif</span> <span class="n">block_type</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
+                <span class="n">fid</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">block_len</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># string</span>
+
+            <span class="k">elif</span> <span class="n">block_type</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="n">rows_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">rows</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&lt;H&quot;</span><span class="p">,</span> <span class="n">rows_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">cols_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">cols</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&lt;H&quot;</span><span class="p">,</span> <span class="n">cols_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">elsize_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">elsize</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&lt;h&quot;</span><span class="p">,</span> <span class="n">elsize_encode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">fid</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">rows</span> <span class="o">*</span> <span class="n">cols</span> <span class="o">*</span> <span class="n">elsize</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">d</span><span class="p">[</span><span class="s1">&#39;rows&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rows</span>
+                <span class="n">d</span><span class="p">[</span><span class="s1">&#39;cols&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cols</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+    <span class="n">arrayTmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">arrayTmp</span><span class="p">,</span> <span class="p">(</span><span class="mi">640</span><span class="p">,</span> <span class="mi">480</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">arrayTmp</span><span class="p">))</span>
+    <span class="n">arrayTmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">arrayTmp</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">scaleByWavelength</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">scale</span> <span class="o">=</span> <span class="n">wavelength_decode</span> <span class="o">/</span> <span class="n">mult_decode</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">scale</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">mult_decode</span>
+
+    <span class="k">if</span> <span class="n">phaseSize</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">badValue</span> <span class="o">=</span> <span class="mi">32766</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">badValue</span> <span class="o">=</span> <span class="n">BPF</span>
+
+    <span class="k">if</span> <span class="n">fileIndex</span> <span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+    <span class="c1"># we will read a col at a time</span>
+        <span class="k">if</span> <span class="n">fid</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">fileIndex</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+        <span class="c1"># create our array</span>
+            <span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">cols1</span><span class="p">,</span><span class="n">rows1</span><span class="p">)</span><span class="o">*</span><span class="n">badpixelValue</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">rows1</span><span class="p">):</span>
+                <span class="n">col_encode</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">cols1</span><span class="o">*</span> <span class="n">elsize</span><span class="p">)</span>
+                <span class="n">col</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">way1_decode</span><span class="p">,</span> <span class="n">col_encode</span><span class="p">)</span>
+                <span class="n">col_array</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+                <span class="n">col_array_matrix_transpose</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asmatrix</span><span class="p">(</span><span class="n">col_array</span><span class="p">)</span>
+                <span class="n">col_array_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">col_array_matrix_transpose</span><span class="p">)</span>
+                <span class="n">col</span> <span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">flipud</span><span class="p">(</span><span class="n">col_array_matrix</span><span class="p">)</span>
+                <span class="n">col</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+
+                <span class="n">indexGood</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">col</span> <span class="o">&lt;</span> <span class="n">badValue</span><span class="p">)</span>
+                <span class="n">array</span><span class="p">[</span><span class="n">indexGood</span><span class="p">,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">col</span><span class="p">[</span><span class="n">indexGood</span><span class="p">]</span> <span class="o">*</span> <span class="n">scale</span>
+    <span class="k">else</span><span class="p">:</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">480</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">640</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">arrayTmp</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">&gt;</span><span class="n">badValue</span><span class="p">:</span>
+                    <span class="n">arrayTmp</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">=</span><span class="n">badpixelValue</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">arrayTmp</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">arrayTmp</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">])</span> <span class="o">*</span> <span class="n">scale</span>
+
+    <span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flipud</span><span class="p">(</span><span class="n">arrayTmp</span><span class="p">)</span>
+    <span class="n">array_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
+    <span class="n">array_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
+    <span class="n">array_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
+    <span class="n">array_relative</span><span class="o">=</span><span class="n">array</span><span class="c1">#(array-array_mean)/(array_max-array_min)</span>
+    <span class="n">height_relative</span><span class="o">=</span><span class="n">array_relative</span><span class="o">*</span><span class="n">wavelength_decode</span>
+    <span class="n">d</span><span class="p">[</span><span class="s1">&#39;height&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">height_relative</span>
+    
+    <span class="c1">#The peak-to-valley difference calculated over the entire measured array.</span>
+    <span class="n">Rt</span><span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">arrayTmp</span><span class="p">)</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">arrayTmp</span><span class="p">))</span><span class="o">*</span><span class="n">wavelength_decode</span>
+
+    <span class="k">if</span> <span class="n">showImg</span><span class="p">:</span>
+        <span class="c1">#The root-mean-squared roughness calculated over the entire measured array.</span>
+        <span class="n">z</span><span class="o">=</span><span class="mi">0</span>
+        <span class="n">n</span><span class="o">=</span><span class="mi">0</span>
+        <span class="n">arrayTmp_relative</span><span class="o">=</span><span class="n">arrayTmp</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">arrayTmp</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">480</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">640</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">arrayTmp_relative</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+                    <span class="n">z</span><span class="o">=</span><span class="n">z</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">arrayTmp_relative</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">])</span>
+                    <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span>
+    
+                <span class="k">elif</span> <span class="n">arrayTmp_relative</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">:</span>
+                    <span class="n">z</span><span class="o">=</span><span class="n">z</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">arrayTmp_relative</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">])</span>
+                    <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span>
+                <span class="k">elif</span> <span class="n">arrayTmp_relative</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">z</span> <span class="o">=</span> <span class="n">z</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">arrayTmp_relative</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">])</span>
+                    <span class="n">n</span> <span class="o">=</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">pass</span>
+    
+        <span class="c1">#Get the image</span>
+        <span class="n">range_image</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.9</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">height_relative</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">height_relative</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">height_relative</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">height_relative</span><span class="p">,</span> <span class="n">interpolation</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">,</span> <span class="n">clim</span><span class="o">=</span><span class="n">range_image</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">fileName</span><span class="p">[</span><span class="o">-</span><span class="mi">48</span><span class="p">:])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="o">-</span><span class="mi">20</span><span class="p">,</span><span class="o">-</span><span class="mi">50</span><span class="p">,</span><span class="s2">&quot;Rq= &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">z</span><span class="o">/</span><span class="n">n</span><span class="p">)</span><span class="o">*</span><span class="n">wavelength_decode</span><span class="p">))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="o">-</span><span class="mi">20</span><span class="p">,</span><span class="o">-</span><span class="mi">70</span><span class="p">,</span><span class="s2">&quot;Rt= &quot;</span> <span class="o">+</span><span class="nb">str</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">arrayTmp</span><span class="p">)</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">arrayTmp</span><span class="p">))</span><span class="o">*</span><span class="n">wavelength_decode</span><span class="p">))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="o">-</span><span class="mi">20</span><span class="p">,</span><span class="o">-</span><span class="mi">115</span><span class="p">,</span><span class="s2">&quot;stage_x = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">stagex_decode</span> <span class="o">*</span> <span class="mf">25.4</span><span class="p">))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="o">-</span><span class="mi">20</span><span class="p">,</span><span class="o">-</span><span class="mi">95</span><span class="p">,</span><span class="s2">&quot;stage_y = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">stagey_decode</span> <span class="o">*</span> <span class="mf">25.4</span><span class="p">))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="n">fid</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">d</span></div>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">Read_opd_file</span><span class="p">(</span><span class="s1">&#39;X:\Veeco-data\HZB-ST5-BWD1\HZB-SPH_25X1_AB_FWD-BWD_ST5-R1-133.OPD&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">x</span><span class="o">!=</span><span class="s1">&#39;data_point&#39;</span><span class="p">:</span>        <span class="nb">print</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="s1">&#39;:&#39;</span><span class="p">,</span><span class="n">d</span><span class="p">[</span><span class="n">x</span><span class="p">],</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../index.html">PyLOSt</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../PyLOSt.html">PyLOSt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quick_guide.html">Quick Guide</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

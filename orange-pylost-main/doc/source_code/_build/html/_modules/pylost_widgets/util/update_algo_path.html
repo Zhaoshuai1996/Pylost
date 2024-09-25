@@ -1,0 +1,394 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pylost_widgets.util.update_algo_path &#8212; pylost_widgets  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for pylost_widgets.util.update_algo_path</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">importlib</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">import</span> <span class="nn">pkgutil</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">PyQt5.QtCore</span> <span class="kn">import</span> <span class="n">Qt</span><span class="p">,</span> <span class="n">QMetaObject</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtWidgets</span> <span class="kn">import</span> <span class="n">QDialog</span><span class="p">,</span> <span class="n">QDialogButtonBox</span><span class="p">,</span> <span class="n">QListWidgetItem</span><span class="p">,</span> <span class="n">QFileDialog</span>
+
+<span class="kn">from</span> <span class="nn">PyLOSt.databases.gs_table_classes</span> <span class="kn">import</span> <span class="n">ConfigParams</span><span class="p">,</span> <span class="n">Algorithms</span><span class="p">,</span> <span class="n">AlgoTypes</span><span class="p">,</span> <span class="n">Locations</span><span class="p">,</span> <span class="n">StitchSetupAlgoOptions</span><span class="p">,</span> \
+    <span class="n">InputDispTypes</span>
+<span class="kn">from</span> <span class="nn">pylost_widgets.util.resource_path</span> <span class="kn">import</span> <span class="n">resource_path</span>
+<span class="kn">from</span> <span class="nn">PyQt5</span> <span class="kn">import</span> <span class="n">uic</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">pylost_widgets.util.util_functions</span> <span class="kn">import</span> <span class="n">questionMsg</span>
+
+<span class="n">qtCreatorFile</span> <span class="o">=</span> <span class="n">resource_path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;gui&quot;</span><span class="p">,</span> <span class="s2">&quot;dialog_update_algopath.ui&quot;</span><span class="p">))</span> <span class="c1"># Enter file here.</span>
+<span class="n">UI_import</span><span class="p">,</span> <span class="n">QtBaseClass</span> <span class="o">=</span> <span class="n">uic</span><span class="o">.</span><span class="n">loadUiType</span><span class="p">(</span><span class="n">qtCreatorFile</span><span class="p">)</span>
+
+<div class="viewcode-block" id="UpdateAlgoPath"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.update_algo_path.UpdateAlgoPath">[docs]</a><span class="k">class</span> <span class="nc">UpdateAlgoPath</span><span class="p">(</span><span class="n">QDialog</span><span class="p">,</span> <span class="n">UI_import</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">algo_type</span><span class="o">=</span><span class="s1">&#39;S&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update algorithms paths (directories). Default path &#39;PyLOSt.algorithms.stitching&#39; is used</span>
+<span class="sd">        for default stitching algorithms present within PyLOST. New paths can be added via StitchParams widget.</span>
+
+<span class="sd">        :param parent: Parent object</span>
+<span class="sd">        :type parent: QWidget</span>
+<span class="sd">        :param algo_type: Type of algorithm: &#39;S&#39; = Stitching</span>
+<span class="sd">        :type algo_type: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">QDialog</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setupUi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sel_item_id</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">algo_type</span> <span class="o">=</span> <span class="n">algo_type</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">algo_type</span><span class="o">==</span><span class="s1">&#39;S&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param_name</span> <span class="o">=</span> <span class="s1">&#39;ALGO_LOC_STITCH&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param_val_default</span> <span class="o">=</span> <span class="s1">&#39;PyLOSt.algorithms.stitching&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_list</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">listWidget</span><span class="o">.</span><span class="n">itemClicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">list_click</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_path</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">add_click</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">remove_path</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">remove_click</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reload</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reload_click</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buttonBox</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">RestoreDefaults</span><span class="p">)</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">restore_defaults</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buttonBox</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">Reset</span><span class="p">)</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reset_selection</span><span class="p">)</span>
+
+<div class="viewcode-block" id="UpdateAlgoPath.restore_defaults"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.update_algo_path.UpdateAlgoPath.restore_defaults">[docs]</a>    <span class="k">def</span> <span class="nf">restore_defaults</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Restore default paths.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">delete_paths</span><span class="p">(</span><span class="n">del_all</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_default</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_list</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="UpdateAlgoPath.delete_paths"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.update_algo_path.UpdateAlgoPath.delete_paths">[docs]</a>    <span class="k">def</span> <span class="nf">delete_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">del_all</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Delete first or all paths.</span>
+
+<span class="sd">        :param del_all: Flag to delete all paths</span>
+<span class="sd">        :type del_all: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">qpaths</span> <span class="o">=</span> <span class="n">ConfigParams</span><span class="o">.</span><span class="n">selectBy</span><span class="p">(</span><span class="n">paramName</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">param_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">del_all</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">qp</span> <span class="ow">in</span> <span class="n">qpaths</span><span class="p">:</span>
+                    <span class="n">qp</span><span class="o">.</span><span class="n">destroySelf</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">qpaths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">destroySelf</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="UpdateAlgoPath.add_default"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.update_algo_path.UpdateAlgoPath.add_default">[docs]</a>    <span class="k">def</span> <span class="nf">add_default</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add default path, e.g. for stitching algorithms default path is &#39;PyLOSt.algorithms.stitching&#39; &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_new</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param_name</span><span class="p">,</span> <span class="s1">&#39;Default package with stitching algorithms (orange-pylost)&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">param_val_default</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="UpdateAlgoPath.add_new"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.update_algo_path.UpdateAlgoPath.add_new">[docs]</a>    <span class="k">def</span> <span class="nf">add_new</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;D&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add new path to the algorithm files.</span>
+
+<span class="sd">        :param name: Configuration parameter name</span>
+<span class="sd">        :type name: str</span>
+<span class="sd">        :param description: Description of the new path</span>
+<span class="sd">        :type description: str</span>
+<span class="sd">        :param value: New path</span>
+<span class="sd">        :type value: str</span>
+<span class="sd">        :param type: Type of config parameter, &#39;D&#39; = Discrete, &#39;C&#39; = Continuous</span>
+<span class="sd">        :type type: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">ConfigParams</span><span class="p">(</span><span class="n">paramName</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">paramDesc</span><span class="o">=</span><span class="n">description</span><span class="p">,</span> <span class="n">paramType</span><span class="o">=</span><span class="nb">type</span><span class="p">,</span> <span class="n">paramValue</span><span class="o">=</span><span class="n">value</span><span class="p">,</span>
+                         <span class="n">dateCreated</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="UpdateAlgoPath.load_list"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.update_algo_path.UpdateAlgoPath.load_list">[docs]</a>    <span class="k">def</span> <span class="nf">load_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load list of algorithm directory paths.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">qpaths</span> <span class="o">=</span> <span class="n">ConfigParams</span><span class="o">.</span><span class="n">selectBy</span><span class="p">(</span><span class="n">paramName</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">param_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">listWidget</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="n">qpaths</span><span class="p">:</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="n">QListWidgetItem</span><span class="p">()</span>
+            <span class="n">item</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">it</span><span class="o">.</span><span class="n">paramValue</span><span class="p">)</span>
+            <span class="n">item</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">it</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">listWidget</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="n">item</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="UpdateAlgoPath.list_click"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.update_algo_path.UpdateAlgoPath.list_click">[docs]</a>    <span class="k">def</span> <span class="nf">list_click</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Click callback of the displayed list of paths.</span>
+
+<span class="sd">        :param item: Clicked item</span>
+<span class="sd">        :type item: QListWidgetItem</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sel_item_id</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="UpdateAlgoPath.reset_selection"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.update_algo_path.UpdateAlgoPath.reset_selection">[docs]</a>    <span class="k">def</span> <span class="nf">reset_selection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reset selection the list viewer</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sel_item_id</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">listWidget</span><span class="o">.</span><span class="n">setCurrentItem</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="UpdateAlgoPath.remove_click"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.update_algo_path.UpdateAlgoPath.remove_click">[docs]</a>    <span class="k">def</span> <span class="nf">remove_click</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove selected path</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sel_item_id</span><span class="o">!=-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="n">ConfigParams</span><span class="o">.</span><span class="n">selectBy</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sel_item_id</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">destroySelf</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">load_list</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="UpdateAlgoPath.add_click"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.update_algo_path.UpdateAlgoPath.add_click">[docs]</a>    <span class="k">def</span> <span class="nf">add_click</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load and save a new algorithm directory path</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">fdir</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">QFileDialog</span><span class="o">.</span><span class="n">getExistingDirectory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;Select algorithm files directory&quot;</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">fdir</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_new</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param_name</span><span class="p">,</span> <span class="s1">&#39;Additional package with stitching algorithms (orange-pylost)&#39;</span><span class="p">,</span> <span class="n">fdir</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">load_list</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="UpdateAlgoPath.reload_click"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.update_algo_path.UpdateAlgoPath.reload_click">[docs]</a>    <span class="k">def</span> <span class="nf">reload_click</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save changes and reload list viewer containing paths</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pkg_paths</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">del_all</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sel_item_id</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">questionMsg</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;Search full path&#39;</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="s1">&#39;No path is selected. Update algorithms in the full path? &#39;</span>
+                                                         <span class="s1">&#39;</span><span class="se">\n</span><span class="s1"> (This procedure will completely erase any previous database information about algorithms)&#39;</span><span class="p">):</span>
+                <span class="n">del_all</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">qpaths</span> <span class="o">=</span> <span class="n">ConfigParams</span><span class="o">.</span><span class="n">selectBy</span><span class="p">(</span><span class="n">paramName</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">param_name</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">qp</span> <span class="ow">in</span> <span class="n">qpaths</span><span class="p">:</span>
+                    <span class="n">path</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">paramValue</span>
+                    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+                        <span class="n">pkg_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">pkg</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">__package__</span><span class="p">)</span>
+                        <span class="n">pkg_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">pkg</span><span class="o">.</span><span class="vm">__file__</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">listWidget</span><span class="o">.</span><span class="n">currentItem</span><span class="p">()</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+                <span class="n">pkg_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">pkg</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">__package__</span><span class="p">)</span>
+                <span class="n">pkg_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">pkg</span><span class="o">.</span><span class="vm">__file__</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="n">module_loader</span><span class="p">,</span> <span class="n">module_name</span><span class="p">,</span> <span class="n">ispkg</span><span class="p">)</span> <span class="ow">in</span> <span class="n">pkgutil</span><span class="o">.</span><span class="n">walk_packages</span><span class="p">(</span><span class="n">pkg_paths</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">ispkg</span><span class="p">:</span>
+                <span class="n">module</span> <span class="o">=</span> <span class="n">module_loader</span><span class="o">.</span><span class="n">find_module</span><span class="p">(</span><span class="n">module_name</span><span class="p">)</span><span class="o">.</span><span class="n">load_module</span><span class="p">(</span><span class="n">module_name</span><span class="p">)</span>
+                <span class="c1"># print(&#39;module={}&#39;.format(module))</span>
+                <span class="k">for</span> <span class="n">class_name</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getmembers</span><span class="p">(</span><span class="n">module</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">obj</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+                            <span class="nb">print</span><span class="p">(</span><span class="n">class_name</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">),</span> <span class="n">obj</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="n">Algorithms</span><span class="o">.</span><span class="n">selectBy</span><span class="p">(</span><span class="n">algoName</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">del_algo</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">del_all</span><span class="p">)</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">add_algo</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">class_name</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">module_loader</span><span class="o">.</span><span class="n">find_module</span><span class="p">(</span><span class="n">module_name</span><span class="p">)</span><span class="o">.</span><span class="n">load_module</span><span class="p">(</span><span class="n">module_name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="UpdateAlgoPath.del_algo"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.update_algo_path.UpdateAlgoPath.del_algo">[docs]</a>    <span class="k">def</span> <span class="nf">del_algo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">del_all</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Delete a (stitching) algorithm.</span>
+
+<span class="sd">        :param name: Name of algorithm</span>
+<span class="sd">        :type name: str</span>
+<span class="sd">        :param del_all: Delete all algorithms</span>
+<span class="sd">        :type del_all: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">del_all</span><span class="p">:</span>
+            <span class="n">qalgos</span> <span class="o">=</span> <span class="n">Algorithms</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">qa</span> <span class="ow">in</span> <span class="n">qalgos</span><span class="p">:</span>
+                <span class="n">qa</span><span class="o">.</span><span class="n">destroySelf</span><span class="p">()</span>
+            <span class="n">qalgoopts</span> <span class="o">=</span> <span class="n">StitchSetupAlgoOptions</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">qopt</span> <span class="ow">in</span> <span class="n">qalgoopts</span><span class="p">:</span>
+                <span class="n">qopt</span><span class="o">.</span><span class="n">destroySelf</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">qalgo</span> <span class="o">=</span> <span class="n">Algorithms</span><span class="o">.</span><span class="n">selectBy</span><span class="p">(</span><span class="n">algoName</span><span class="o">=</span><span class="n">name</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">StitchSetupAlgoOptions</span><span class="o">.</span><span class="n">selectBy</span><span class="p">(</span><span class="n">algoID</span><span class="o">=</span><span class="n">qalgo</span><span class="o">.</span><span class="n">id</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+                <span class="n">qalgoopts</span> <span class="o">=</span> <span class="n">StitchSetupAlgoOptions</span><span class="o">.</span><span class="n">selectBy</span><span class="p">(</span><span class="n">algoID</span><span class="o">=</span><span class="n">qalgo</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">qopt</span> <span class="ow">in</span> <span class="n">qalgoopts</span><span class="p">:</span>
+                    <span class="n">qopt</span><span class="o">.</span><span class="n">destroySelf</span><span class="p">()</span>
+            <span class="n">qalgo</span><span class="o">.</span><span class="n">destroySelf</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="UpdateAlgoPath.add_algo"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.update_algo_path.UpdateAlgoPath.add_algo">[docs]</a>    <span class="k">def</span> <span class="nf">add_algo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">class_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a (stitching) algorithm</span>
+
+<span class="sd">        :param obj: Algorithm object</span>
+<span class="sd">        :type obj: Algorithms</span>
+<span class="sd">        :param name: Name of algorithm</span>
+<span class="sd">        :type name: str</span>
+<span class="sd">        :param class_name: Name of the class implementing this algorithm</span>
+<span class="sd">        :type class_name: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ctype</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">loc</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">AlgoTypes</span><span class="o">.</span><span class="n">selectBy</span><span class="p">(</span><span class="n">algoType</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">ctype</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+            <span class="n">qalgotype</span> <span class="o">=</span> <span class="n">AlgoTypes</span><span class="o">.</span><span class="n">selectBy</span><span class="p">(</span><span class="n">algoType</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">ctype</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">ctype</span> <span class="o">=</span> <span class="n">qalgotype</span><span class="o">.</span><span class="n">id</span>
+        <span class="k">if</span> <span class="n">Locations</span><span class="o">.</span><span class="n">selectBy</span><span class="p">(</span><span class="n">location</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">location</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+            <span class="n">qloc</span> <span class="o">=</span> <span class="n">Locations</span><span class="o">.</span><span class="n">selectBy</span><span class="p">(</span><span class="n">location</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">location</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">loc</span> <span class="o">=</span> <span class="n">qloc</span><span class="o">.</span><span class="n">id</span>
+        <span class="n">Algorithms</span><span class="p">(</span><span class="n">algoName</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                   <span class="n">algoDesc</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
+                   <span class="n">algoType</span><span class="o">=</span><span class="n">ctype</span><span class="p">,</span>
+                   <span class="n">functionName</span><span class="o">=</span><span class="n">class_name</span><span class="p">,</span>
+                   <span class="n">addedBy</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">added_by</span><span class="p">,</span>
+                   <span class="n">location</span><span class="o">=</span><span class="n">loc</span><span class="p">,</span>
+                   <span class="n">dateAdded</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">))</span>
+        <span class="n">qalgo</span> <span class="o">=</span> <span class="n">Algorithms</span><span class="o">.</span><span class="n">selectBy</span><span class="p">(</span><span class="n">algoName</span><span class="o">=</span><span class="n">name</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># Add algo options</span>
+        <span class="n">attributes</span> <span class="o">=</span> <span class="p">[</span><span class="n">attr</span> <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">attr</span><span class="p">))</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">attr</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">attr</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">,</span> <span class="s1">&#39;ctype&#39;</span><span class="p">,</span> <span class="s1">&#39;added_by&#39;</span><span class="p">,</span> <span class="s1">&#39;location&#39;</span><span class="p">]]</span>
+        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">attributes</span><span class="p">:</span>
+            <span class="n">attr_default</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">attr_default</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">dict</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attr_default</span><span class="p">,</span> <span class="n">QMetaObject</span><span class="p">):</span>
+                    <span class="k">continue</span>
+                <span class="n">attr_default</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;value&#39;</span><span class="p">:</span><span class="n">attr_default</span><span class="p">}</span>
+
+            <span class="n">attr_val</span> <span class="o">=</span> <span class="n">attr_default</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="n">def_val</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">attr_val</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">attr_val</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">tuple</span> <span class="k">else</span> <span class="n">attr_val</span><span class="p">)</span>
+
+            <span class="n">description</span> <span class="o">=</span> <span class="n">attr_default</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;description&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="n">disp_type</span> <span class="o">=</span> <span class="n">attr_default</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;disp_type&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">disp_type_id</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">disp_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">InputDispTypes</span><span class="o">.</span><span class="n">selectBy</span><span class="p">(</span><span class="n">dispType</span><span class="o">=</span><span class="n">disp_type</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+                <span class="n">qdisp</span> <span class="o">=</span> <span class="n">InputDispTypes</span><span class="o">.</span><span class="n">selectBy</span><span class="p">(</span><span class="n">dispType</span><span class="o">=</span><span class="n">disp_type</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">disp_type_id</span> <span class="o">=</span> <span class="n">qdisp</span><span class="o">.</span><span class="n">id</span>
+            <span class="n">all_values</span> <span class="o">=</span> <span class="n">attr_default</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;all_values&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">all_values</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
+                <span class="n">all_values</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">all_values</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">all_values</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">all_values</span><span class="p">)</span>
+            <span class="n">unit</span> <span class="o">=</span> <span class="n">attr_default</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;unit&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">group_items</span> <span class="o">=</span> <span class="n">attr_default</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;group_items&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">StitchSetupAlgoOptions</span><span class="p">(</span><span class="n">algoID</span><span class="o">=</span><span class="n">qalgo</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">option</span><span class="o">=</span><span class="n">attr</span><span class="p">,</span> <span class="n">optionDesc</span><span class="o">=</span><span class="n">description</span><span class="p">,</span>
+                                   <span class="n">dispTypeID</span><span class="o">=</span><span class="n">disp_type_id</span><span class="p">,</span> <span class="n">defVal</span><span class="o">=</span><span class="n">def_val</span><span class="p">,</span> <span class="n">allVals</span><span class="o">=</span><span class="n">all_values</span><span class="p">,</span>
+                                   <span class="n">valUnit</span><span class="o">=</span><span class="n">unit</span><span class="p">,</span> <span class="n">addedBy</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">added_by</span><span class="p">,</span> <span class="n">groupItems</span><span class="o">=</span><span class="n">group_items</span><span class="p">,</span>
+                                   <span class="n">dateAdded</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="UpdateAlgoPath.update_algo"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.update_algo_path.UpdateAlgoPath.update_algo">[docs]</a>    <span class="k">def</span> <span class="nf">update_algo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">class_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update selected (stithcing) algorithm parameters.</span>
+
+<span class="sd">        :param obj: Algorithm object</span>
+<span class="sd">        :type obj: Algorithms</span>
+<span class="sd">        :param name: Name of algorithm</span>
+<span class="sd">        :type name: str</span>
+<span class="sd">        :param class_name: Name of the class implementing this algorithm</span>
+<span class="sd">        :type class_name: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">qalgo</span> <span class="o">=</span> <span class="n">Algorithms</span><span class="o">.</span><span class="n">selectBy</span><span class="p">(</span><span class="n">algoName</span><span class="o">=</span><span class="n">name</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">qalgo</span><span class="o">.</span><span class="n">functionName</span> <span class="o">=</span> <span class="n">class_name</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">obj</span><span class="o">.</span><span class="n">description</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">):</span>
+            <span class="n">qalgo</span><span class="o">.</span><span class="n">algoDesc</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">description</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s1">&#39;ctype&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">obj</span><span class="o">.</span><span class="n">ctype</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">AlgoTypes</span><span class="o">.</span><span class="n">selectBy</span><span class="p">(</span><span class="n">algoType</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">ctype</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">qalgotype</span> <span class="o">=</span> <span class="n">AlgoTypes</span><span class="o">.</span><span class="n">selectBy</span><span class="p">(</span><span class="n">algoType</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">ctype</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">qalgo</span><span class="o">.</span><span class="n">algoType</span> <span class="o">=</span> <span class="n">qalgotype</span><span class="o">.</span><span class="n">id</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s1">&#39;added_by&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">obj</span><span class="o">.</span><span class="n">added_by</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">):</span>
+            <span class="n">qalgo</span><span class="o">.</span><span class="n">addedBy</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">added_by</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s1">&#39;location&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">obj</span><span class="o">.</span><span class="n">location</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">Locations</span><span class="o">.</span><span class="n">selectBy</span><span class="p">(</span><span class="n">location</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">location</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">qloc</span> <span class="o">=</span> <span class="n">Locations</span><span class="o">.</span><span class="n">selectBy</span><span class="p">(</span><span class="n">location</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">location</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">qalgo</span><span class="o">.</span><span class="n">location</span> <span class="o">=</span> <span class="n">qloc</span><span class="o">.</span><span class="n">id</span></div></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">pylost_widgets</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../pylost_widgets.html">pylost_widgets package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

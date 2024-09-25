@@ -1,0 +1,295 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PyLOSt.databases.gs_table_classes &#8212; PyLOSt  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for PyLOSt.databases.gs_table_classes</h1><div class="highlight"><pre>
+<span></span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Created on Jul 12, 2018</span>
+
+<span class="sd">@author: adapa</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+
+<span class="kn">from</span> <span class="nn">sqlobject.main</span> <span class="kn">import</span> <span class="n">sqlhub</span><span class="p">,</span> <span class="n">SQLObject</span>
+<span class="kn">from</span> <span class="nn">sqlobject.dbconnection</span> <span class="kn">import</span> <span class="n">connectionForURI</span>
+<span class="kn">from</span> <span class="nn">sqlobject.col</span> <span class="kn">import</span> <span class="n">ForeignKey</span><span class="p">,</span> <span class="n">StringCol</span><span class="p">,</span> <span class="n">DateCol</span>
+<span class="kn">from</span> <span class="nn">PyLOSt.util.resource_path</span> <span class="kn">import</span> <span class="n">resource_path</span>
+
+<span class="c1">##################Database section##################</span>
+<div class="viewcode-block" id="connectDB"><a class="viewcode-back" href="../../../PyLOSt.databases.html#PyLOSt.databases.gs_table_classes.connectDB">[docs]</a><span class="k">def</span> <span class="nf">connectDB</span><span class="p">(</span><span class="n">db_loc</span> <span class="o">=</span> <span class="n">resource_path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;databases&#39;</span><span class="p">,</span> <span class="s1">&#39;gs.db&#39;</span><span class="p">))):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">db_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">db_loc</span><span class="p">)</span>
+        <span class="n">sqlhub</span><span class="o">.</span><span class="n">processConnection</span> <span class="o">=</span> <span class="n">connectionForURI</span><span class="p">(</span><span class="s1">&#39;sqlite:&#39;</span><span class="o">+</span><span class="n">db_filename</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">sqlhub</span><span class="o">.</span><span class="n">processConnection</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Database connection failed&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">None</span></div>
+<span class="c1">##################Database section##################</span>
+
+<div class="viewcode-block" id="StitchSetupOptionsInstr"><a class="viewcode-back" href="../../../PyLOSt.databases.html#PyLOSt.databases.gs_table_classes.StitchSetupOptionsInstr">[docs]</a><span class="k">class</span> <span class="nc">StitchSetupOptionsInstr</span><span class="p">(</span><span class="n">SQLObject</span><span class="p">):</span>
+    <span class="n">instr</span>               <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="s1">&#39;Instruments&#39;</span><span class="p">)</span> 
+    <span class="n">option</span>              <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="s1">&#39;StitchSetupOptionsCommon&#39;</span><span class="p">)</span>
+    <span class="n">defVal</span>              <span class="o">=</span> <span class="n">StringCol</span><span class="p">()</span> 
+    <span class="n">defValUnit</span>          <span class="o">=</span> <span class="n">StringCol</span><span class="p">()</span> 
+    <span class="n">addedBy</span>             <span class="o">=</span> <span class="n">StringCol</span><span class="p">()</span>
+    <span class="n">location</span>            <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="s1">&#39;Locations&#39;</span><span class="p">)</span>
+    <span class="n">dateAdded</span>           <span class="o">=</span> <span class="n">DateCol</span><span class="p">()</span></div>
+    
+<div class="viewcode-block" id="StitchSetupOptionsCommon"><a class="viewcode-back" href="../../../PyLOSt.databases.html#PyLOSt.databases.gs_table_classes.StitchSetupOptionsCommon">[docs]</a><span class="k">class</span> <span class="nc">StitchSetupOptionsCommon</span><span class="p">(</span><span class="n">SQLObject</span><span class="p">):</span>
+    <span class="n">option</span>              <span class="o">=</span> <span class="n">StringCol</span><span class="p">(</span><span class="n">alternateID</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">optionDesc</span>          <span class="o">=</span> <span class="n">StringCol</span><span class="p">()</span>
+    <span class="n">dispType</span>            <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="s1">&#39;InputDispTypes&#39;</span><span class="p">)</span>
+    <span class="n">defVal</span>              <span class="o">=</span> <span class="n">StringCol</span><span class="p">()</span> 
+    <span class="n">defValUnit</span>          <span class="o">=</span> <span class="n">StringCol</span><span class="p">()</span> 
+    <span class="n">addedBy</span>             <span class="o">=</span> <span class="n">StringCol</span><span class="p">()</span>
+    <span class="n">location</span>            <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="s1">&#39;Locations&#39;</span><span class="p">)</span>
+    <span class="n">dateAdded</span>           <span class="o">=</span> <span class="n">DateCol</span><span class="p">()</span></div>
+    
+<div class="viewcode-block" id="StitchSetupAlgoOptions"><a class="viewcode-back" href="../../../PyLOSt.databases.html#PyLOSt.databases.gs_table_classes.StitchSetupAlgoOptions">[docs]</a><span class="k">class</span> <span class="nc">StitchSetupAlgoOptions</span><span class="p">(</span><span class="n">SQLObject</span><span class="p">):</span>
+    <span class="n">algo</span>                <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="s1">&#39;Algorithms&#39;</span><span class="p">)</span>
+    <span class="n">option</span>              <span class="o">=</span> <span class="n">StringCol</span><span class="p">()</span>
+    <span class="n">optionDesc</span>          <span class="o">=</span> <span class="n">StringCol</span><span class="p">()</span> 
+    <span class="n">dispType</span>            <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="s1">&#39;InputDispTypes&#39;</span><span class="p">)</span>
+    <span class="n">defVal</span>              <span class="o">=</span> <span class="n">StringCol</span><span class="p">()</span> 
+    <span class="n">allVals</span>             <span class="o">=</span> <span class="n">StringCol</span><span class="p">()</span> 
+    <span class="n">valUnit</span>             <span class="o">=</span> <span class="n">StringCol</span><span class="p">()</span>
+    <span class="n">groupItems</span>          <span class="o">=</span> <span class="n">StringCol</span><span class="p">()</span>
+    <span class="n">addedBy</span>             <span class="o">=</span> <span class="n">StringCol</span><span class="p">()</span>
+    <span class="n">dateAdded</span>           <span class="o">=</span> <span class="n">DateCol</span><span class="p">()</span></div>
+    
+<div class="viewcode-block" id="Instruments"><a class="viewcode-back" href="../../../PyLOSt.databases.html#PyLOSt.databases.gs_table_classes.Instruments">[docs]</a><span class="k">class</span> <span class="nc">Instruments</span><span class="p">(</span><span class="n">SQLObject</span><span class="p">):</span>
+    <span class="n">instrId</span>             <span class="o">=</span> <span class="n">StringCol</span><span class="p">(</span><span class="n">alternateID</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">instrName</span>           <span class="o">=</span> <span class="n">StringCol</span><span class="p">()</span> 
+    <span class="n">instrType</span>           <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="s1">&#39;InstrTypes&#39;</span><span class="p">)</span> 
+    <span class="n">instrLocation</span>       <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="s1">&#39;Locations&#39;</span><span class="p">)</span>
+    <span class="n">dataFormats</span>         <span class="o">=</span> <span class="n">StringCol</span><span class="p">()</span> 
+    <span class="n">addedBy</span>             <span class="o">=</span> <span class="n">StringCol</span><span class="p">()</span>
+    <span class="n">dateAdded</span>           <span class="o">=</span> <span class="n">DateCol</span><span class="p">()</span></div>
+    
+<div class="viewcode-block" id="Algorithms"><a class="viewcode-back" href="../../../PyLOSt.databases.html#PyLOSt.databases.gs_table_classes.Algorithms">[docs]</a><span class="k">class</span> <span class="nc">Algorithms</span><span class="p">(</span><span class="n">SQLObject</span><span class="p">):</span>
+    <span class="n">algoName</span>            <span class="o">=</span> <span class="n">StringCol</span><span class="p">(</span><span class="n">alternateID</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">algoDesc</span>            <span class="o">=</span> <span class="n">StringCol</span><span class="p">()</span> 
+    <span class="n">algoType</span>            <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="s1">&#39;AlgoTypes&#39;</span><span class="p">)</span>
+    <span class="n">functionName</span>        <span class="o">=</span> <span class="n">StringCol</span><span class="p">()</span> 
+    <span class="n">addedBy</span>             <span class="o">=</span> <span class="n">StringCol</span><span class="p">()</span>
+    <span class="n">location</span>            <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="s1">&#39;Locations&#39;</span><span class="p">)</span>
+    <span class="n">dateAdded</span>           <span class="o">=</span> <span class="n">DateCol</span><span class="p">()</span></div>
+    
+<div class="viewcode-block" id="AppInfo"><a class="viewcode-back" href="../../../PyLOSt.databases.html#PyLOSt.databases.gs_table_classes.AppInfo">[docs]</a><span class="k">class</span> <span class="nc">AppInfo</span><span class="p">(</span><span class="n">SQLObject</span><span class="p">):</span>
+    <span class="n">appName</span>         <span class="o">=</span> <span class="n">StringCol</span><span class="p">()</span>
+    <span class="n">appLanguage</span>     <span class="o">=</span> <span class="n">StringCol</span><span class="p">()</span> <span class="c1">#python</span>
+    <span class="n">version</span>         <span class="o">=</span> <span class="n">StringCol</span><span class="p">()</span>
+    <span class="n">createdBy</span>       <span class="o">=</span> <span class="n">StringCol</span><span class="p">()</span>
+    <span class="n">location</span>        <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="s1">&#39;Locations&#39;</span><span class="p">)</span>
+    <span class="n">dateCreated</span>     <span class="o">=</span> <span class="n">DateCol</span><span class="p">()</span>
+    <span class="n">dateModified</span>    <span class="o">=</span> <span class="n">DateCol</span><span class="p">()</span></div>
+    
+<div class="viewcode-block" id="Locations"><a class="viewcode-back" href="../../../PyLOSt.databases.html#PyLOSt.databases.gs_table_classes.Locations">[docs]</a><span class="k">class</span> <span class="nc">Locations</span><span class="p">(</span><span class="n">SQLObject</span><span class="p">):</span>
+    <span class="n">location</span>           <span class="o">=</span> <span class="n">StringCol</span><span class="p">(</span><span class="n">alternateID</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">locationDesc</span>       <span class="o">=</span> <span class="n">StringCol</span><span class="p">()</span> </div>
+    
+<div class="viewcode-block" id="AlgoTypes"><a class="viewcode-back" href="../../../PyLOSt.databases.html#PyLOSt.databases.gs_table_classes.AlgoTypes">[docs]</a><span class="k">class</span> <span class="nc">AlgoTypes</span><span class="p">(</span><span class="n">SQLObject</span><span class="p">):</span>
+    <span class="n">algoType</span>           <span class="o">=</span> <span class="n">StringCol</span><span class="p">(</span><span class="n">alternateID</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">algoTypeDesc</span>       <span class="o">=</span> <span class="n">StringCol</span><span class="p">()</span> </div>
+    
+<div class="viewcode-block" id="InstrTypes"><a class="viewcode-back" href="../../../PyLOSt.databases.html#PyLOSt.databases.gs_table_classes.InstrTypes">[docs]</a><span class="k">class</span> <span class="nc">InstrTypes</span><span class="p">(</span><span class="n">SQLObject</span><span class="p">):</span>
+    <span class="n">instrType</span>          <span class="o">=</span> <span class="n">StringCol</span><span class="p">(</span><span class="n">alternateID</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">instrDesc</span>          <span class="o">=</span> <span class="n">StringCol</span><span class="p">()</span></div>
+    
+<div class="viewcode-block" id="InputDispTypes"><a class="viewcode-back" href="../../../PyLOSt.databases.html#PyLOSt.databases.gs_table_classes.InputDispTypes">[docs]</a><span class="k">class</span> <span class="nc">InputDispTypes</span><span class="p">(</span><span class="n">SQLObject</span><span class="p">):</span>
+    <span class="n">dispType</span>           <span class="o">=</span> <span class="n">StringCol</span><span class="p">(</span><span class="n">alternateID</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">dispDesc</span>           <span class="o">=</span> <span class="n">StringCol</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ConfigParams"><a class="viewcode-back" href="../../../PyLOSt.databases.html#PyLOSt.databases.gs_table_classes.ConfigParams">[docs]</a><span class="k">class</span> <span class="nc">ConfigParams</span><span class="p">(</span><span class="n">SQLObject</span><span class="p">):</span>
+    <span class="n">paramName</span>          <span class="o">=</span> <span class="n">StringCol</span><span class="p">(</span><span class="n">alternateID</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">paramDesc</span>          <span class="o">=</span> <span class="n">StringCol</span><span class="p">()</span>
+    <span class="n">paramType</span>          <span class="o">=</span> <span class="n">StringCol</span><span class="p">()</span> <span class="c1"># S:static, D:dynamic</span>
+    <span class="n">paramValue</span>         <span class="o">=</span> <span class="n">StringCol</span><span class="p">()</span>
+    <span class="n">dateCreated</span>        <span class="o">=</span> <span class="n">DateCol</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="InstrTypeFunctionMap"><a class="viewcode-back" href="../../../PyLOSt.databases.html#PyLOSt.databases.gs_table_classes.InstrTypeFunctionMap">[docs]</a><span class="k">class</span> <span class="nc">InstrTypeFunctionMap</span><span class="p">(</span><span class="n">SQLObject</span><span class="p">):</span>
+    <span class="n">instrType</span>          <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="s1">&#39;InstrTypes&#39;</span><span class="p">)</span>
+    <span class="n">dataFormat</span>         <span class="o">=</span> <span class="n">StringCol</span><span class="p">()</span>
+    <span class="n">fileName</span>           <span class="o">=</span> <span class="n">StringCol</span><span class="p">()</span>
+    <span class="n">className</span>          <span class="o">=</span> <span class="n">StringCol</span><span class="p">()</span>
+    <span class="n">dateCreated</span>        <span class="o">=</span> <span class="n">DateCol</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="StitchViewerButtons"><a class="viewcode-back" href="../../../PyLOSt.databases.html#PyLOSt.databases.gs_table_classes.StitchViewerButtons">[docs]</a><span class="k">class</span> <span class="nc">StitchViewerButtons</span><span class="p">(</span><span class="n">SQLObject</span><span class="p">):</span>
+    <span class="n">name</span>               <span class="o">=</span> <span class="n">StringCol</span><span class="p">()</span>
+    <span class="n">description</span>        <span class="o">=</span> <span class="n">StringCol</span><span class="p">()</span>
+    <span class="n">fileName</span>           <span class="o">=</span> <span class="n">StringCol</span><span class="p">()</span>
+    <span class="n">className</span>          <span class="o">=</span> <span class="n">StringCol</span><span class="p">()</span>
+    <span class="nb">type</span>               <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="s1">&#39;StitchViewerButtonTypes&#39;</span><span class="p">)</span>
+    <span class="n">requires</span>           <span class="o">=</span> <span class="n">StringCol</span><span class="p">()</span>
+    <span class="n">requiresText</span>       <span class="o">=</span> <span class="n">StringCol</span><span class="p">()</span>
+    <span class="n">dateCreated</span>        <span class="o">=</span> <span class="n">DateCol</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="StitchViewerButtonTypes"><a class="viewcode-back" href="../../../PyLOSt.databases.html#PyLOSt.databases.gs_table_classes.StitchViewerButtonTypes">[docs]</a><span class="k">class</span> <span class="nc">StitchViewerButtonTypes</span><span class="p">(</span><span class="n">SQLObject</span><span class="p">):</span>
+    <span class="nb">type</span>               <span class="o">=</span> <span class="n">StringCol</span><span class="p">()</span>
+    <span class="n">typeDesc</span>           <span class="o">=</span> <span class="n">StringCol</span><span class="p">()</span></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">connectDB</span><span class="p">(</span><span class="n">db_loc</span><span class="o">=</span><span class="s1">&#39;gs.db&#39;</span><span class="p">)</span>
+<span class="c1">#     InstrTypes.dropTable(ifExists=True)</span>
+<span class="c1">#     AlgoTypes.dropTable(ifExists=True)</span>
+<span class="c1">#     Locations.dropTable(ifExists=True)</span>
+<span class="c1">#     AppInfo.dropTable(ifExists=True)</span>
+<span class="c1">#     Algorithms.dropTable(ifExists=True)</span>
+<span class="c1">#     Instruments.dropTable(ifExists=True)</span>
+<span class="c1">#     StitchSetupOptionsCommon.dropTable(ifExists=True)</span>
+<span class="c1">#     StitchSetupOptionsInstr.dropTable(ifExists=True)  </span>
+<span class="c1">#     InputDispTypes.dropTable(ifExists=True)</span>
+<span class="c1">#     StitchSetupAlgoOptions.dropTable(ifExists=True)</span>
+    
+<span class="c1">#     InstrTypes.createTable(ifNotExists=True)</span>
+<span class="c1">#     AlgoTypes.createTable(ifNotExists=True)</span>
+<span class="c1">#     Locations.createTable(ifNotExists=True)</span>
+<span class="c1">#     AppInfo.createTable(ifNotExists=True)</span>
+<span class="c1">#     Algorithms.createTable(ifNotExists=True)</span>
+<span class="c1">#     Instruments.createTable(ifNotExists=True)</span>
+<span class="c1">#     StitchSetupOptionsCommon.createTable(ifNotExists=True)</span>
+<span class="c1">#     StitchSetupOptionsInstr.createTable(ifNotExists=True)</span>
+<span class="c1">#     </span>
+<span class="c1">#     # static data in the tables</span>
+<span class="c1">#     InstrTypes(instrType=&#39;SHP&#39;,instrDesc=&#39;SHARPeR&#39;)</span>
+<span class="c1">#     InstrTypes(instrType=&#39;FIZ&#39;,instrDesc=&#39;Fizeau interferometer&#39;)</span>
+<span class="c1">#     InstrTypes(instrType=&#39;MSI&#39;,instrDesc=&#39;Micro stitching interferometer&#39;)</span>
+<span class="c1">#     </span>
+<span class="c1">#     AlgoTypes(algoType=&#39;PR&#39;,algoTypeDesc=&#39;Pre Processing&#39;)</span>
+<span class="c1">#     AlgoTypes(algoType=&#39;S&#39;,algoTypeDesc=&#39;Stitching&#39;)</span>
+<span class="c1">#     AlgoTypes(algoType=&#39;PS&#39;,algoTypeDesc=&#39;Post Processing&#39;)</span>
+
+<span class="c1">#     InputDispTypes.createTable(ifNotExists=True)</span>
+<span class="c1">#     StitchSetupAlgoOptions.createTable(ifNotExists=True) #also create unique key for algo+option combined</span>
+<span class="c1">#     </span>
+<span class="c1">#     InputDispTypes(dispType=&#39;B&#39;,dispDesc=&#39;Button&#39;)</span>
+<span class="c1">#     InputDispTypes(dispType=&#39;E&#39;,dispDesc=&#39;LineEdit&#39;)</span>
+<span class="c1">#     InputDispTypes(dispType=&#39;C&#39;,dispDesc=&#39;Checkbox&#39;)</span>
+<span class="c1">#     InputDispTypes(dispType=&#39;S&#39;,dispDesc=&#39;Select box&#39;)</span>
+<span class="c1">#     InputDispTypes(dispType=&#39;R&#39;,dispDesc=&#39;Radio Button&#39;)</span>
+<span class="c1">#     InputDispTypes(dispType=&#39;TE&#39;,dispDesc=&#39;TextEdit&#39;)</span>
+<span class="c1">#     InputDispTypes(dispType=&#39;DE&#39;,dispDesc=&#39;DateEdit&#39;)</span>
+<span class="c1">#     InputDispTypes(dispType=&#39;DTE&#39;,dispDesc=&#39;DateTimeEdit&#39;)</span>
+<span class="c1">#     InputDispTypes(dispType=&#39;L&#39;,dispDesc=&#39;ListWidget&#39;)</span>
+
+    <span class="c1"># ConfigParams.dropTable(ifExists=True)</span>
+    <span class="c1"># ConfigParams.createTable(ifNotExists=True)</span>
+    <span class="c1"># ConfigParams(paramName=&#39;LAST_H5_LOC&#39;,paramDesc=&#39;Last opened h5 file directory&#39;, paramType=&#39;D&#39;, paramValue=&#39;&#39;, dateCreated=datetime.today().strftime(&#39;%Y-%m-%d&#39;))</span>
+
+    <span class="c1"># InstrTypeFunctionMap.dropTable(ifExists=True)</span>
+    <span class="c1"># InstrTypeFunctionMap.createTable(ifNotExists=True)</span>
+    <span class="c1"># InstrTypeFunctionMap(instrType=1,dataFormat=&#39;has&#39;, fileName=&#39;PyLOSt.data_in.sharper.has_to_h5&#39;, className=&#39;HasToH5&#39;, dateCreated=datetime.today().strftime(&#39;%Y-%m-%d&#39;))</span>
+    <span class="c1"># InstrTypeFunctionMap(instrType=2,dataFormat=&#39;dat&#39;, fileName=&#39;PyLOSt.data_in.fizeau.dat_to_h5&#39;, className=&#39;DatToH5&#39;, dateCreated=datetime.today().strftime(&#39;%Y-%m-%d&#39;))</span>
+    <span class="c1"># InstrTypeFunctionMap(instrType=2,dataFormat=&#39;datx&#39;, fileName=&#39;PyLOSt.data_in.fizeau.datx.datx_to_h5&#39;, className=&#39;DatxToH5&#39;, dateCreated=datetime.today().strftime(&#39;%Y-%m-%d&#39;))</span>
+    <span class="c1"># InstrTypeFunctionMap(instrType=3,dataFormat=&#39;OPD&#39;, fileName=&#39;PyLOSt.data_in.msi.opd_to_h5&#39;, className=&#39;OpdToH5&#39;, dateCreated=datetime.today().strftime(&#39;%Y-%m-%d&#39;))</span>
+    <span class="c1"># InstrTypeFunctionMap(instrType=5,dataFormat=&#39;slp2&#39;, fileName=&#39;PyLOSt.data_in.ltp.slp2_to_h5&#39;, className=&#39;Slp2ToH5&#39;, dateCreated=datetime.today().strftime(&#39;%Y-%m-%d&#39;))</span>
+
+    <span class="c1"># StitchViewerButtons.dropTable(ifExists=True)</span>
+    <span class="c1"># StitchViewerButtons.createTable(ifNotExists=True)</span>
+
+    <span class="c1"># StitchViewerButtonTypes.dropTable(ifExists=True)</span>
+    <span class="c1"># StitchViewerButtonTypes.createTable(ifNotExists=True)</span>
+    <span class="c1"># StitchViewerButtonTypes(type=&#39;S&#39;,typeDesc=&#39;Single use&#39;)</span>
+    <span class="c1"># StitchViewerButtonTypes(type=&#39;R&#39;,typeDesc=&#39;Repeat use&#39;)</span>
+    <span class="c1"># StitchViewerButtonTypes(type=&#39;SD&#39;,typeDesc=&#39;Single use, default sequence&#39;)</span>
+    <span class="c1"># StitchViewerButtonTypes(type=&#39;RD&#39;,typeDesc=&#39;Repeat use, default sequence&#39;)</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">PyLOSt</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../PyLOSt.html">PyLOSt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quick_guide.html">Quick Guide</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

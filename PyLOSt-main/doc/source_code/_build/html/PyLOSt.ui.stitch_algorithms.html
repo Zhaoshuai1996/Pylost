@@ -1,0 +1,1638 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>PyLOSt.ui.stitch_algorithms package &#8212; PyLOSt  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="PyLOSt.ui.stitch_algorithms.util package" href="PyLOSt.ui.stitch_algorithms.util.html" />
+    <link rel="prev" title="PyLOSt.ui.simulations package" href="PyLOSt.ui.simulations.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="pylost-ui-stitch-algorithms-package">
+<h1>PyLOSt.ui.stitch_algorithms package<a class="headerlink" href="#pylost-ui-stitch-algorithms-package" title="Permalink to this headline">¶</a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="PyLOSt.ui.stitch_algorithms.util.html">PyLOSt.ui.stitch_algorithms.util package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.ui.stitch_algorithms.util.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.ui.stitch_algorithms.util.html#module-PyLOSt.ui.stitch_algorithms.util.best_ellipse_parameters_finder_script_xshift">PyLOSt.ui.stitch_algorithms.util.best_ellipse_parameters_finder_script_xshift module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.ui.stitch_algorithms.util.html#module-PyLOSt.ui.stitch_algorithms.util.remove_best_ellipse">PyLOSt.ui.stitch_algorithms.util.remove_best_ellipse module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.ui.stitch_algorithms.util.html#module-PyLOSt.ui.stitch_algorithms.util.slp2hgt">PyLOSt.ui.stitch_algorithms.util.slp2hgt module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.ui.stitch_algorithms.util.html#module-PyLOSt.ui.stitch_algorithms.util.util_fast">PyLOSt.ui.stitch_algorithms.util.util_fast module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.ui.stitch_algorithms.util.html#module-PyLOSt.ui.stitch_algorithms.util.util_stitching">PyLOSt.ui.stitch_algorithms.util.util_stitching module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.ui.stitch_algorithms.util.html#module-PyLOSt.ui.stitch_algorithms.util">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="module-PyLOSt.ui.stitch_algorithms.global_optimization">
+<span id="pylost-ui-stitch-algorithms-global-optimization-module"></span><h2>PyLOSt.ui.stitch_algorithms.global_optimization module<a class="headerlink" href="#module-PyLOSt.ui.stitch_algorithms.global_optimization" title="Permalink to this headline">¶</a></h2>
+<p>Created on Apr 9, 2018</p>
+<p>Global optimization method uses all the overlaps above a threshold and creates an optimization function of overlap errors.
+In the SIMPLE mode the overlap errors are averaged over all pixels for each overlap, and in FULL mode all the pixels are used in optimization function</p>
+<p>&#64;author: ADAPA</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization.GlobalOptimization">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">PyLOSt.ui.stitch_algorithms.global_optimization.</span></span><span class="sig-name descname"><span class="pre">GlobalOptimization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stitchPath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/global_optimization.html#GlobalOptimization"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization.GlobalOptimization" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization.GlobalOptimization.avgScans">
+<span class="sig-name descname"><span class="pre">avgScans</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mXArr</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/global_optimization.html#GlobalOptimization.avgScans"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization.GlobalOptimization.avgScans" title="Permalink to this definition">¶</a></dt>
+<dd><p>Average stitched scans</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>mXArr</strong> – Translation offset array</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization.GlobalOptimization.buildOverlapErrors">
+<span class="sig-name descname"><span class="pre">buildOverlapErrors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">oXArr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pat_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res_szY</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res_szX</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">otype</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/global_optimization.html#GlobalOptimization.buildOverlapErrors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization.GlobalOptimization.buildOverlapErrors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overlap errors are retrieved as numpy ndarray and correctors are calculated</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>oXArr</strong> – Translation offset array. Steps are in pixels</p></li>
+<li><p><strong>pat_arr</strong> – Subaperture slope/height array</p></li>
+<li><p><strong>mask_arr</strong> – Mask array with same shape as pat_arr</p></li>
+<li><p><strong>res_szY</strong> – Stitched result data size Y</p></li>
+<li><p><strong>res_szX</strong> – Stitched result data size X</p></li>
+<li><p><strong>otype</strong> – Sata object type, ‘sx’ for slopes X, ‘sy’ for slopes Y, ‘h’ for height</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Correctors, valid subapertures, subaperture data array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization.GlobalOptimization.correctAndJoin">
+<span class="sig-name descname"><span class="pre">correctAndJoin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sarr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">otype</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/global_optimization.html#GlobalOptimization.correctAndJoin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization.GlobalOptimization.correctAndJoin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply corrections and join the subapertures</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>c</strong> – Correctors</p></li>
+<li><p><strong>sarr</strong> – Subaperture array</p></li>
+<li><p><strong>otype</strong> – Data type - slope/height</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Stitched image</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization.GlobalOptimization.errfunc_h">
+<span class="sig-name descname"><span class="pre">errfunc_h</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sh_P</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dS</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xx_p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yy_p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validOverlaps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_ov_cnt</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/global_optimization.html#GlobalOptimization.errfunc_h"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization.GlobalOptimization.errfunc_h" title="Permalink to this definition">¶</a></dt>
+<dd><p>Error function to be optimized for height data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>P</strong> – Corrector array flattened</p></li>
+<li><p><strong>sh_P</strong> – Shape of correctors</p></li>
+<li><p><strong>A</strong> – IndexMatrix</p></li>
+<li><p><strong>dS</strong> – Height difference</p></li>
+<li><p><strong>xx_p</strong> – X-grid values for each overlap</p></li>
+<li><p><strong>yy_p</strong> – Y-grid values for each overlap</p></li>
+<li><p><strong>validOverlaps</strong> – Valid overlaps</p></li>
+<li><p><strong>max_k</strong> – Maximum order of overlap difference i.e. there exist a overlap between j, j+k subapertures satisfying minimum overlap condition</p></li>
+<li><p><strong>max_ov_cnt</strong> – Maxim number of overlaps for a given max_k. Actual number may be less if the translation step is not constant</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization.GlobalOptimization.errfunc_slp">
+<span class="sig-name descname"><span class="pre">errfunc_slp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dS</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/global_optimization.html#GlobalOptimization.errfunc_slp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization.GlobalOptimization.errfunc_slp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Error function to be optimized for slope data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>P</strong> – Corrector array</p></li>
+<li><p><strong>A</strong> – IndexMatrix</p></li>
+<li><p><strong>dS</strong> – Slope difference</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization.GlobalOptimization.getCorrectors">
+<span class="sig-name descname"><span class="pre">getCorrectors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sarr_diff</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sarr_ret</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">otype</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validOverlaps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_ov_cnt</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/global_optimization.html#GlobalOptimization.getCorrectors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization.GlobalOptimization.getCorrectors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optimize for correctors where overlap error between subaperture is minimum</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>P0</strong> – Initial correctors</p></li>
+<li><p><strong>A</strong> – Matrix containing subapertures indices in a overlap - IndexMatrix</p></li>
+<li><p><strong>sarr_diff</strong> – Overlap error array</p></li>
+<li><p><strong>sarr_ret</strong> – Subaperture array</p></li>
+<li><p><strong>otype</strong> – Data type slope(X/Y)/height</p></li>
+<li><p><strong>validOverlaps</strong> – Valid overlaps</p></li>
+<li><p><strong>max_k</strong> – Maximum order of overlap difference i.e. there exist a overlap between j, j+k subapertures satisfying minimum overlap condition</p></li>
+<li><p><strong>max_ov_cnt</strong> – Maxim number of overlaps for a given max_k. Actual number may be less if the translation step is not constant</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Optimized correctors</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization.GlobalOptimization.initAdv">
+<span class="sig-name descname"><span class="pre">initAdv</span></span><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization.GlobalOptimization.initAdv" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization.GlobalOptimization.isSlopeStitch">
+<span class="sig-name descname"><span class="pre">isSlopeStitch</span></span><em class="property"> <span class="pre">=</span> <span class="pre">True</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization.GlobalOptimization.isSlopeStitch" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization.GlobalOptimization.method">
+<span class="sig-name descname"><span class="pre">method</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'LS'</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization.GlobalOptimization.method" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization.GlobalOptimization.minOverlap">
+<span class="sig-name descname"><span class="pre">minOverlap</span></span><em class="property"> <span class="pre">=</span> <span class="pre">0.6</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization.GlobalOptimization.minOverlap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization.GlobalOptimization.optValMethod">
+<span class="sig-name descname"><span class="pre">optValMethod</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'SIMPLE'</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization.GlobalOptimization.optValMethod" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization.GlobalOptimization.post_process">
+<span class="sig-name descname"><span class="pre">post_process</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'none'</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization.GlobalOptimization.post_process" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization.GlobalOptimization.preFiltArr">
+<span class="sig-name descname"><span class="pre">preFiltArr</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[False,</span> <span class="pre">False,</span> <span class="pre">False,</span> <span class="pre">False,</span> <span class="pre">False,</span> <span class="pre">False]</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization.GlobalOptimization.preFiltArr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization.GlobalOptimization.removeOutlierPatches">
+<span class="sig-name descname"><span class="pre">removeOutlierPatches</span></span><em class="property"> <span class="pre">=</span> <span class="pre">True</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization.GlobalOptimization.removeOutlierPatches" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization.GlobalOptimization.saveMidResults">
+<span class="sig-name descname"><span class="pre">saveMidResults</span></span><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization.GlobalOptimization.saveMidResults" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization.GlobalOptimization.showPlots">
+<span class="sig-name descname"><span class="pre">showPlots</span></span><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization.GlobalOptimization.showPlots" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization.GlobalOptimization.stitch">
+<span class="sig-name descname"><span class="pre">stitch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/global_optimization.html#GlobalOptimization.stitch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization.GlobalOptimization.stitch" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization.GlobalOptimization.stitch1DImage">
+<span class="sig-name descname"><span class="pre">stitch1DImage</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/global_optimization.html#GlobalOptimization.stitch1DImage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization.GlobalOptimization.stitch1DImage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stitching function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization.GlobalOptimization.updateParams">
+<span class="sig-name descname"><span class="pre">updateParams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5StAttrs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/global_optimization.html#GlobalOptimization.updateParams"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization.GlobalOptimization.updateParams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve algorithm options</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>h5StAttrs</strong> – Stitching group attributes has the algorithm options</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization.GlobalOptimization.useFullImages">
+<span class="sig-name descname"><span class="pre">useFullImages</span></span><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization.GlobalOptimization.useFullImages" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization.GlobalOptimization.useRefMeasureData">
+<span class="sig-name descname"><span class="pre">useRefMeasureData</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'none'</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization.GlobalOptimization.useRefMeasureData" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization.GlobalOptimization.use_ref_exclude_nb_edge_subaps">
+<span class="sig-name descname"><span class="pre">use_ref_exclude_nb_edge_subaps</span></span><em class="property"> <span class="pre">=</span> <span class="pre">0</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization.GlobalOptimization.use_ref_exclude_nb_edge_subaps" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-PyLOSt.ui.stitch_algorithms.global_optimization_fast">
+<span id="pylost-ui-stitch-algorithms-global-optimization-fast-module"></span><h2>PyLOSt.ui.stitch_algorithms.global_optimization_fast module<a class="headerlink" href="#module-PyLOSt.ui.stitch_algorithms.global_optimization_fast" title="Permalink to this headline">¶</a></h2>
+<p>Created on Mar 9, 2019</p>
+<p>Global optimization method uses all the overlaps above a threshold and creates an optimization function of overlap errors.
+In the SIMPLE mode the overlap errors are averaged over all pixels for each overlap, and in FULL mode all the pixels are used in optimization function</p>
+<p>&#64;author: ADAPA</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">PyLOSt.ui.stitch_algorithms.global_optimization_fast.</span></span><span class="sig-name descname"><span class="pre">GlobalOptimizationFast</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stitchPath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/global_optimization_fast.html#GlobalOptimizationFast"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.avgScans">
+<span class="sig-name descname"><span class="pre">avgScans</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mXArr</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/global_optimization_fast.html#GlobalOptimizationFast.avgScans"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.avgScans" title="Permalink to this definition">¶</a></dt>
+<dd><p>Average stitched scans</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>mXArr</strong> – Translation offset array</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.bin_size_x">
+<span class="sig-name descname"><span class="pre">bin_size_x</span></span><em class="property"> <span class="pre">=</span> <span class="pre">4</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.bin_size_x" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.bin_size_y">
+<span class="sig-name descname"><span class="pre">bin_size_y</span></span><em class="property"> <span class="pre">=</span> <span class="pre">4</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.bin_size_y" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.buildOverlapErrors">
+<span class="sig-name descname"><span class="pre">buildOverlapErrors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">oXArr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pat_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res_szY</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res_szX</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">otype</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/global_optimization_fast.html#GlobalOptimizationFast.buildOverlapErrors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.buildOverlapErrors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overlap errors are retrieved as numpy ndarray and correctors are calculated</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>oXArr</strong> – Translation offset array in pixels</p></li>
+<li><p><strong>pat_arr</strong> – Subaperture slope/height array</p></li>
+<li><p><strong>mask_arr</strong> – Mask array with same shape as pat_arr</p></li>
+<li><p><strong>res_szY</strong> – Stitched result data size Y</p></li>
+<li><p><strong>res_szX</strong> – Stitched result data size X</p></li>
+<li><p><strong>otype</strong> – Sata object type, ‘sx’ for slopes X, ‘sy’ for slopes Y, ‘h’ for height</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Correctors, valid subapertures, subaperture data array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.correctAndJoin">
+<span class="sig-name descname"><span class="pre">correctAndJoin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sarr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">otype</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oXArr</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/global_optimization_fast.html#GlobalOptimizationFast.correctAndJoin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.correctAndJoin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply corrections and join the subapertures</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>c</strong> – Correctors</p></li>
+<li><p><strong>sarr</strong> – Subaperture array</p></li>
+<li><p><strong>otype</strong> – Data type - slope/height</p></li>
+<li><p><strong>oXArr</strong> – Translation offset array</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Stitched image</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.errfunc_h">
+<span class="sig-name descname"><span class="pre">errfunc_h</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sh_P</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dS</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xx_p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yy_p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validOverlaps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_ov_cnt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oXArr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat_shift</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PX_d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PY_d</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/global_optimization_fast.html#GlobalOptimizationFast.errfunc_h"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.errfunc_h" title="Permalink to this definition">¶</a></dt>
+<dd><p>Error function to be optimized for height data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>P</strong> – Corrector array flattened</p></li>
+<li><p><strong>sh_P</strong> – Shape of correctors</p></li>
+<li><p><strong>A</strong> – IndexMatrix</p></li>
+<li><p><strong>dS</strong> – Height difference</p></li>
+<li><p><strong>xx_p</strong> – X-grid values for each overlap</p></li>
+<li><p><strong>yy_p</strong> – Y-grid values for each overlap</p></li>
+<li><p><strong>validOverlaps</strong> – Valid overlaps</p></li>
+<li><p><strong>max_k</strong> – Maximum order of overlap difference i.e. there exist a overlap between j, j+k subapertures satisfying minimum overlap condition</p></li>
+<li><p><strong>max_ov_cnt</strong> – Maxim number of overlaps for a given max_k. Actual number may be less if the translation step is not constant</p></li>
+<li><p><strong>oXArr</strong> – Translation offset array</p></li>
+<li><p><strong>mat_shift</strong> – </p></li>
+<li><p><strong>PX_d</strong> – </p></li>
+<li><p><strong>PY_d</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.errfunc_slp">
+<span class="sig-name descname"><span class="pre">errfunc_slp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dS</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/global_optimization_fast.html#GlobalOptimizationFast.errfunc_slp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.errfunc_slp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Error function to be optimized for slope data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>P</strong> – Corrector array</p></li>
+<li><p><strong>A</strong> – IndexMatrix</p></li>
+<li><p><strong>dS</strong> – Slope difference</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.filtBadPix">
+<span class="sig-name descname"><span class="pre">filtBadPix</span></span><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.filtBadPix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.filtBadPixMaxStd">
+<span class="sig-name descname"><span class="pre">filtBadPixMaxStd</span></span><em class="property"> <span class="pre">=</span> <span class="pre">3</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.filtBadPixMaxStd" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.getCorrectionMap">
+<span class="sig-name descname"><span class="pre">getCorrectionMap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xx_j</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yy_j</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/global_optimization_fast.html#GlobalOptimizationFast.getCorrectionMap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.getCorrectionMap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get correcion map for j’th subaperture</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cj</strong> – jth corrector</p></li>
+<li><p><strong>xx_j</strong> – X-grid postions</p></li>
+<li><p><strong>yy_j</strong> – Y-grid postions</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.getCorrectors">
+<span class="sig-name descname"><span class="pre">getCorrectors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sarr_diff</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sarr_ret</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">otype</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validOverlaps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_ov_cnt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oXArr</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/global_optimization_fast.html#GlobalOptimizationFast.getCorrectors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.getCorrectors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optimize for correctors where overlap error between subaperture is minimum</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>P0</strong> – Initial correctors</p></li>
+<li><p><strong>A</strong> – Matrix containing subapertures indices in a overlap - IndexMatrix</p></li>
+<li><p><strong>sarr_diff</strong> – Overlap error array</p></li>
+<li><p><strong>sarr_ret</strong> – Subaperture array</p></li>
+<li><p><strong>otype</strong> – Data type slope(X/Y)/height</p></li>
+<li><p><strong>validOverlaps</strong> – Valid overlaps</p></li>
+<li><p><strong>max_k</strong> – Maximum order of overlap difference i.e. there exist a overlap between j, j+k subapertures satisfying minimum overlap condition</p></li>
+<li><p><strong>max_ov_cnt</strong> – Maxim number of overlaps for a given max_k. Actual number may be less if the translation step is not constant</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Optimized correctors</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.getXY">
+<span class="sig-name descname"><span class="pre">getXY</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sarr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pix_sz</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oXArr</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/global_optimization_fast.html#GlobalOptimizationFast.getXY"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.getXY" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get XY grid of subapertures in mirror coordinates</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sarr</strong> – </p></li>
+<li><p><strong>pix_sz</strong> – </p></li>
+<li><p><strong>oXArr</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.initAdv">
+<span class="sig-name descname"><span class="pre">initAdv</span></span><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.initAdv" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.isSlopeStitch">
+<span class="sig-name descname"><span class="pre">isSlopeStitch</span></span><em class="property"> <span class="pre">=</span> <span class="pre">True</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.isSlopeStitch" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.maskByThreshold">
+<span class="sig-name descname"><span class="pre">maskByThreshold</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">carr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oarr</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/global_optimization_fast.html#GlobalOptimizationFast.maskByThreshold"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.maskByThreshold" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply a threshold on subaperture values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>carr</strong> – Corrected subapertures</p></li>
+<li><p><strong>oarr</strong> – Original subapertures</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Corrected subapertures after threshold</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.method">
+<span class="sig-name descname"><span class="pre">method</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'LS'</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.method" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.minOverlap">
+<span class="sig-name descname"><span class="pre">minOverlap</span></span><em class="property"> <span class="pre">=</span> <span class="pre">0.6</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.minOverlap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.oeType">
+<span class="sig-name descname"><span class="pre">oeType</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'SIMPLE'</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.oeType" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.post_process">
+<span class="sig-name descname"><span class="pre">post_process</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'none'</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.post_process" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.preFiltArr">
+<span class="sig-name descname"><span class="pre">preFiltArr</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[False,</span> <span class="pre">False,</span> <span class="pre">False,</span> <span class="pre">False,</span> <span class="pre">False,</span> <span class="pre">False]</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.preFiltArr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.removeOutlierPatches">
+<span class="sig-name descname"><span class="pre">removeOutlierPatches</span></span><em class="property"> <span class="pre">=</span> <span class="pre">True</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.removeOutlierPatches" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.saveMidResults">
+<span class="sig-name descname"><span class="pre">saveMidResults</span></span><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.saveMidResults" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.showPlots">
+<span class="sig-name descname"><span class="pre">showPlots</span></span><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.showPlots" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.stitch">
+<span class="sig-name descname"><span class="pre">stitch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/global_optimization_fast.html#GlobalOptimizationFast.stitch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.stitch" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.stitch1DImage">
+<span class="sig-name descname"><span class="pre">stitch1DImage</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/global_optimization_fast.html#GlobalOptimizationFast.stitch1DImage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.stitch1DImage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stitching function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.updateParams">
+<span class="sig-name descname"><span class="pre">updateParams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5StAttrs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/global_optimization_fast.html#GlobalOptimizationFast.updateParams"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.updateParams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve algorithm options</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>h5StAttrs</strong> – Stitching group attributes has the algorithm options</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.useFullImages">
+<span class="sig-name descname"><span class="pre">useFullImages</span></span><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.useFullImages" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.useRefMeasureData">
+<span class="sig-name descname"><span class="pre">useRefMeasureData</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'none'</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.useRefMeasureData" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.useThreshold">
+<span class="sig-name descname"><span class="pre">useThreshold</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'none'</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.useThreshold" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.use_binning_opt">
+<span class="sig-name descname"><span class="pre">use_binning_opt</span></span><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.use_binning_opt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.use_ref_exclude_nb_edge_subaps">
+<span class="sig-name descname"><span class="pre">use_ref_exclude_nb_edge_subaps</span></span><em class="property"> <span class="pre">=</span> <span class="pre">0</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.global_optimization_fast.GlobalOptimizationFast.use_ref_exclude_nb_edge_subaps" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch">
+<span id="pylost-ui-stitch-algorithms-matrix-overlaperr-stitch-module"></span><h2>PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch module<a class="headerlink" href="#module-PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch" title="Permalink to this headline">¶</a></h2>
+<p>Created on Apr 9, 2018</p>
+<p>Overlaps are fit to plane and the piston/pithc/roll errors between the subapertures are extracted.
+From this data piston/pithc/roll correction needed for each subaperture is determined using matrix techniques of solving linear equations</p>
+<p>&#64;author: ADAPA</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.</span></span><span class="sig-name descname"><span class="pre">MatrixOverlapErrStitch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stitchPath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/matrix_overlaperr_stitch.html#MatrixOverlapErrStitch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.avgScans">
+<span class="sig-name descname"><span class="pre">avgScans</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mXArr</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/matrix_overlaperr_stitch.html#MatrixOverlapErrStitch.avgScans"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.avgScans" title="Permalink to this definition">¶</a></dt>
+<dd><p>Average stitched scans</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>mXArr</strong> – Translation offset array</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.buildAforExtractRef">
+<span class="sig-name descname"><span class="pre">buildAforExtractRef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yv</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/matrix_overlaperr_stitch.html#MatrixOverlapErrStitch.buildAforExtractRef"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.buildAforExtractRef" title="Permalink to this definition">¶</a></dt>
+<dd><p>Expand index matrix to extract reference from measured data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>A</strong> – IndexMatrix</p></li>
+<li><p><strong>xv</strong> – X-grid data in reference coordinates</p></li>
+<li><p><strong>yv</strong> – Y-grid data in reference coordinates</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Expanded index matrix</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.buildOverlapErrors">
+<span class="sig-name descname"><span class="pre">buildOverlapErrors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">oXArr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pat_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res_szY</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res_szX</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">otype</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/matrix_overlaperr_stitch.html#MatrixOverlapErrStitch.buildOverlapErrors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.buildOverlapErrors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overlap errors are retrieved as numpy ndarray</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>oXArr</strong> – Translation offset array. Steps are in pixels</p></li>
+<li><p><strong>pat_arr</strong> – Subaperture slope/height array</p></li>
+<li><p><strong>mask_arr</strong> – Mask array with same shape as pat_arr</p></li>
+<li><p><strong>res_szY</strong> – Stitched result data size Y</p></li>
+<li><p><strong>res_szX</strong> – Stitched result data size X</p></li>
+<li><p><strong>otype</strong> – Sata object type, ‘sx’ for slopes X, ‘sy’ for slopes Y, ‘h’ for height</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>IndexMatrix, overlap errors, valid overlaps, valid subapertures, subaperture data array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.correctAndJoin">
+<span class="sig-name descname"><span class="pre">correctAndJoin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sarr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">otype</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h5fi</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/matrix_overlaperr_stitch.html#MatrixOverlapErrStitch.correctAndJoin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.correctAndJoin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply corrections and join the subapertures</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>c</strong> – Correctors</p></li>
+<li><p><strong>sarr</strong> – Subaperture array</p></li>
+<li><p><strong>otype</strong> – Data type - slope/height</p></li>
+<li><p><strong>h5fi</strong> – H5 stitched object</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Stitched image</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.degRef">
+<span class="sig-name descname"><span class="pre">degRef</span></span><em class="property"> <span class="pre">=</span> <span class="pre">15</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.degRef" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.filtBadPix">
+<span class="sig-name descname"><span class="pre">filtBadPix</span></span><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.filtBadPix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.filtBadPixMaxStd">
+<span class="sig-name descname"><span class="pre">filtBadPixMaxStd</span></span><em class="property"> <span class="pre">=</span> <span class="pre">3</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.filtBadPixMaxStd" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.getCorrectorsFullOE">
+<span class="sig-name descname"><span class="pre">getCorrectorsFullOE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">E</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validPat</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/matrix_overlaperr_stitch.html#MatrixOverlapErrStitch.getCorrectorsFullOE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.getCorrectorsFullOE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get correctors when all pixels in the overlap are used</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>A</strong> – IndexMatrix</p></li>
+<li><p><strong>E</strong> – Overlap errors array</p></li>
+<li><p><strong>validPat</strong> – Valid subapertures</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Correctors array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.invType">
+<span class="sig-name descname"><span class="pre">invType</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'SVD'</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.invType" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.isSlopeStitch">
+<span class="sig-name descname"><span class="pre">isSlopeStitch</span></span><em class="property"> <span class="pre">=</span> <span class="pre">True</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.isSlopeStitch" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.maskByThreshold">
+<span class="sig-name descname"><span class="pre">maskByThreshold</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">carr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oarr</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/matrix_overlaperr_stitch.html#MatrixOverlapErrStitch.maskByThreshold"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.maskByThreshold" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply a threshold on subaperture values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>carr</strong> – Corrected subapertures</p></li>
+<li><p><strong>oarr</strong> – Original subapertures</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Corrected subapertures after threshold</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.minOverlap">
+<span class="sig-name descname"><span class="pre">minOverlap</span></span><em class="property"> <span class="pre">=</span> <span class="pre">0.6</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.minOverlap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.oeType">
+<span class="sig-name descname"><span class="pre">oeType</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'PF'</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.oeType" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.post_process">
+<span class="sig-name descname"><span class="pre">post_process</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'ref_cv'</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.post_process" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.preFiltArr">
+<span class="sig-name descname"><span class="pre">preFiltArr</span></span><em class="property"> <span class="pre">=</span> <span class="pre">array([False,</span> <span class="pre">False,</span> <span class="pre">False,</span> <span class="pre">False,</span> <span class="pre">False,</span> <span class="pre">False])</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.preFiltArr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.removeGloabalTilt">
+<span class="sig-name descname"><span class="pre">removeGloabalTilt</span></span><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.removeGloabalTilt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.removeOutlierPatches">
+<span class="sig-name descname"><span class="pre">removeOutlierPatches</span></span><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.removeOutlierPatches" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.saveMidResults">
+<span class="sig-name descname"><span class="pre">saveMidResults</span></span><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.saveMidResults" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.startDegRef">
+<span class="sig-name descname"><span class="pre">startDegRef</span></span><em class="property"> <span class="pre">=</span> <span class="pre">3</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.startDegRef" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.stitch">
+<span class="sig-name descname"><span class="pre">stitch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/matrix_overlaperr_stitch.html#MatrixOverlapErrStitch.stitch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.stitch" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.stitch1DImage">
+<span class="sig-name descname"><span class="pre">stitch1DImage</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/matrix_overlaperr_stitch.html#MatrixOverlapErrStitch.stitch1DImage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.stitch1DImage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stitching function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.stitchHeights">
+<span class="sig-name descname"><span class="pre">stitchHeights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5si</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h5fi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subRefFlag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mXArr_rp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res_szY</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res_szX</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instrScale</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/matrix_overlaperr_stitch.html#MatrixOverlapErrStitch.stitchHeights"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.stitchHeights" title="Permalink to this definition">¶</a></dt>
+<dd><p>Height stitching function on i-th scan</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>h5si</strong> – H5 scan object containing subaperture data of i-th scan</p></li>
+<li><p><strong>h5fi</strong> – H5 stitched object</p></li>
+<li><p><strong>subRefFlag</strong> – Subtract reference flag</p></li>
+<li><p><strong>mask</strong> – Subaperture mask array</p></li>
+<li><p><strong>mXArr_rp</strong> – Translation offset array in pixels</p></li>
+<li><p><strong>res_szY</strong> – Stitched result size Y</p></li>
+<li><p><strong>res_szX</strong> – Stitched result size X</p></li>
+<li><p><strong>instrScale</strong> – Instrument scaling factor</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>H5 stitched object (h5fi), correctors</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.stitchSlopes">
+<span class="sig-name descname"><span class="pre">stitchSlopes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5si</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h5fi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subRefFlag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mXArr_rp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res_szY</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res_szX</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instrScale</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/matrix_overlaperr_stitch.html#MatrixOverlapErrStitch.stitchSlopes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.stitchSlopes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Slopes stitching function on i-th scan</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>h5si</strong> – H5 scan object containing subaperture data of i-th scan</p></li>
+<li><p><strong>h5fi</strong> – H5 stitched object</p></li>
+<li><p><strong>subRefFlag</strong> – Subtract reference flag</p></li>
+<li><p><strong>mask</strong> – Subaperture mask array</p></li>
+<li><p><strong>mXArr_rp</strong> – Translation offset array in pixels</p></li>
+<li><p><strong>res_szY</strong> – Stitched result size Y</p></li>
+<li><p><strong>res_szX</strong> – Stitched result size X</p></li>
+<li><p><strong>instrScale</strong> – Instrument scaling factor</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>H5 stitched object (h5fi), correctors</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.thrMax">
+<span class="sig-name descname"><span class="pre">thrMax</span></span><em class="property"> <span class="pre">=</span> <span class="pre">0</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.thrMax" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.thrMin">
+<span class="sig-name descname"><span class="pre">thrMin</span></span><em class="property"> <span class="pre">=</span> <span class="pre">0</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.thrMin" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.updateParams">
+<span class="sig-name descname"><span class="pre">updateParams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5StAttrs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/matrix_overlaperr_stitch.html#MatrixOverlapErrStitch.updateParams"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.updateParams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve algorithm options</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>h5StAttrs</strong> – Stitching group attributes has the algorithm options</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.useFullImages">
+<span class="sig-name descname"><span class="pre">useFullImages</span></span><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.useFullImages" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.useRefMeasureData">
+<span class="sig-name descname"><span class="pre">useRefMeasureData</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'none'</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.useRefMeasureData" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.useThreshold">
+<span class="sig-name descname"><span class="pre">useThreshold</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'none'</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.useThreshold" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast">
+<span id="pylost-ui-stitch-algorithms-matrix-overlaperr-stitch-fast-module"></span><h2>PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast module<a class="headerlink" href="#module-PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast" title="Permalink to this headline">¶</a></h2>
+<p>Created on Mar 9, 2019</p>
+<p>Overlaps are fit to plane and the piston/pithc/roll errors between the subapertures are extracted.
+From this data piston/pithc/roll correction needed for each subaperture is determined using matrix techniques of solving linear equations.</p>
+<p>&#64;author: ADAPA</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.</span></span><span class="sig-name descname"><span class="pre">MatrixOverlapErrStitchFast</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stitchPath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/matrix_overlaperr_stitch_fast.html#MatrixOverlapErrStitchFast"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.appTxB">
+<span class="sig-name descname"><span class="pre">appTxB</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.appTxB" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.appTxF">
+<span class="sig-name descname"><span class="pre">appTxF</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.appTxF" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.appTyB">
+<span class="sig-name descname"><span class="pre">appTyB</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.appTyB" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.appTyF">
+<span class="sig-name descname"><span class="pre">appTyF</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.appTyF" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.avgScans">
+<span class="sig-name descname"><span class="pre">avgScans</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mXArr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tot_scan_cnt</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/matrix_overlaperr_stitch_fast.html#MatrixOverlapErrStitchFast.avgScans"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.avgScans" title="Permalink to this definition">¶</a></dt>
+<dd><p>Average stitched scans</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>mXArr</strong> – Translation offset array</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.avg_scanwise_subap">
+<span class="sig-name descname"><span class="pre">avg_scanwise_subap</span></span><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.avg_scanwise_subap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.bin_size_x">
+<span class="sig-name descname"><span class="pre">bin_size_x</span></span><em class="property"> <span class="pre">=</span> <span class="pre">4</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.bin_size_x" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.bin_size_y">
+<span class="sig-name descname"><span class="pre">bin_size_y</span></span><em class="property"> <span class="pre">=</span> <span class="pre">4</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.bin_size_y" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.buildCforExtractRef">
+<span class="sig-name descname"><span class="pre">buildCforExtractRef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yv</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/matrix_overlaperr_stitch_fast.html#MatrixOverlapErrStitchFast.buildCforExtractRef"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.buildCforExtractRef" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.buildCforExtractRefLegendre">
+<span class="sig-name descname"><span class="pre">buildCforExtractRefLegendre</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yv</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/matrix_overlaperr_stitch_fast.html#MatrixOverlapErrStitchFast.buildCforExtractRefLegendre"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.buildCforExtractRefLegendre" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.buildCforExtractRefPoly">
+<span class="sig-name descname"><span class="pre">buildCforExtractRefPoly</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yv</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/matrix_overlaperr_stitch_fast.html#MatrixOverlapErrStitchFast.buildCforExtractRefPoly"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.buildCforExtractRefPoly" title="Permalink to this definition">¶</a></dt>
+<dd><p>Expand index matrix to extract reference from measured data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> – IndexMatrix i-th overlap row</p></li>
+<li><p><strong>a_i</strong> – Pixelwise IndexMatrix i-th overlap rows</p></li>
+<li><p><strong>xv</strong> – X-grid data in reference coordinates</p></li>
+<li><p><strong>yv</strong> – Y-grid data in reference coordinates</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Polynomial term matrix with shape (size of subap valid pixels, num of terms)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.buildOverlapErrors">
+<span class="sig-name descname"><span class="pre">buildOverlapErrors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">oXArr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pat_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res_szY</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res_szX</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">otype</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/matrix_overlaperr_stitch_fast.html#MatrixOverlapErrStitchFast.buildOverlapErrors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.buildOverlapErrors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overlap errors are retrieved as numpy ndarray</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>oXArr</strong> – Translation offset array in pixels</p></li>
+<li><p><strong>pat_arr</strong> – Subaperture slope/height array</p></li>
+<li><p><strong>mask_arr</strong> – Mask array with same shape as pat_arr</p></li>
+<li><p><strong>res_szY</strong> – Stitched result data size Y</p></li>
+<li><p><strong>res_szX</strong> – Stitched result data size X</p></li>
+<li><p><strong>otype</strong> – Sata object type, ‘sx’ for slopes X, ‘sy’ for slopes Y, ‘h’ for height</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>IndexMatrix, overlap errors, valid overlaps, valid subapertures, subaperture data array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.calSx">
+<span class="sig-name descname"><span class="pre">calSx</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.calSx" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.calSxErr">
+<span class="sig-name descname"><span class="pre">calSxErr</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.calSxErr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.calSyErr">
+<span class="sig-name descname"><span class="pre">calSyErr</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[]</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.calSyErr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.correctAndJoin">
+<span class="sig-name descname"><span class="pre">correctAndJoin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sarr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">otype</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h5fi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oXArr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C_ref</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/matrix_overlaperr_stitch_fast.html#MatrixOverlapErrStitchFast.correctAndJoin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.correctAndJoin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply corrections and join the subapertures</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>c</strong> – Correctors</p></li>
+<li><p><strong>sarr</strong> – Subaperture array</p></li>
+<li><p><strong>otype</strong> – Data type - slope/height</p></li>
+<li><p><strong>h5fi</strong> – H5 stitched object</p></li>
+<li><p><strong>oXArr</strong> – Translation offset array</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Stitched image</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.degRef">
+<span class="sig-name descname"><span class="pre">degRef</span></span><em class="property"> <span class="pre">=</span> <span class="pre">10</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.degRef" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.deg_to_mrad">
+<span class="sig-name descname"><span class="pre">deg_to_mrad</span></span><em class="property"> <span class="pre">=</span> <span class="pre">17.4533</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.deg_to_mrad" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.extrRefType">
+<span class="sig-name descname"><span class="pre">extrRefType</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'poly'</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.extrRefType" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.filtBadPix">
+<span class="sig-name descname"><span class="pre">filtBadPix</span></span><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.filtBadPix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.filtBadPixMaxStd">
+<span class="sig-name descname"><span class="pre">filtBadPixMaxStd</span></span><em class="property"> <span class="pre">=</span> <span class="pre">3</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.filtBadPixMaxStd" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.getCorrectionMap">
+<span class="sig-name descname"><span class="pre">getCorrectionMap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xx_j</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yy_j</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/matrix_overlaperr_stitch_fast.html#MatrixOverlapErrStitchFast.getCorrectionMap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.getCorrectionMap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get correcion map for j’th subaperture</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cj</strong> – jth corrector</p></li>
+<li><p><strong>xx_j</strong> – X-grid postions</p></li>
+<li><p><strong>yy_j</strong> – Y-grid postions</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.getCorrectionReference">
+<span class="sig-name descname"><span class="pre">getCorrectionReference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c_ref</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yy</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/matrix_overlaperr_stitch_fast.html#MatrixOverlapErrStitchFast.getCorrectionReference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.getCorrectionReference" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.getCorrectionReferenceLegendre">
+<span class="sig-name descname"><span class="pre">getCorrectionReferenceLegendre</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c_ref</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yy</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/matrix_overlaperr_stitch_fast.html#MatrixOverlapErrStitchFast.getCorrectionReferenceLegendre"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.getCorrectionReferenceLegendre" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.getCorrectionReferencePoly">
+<span class="sig-name descname"><span class="pre">getCorrectionReferencePoly</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c_ref</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yy</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/matrix_overlaperr_stitch_fast.html#MatrixOverlapErrStitchFast.getCorrectionReferencePoly"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.getCorrectionReferencePoly" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>c_ref</strong> – reference coefficients</p></li>
+<li><p><strong>xx</strong> – reference x grid</p></li>
+<li><p><strong>yy</strong> – reference y grid</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>reference map</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.getCorrectorsFullOE">
+<span class="sig-name descname"><span class="pre">getCorrectorsFullOE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">E</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validPat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oXArr</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/matrix_overlaperr_stitch_fast.html#MatrixOverlapErrStitchFast.getCorrectorsFullOE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.getCorrectorsFullOE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get correctors when all pixels in the overlap are used</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>A</strong> – IndexMatrix</p></li>
+<li><p><strong>E</strong> – Overlap errors array</p></li>
+<li><p><strong>validPat</strong> – Valid subapertures</p></li>
+<li><p><strong>oXArr</strong> – Translation offset array</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Correctors array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.invType">
+<span class="sig-name descname"><span class="pre">invType</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'SVD'</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.invType" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.isSlopeStitch">
+<span class="sig-name descname"><span class="pre">isSlopeStitch</span></span><em class="property"> <span class="pre">=</span> <span class="pre">True</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.isSlopeStitch" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.maskByThreshold">
+<span class="sig-name descname"><span class="pre">maskByThreshold</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">carr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oarr</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/matrix_overlaperr_stitch_fast.html#MatrixOverlapErrStitchFast.maskByThreshold"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.maskByThreshold" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply a threshold on subaperture values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>carr</strong> – Corrected subapertures</p></li>
+<li><p><strong>oarr</strong> – Original subapertures</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Corrected subapertures after threshold</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.minOverlap">
+<span class="sig-name descname"><span class="pre">minOverlap</span></span><em class="property"> <span class="pre">=</span> <span class="pre">0.6</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.minOverlap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.oeType">
+<span class="sig-name descname"><span class="pre">oeType</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'PF'</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.oeType" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.post_process">
+<span class="sig-name descname"><span class="pre">post_process</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'ref_cv'</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.post_process" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.preFiltArr">
+<span class="sig-name descname"><span class="pre">preFiltArr</span></span><em class="property"> <span class="pre">=</span> <span class="pre">array([False,</span> <span class="pre">False,</span> <span class="pre">False,</span> <span class="pre">False,</span> <span class="pre">False,</span> <span class="pre">False])</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.preFiltArr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.removeGloabalTilt">
+<span class="sig-name descname"><span class="pre">removeGloabalTilt</span></span><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.removeGloabalTilt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.removeOutlierPatches">
+<span class="sig-name descname"><span class="pre">removeOutlierPatches</span></span><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.removeOutlierPatches" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.saveMidResults">
+<span class="sig-name descname"><span class="pre">saveMidResults</span></span><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.saveMidResults" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.showPlots">
+<span class="sig-name descname"><span class="pre">showPlots</span></span><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.showPlots" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.startDegRef">
+<span class="sig-name descname"><span class="pre">startDegRef</span></span><em class="property"> <span class="pre">=</span> <span class="pre">4</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.startDegRef" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.stitch">
+<span class="sig-name descname"><span class="pre">stitch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/matrix_overlaperr_stitch_fast.html#MatrixOverlapErrStitchFast.stitch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.stitch" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.stitch1DImage">
+<span class="sig-name descname"><span class="pre">stitch1DImage</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/matrix_overlaperr_stitch_fast.html#MatrixOverlapErrStitchFast.stitch1DImage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.stitch1DImage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stitching function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.stitchHeights">
+<span class="sig-name descname"><span class="pre">stitchHeights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5si</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h5fi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subRefFlag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mXArr_rp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res_szY</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res_szX</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instrScale</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/matrix_overlaperr_stitch_fast.html#MatrixOverlapErrStitchFast.stitchHeights"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.stitchHeights" title="Permalink to this definition">¶</a></dt>
+<dd><p>Height stitching function on i-th scan</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>h5si</strong> – H5 scan object containing subaperture data of i-th scan</p></li>
+<li><p><strong>h5fi</strong> – H5 stitched object</p></li>
+<li><p><strong>subRefFlag</strong> – Subtract reference flag</p></li>
+<li><p><strong>mask</strong> – Subaperture mask array</p></li>
+<li><p><strong>mXArr_rp</strong> – Translation offset array in pixels</p></li>
+<li><p><strong>res_szY</strong> – Stitched result size Y</p></li>
+<li><p><strong>res_szX</strong> – Stitched result size X</p></li>
+<li><p><strong>instrScale</strong> – Instrument scaling factor</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>H5 stitched object (h5fi), correctors</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.stitchSlopes">
+<span class="sig-name descname"><span class="pre">stitchSlopes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5si</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h5fi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subRefFlag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mXArr_rp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res_szY</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res_szX</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instrScale</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/matrix_overlaperr_stitch_fast.html#MatrixOverlapErrStitchFast.stitchSlopes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.stitchSlopes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Slopes stitching function on i-th scan</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>h5si</strong> – H5 scan object containing subaperture data of i-th scan</p></li>
+<li><p><strong>h5fi</strong> – H5 stitched object</p></li>
+<li><p><strong>subRefFlag</strong> – Subtract reference flag</p></li>
+<li><p><strong>mask</strong> – Subaperture mask array</p></li>
+<li><p><strong>mXArr_rp</strong> – Translation offset array in pixels</p></li>
+<li><p><strong>res_szY</strong> – Stitched result size Y</p></li>
+<li><p><strong>res_szX</strong> – Stitched result size X</p></li>
+<li><p><strong>instrScale</strong> – Instrument scaling factor</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>H5 stitched object (h5fi), correctors</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.thrMax">
+<span class="sig-name descname"><span class="pre">thrMax</span></span><em class="property"> <span class="pre">=</span> <span class="pre">0</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.thrMax" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.thrMin">
+<span class="sig-name descname"><span class="pre">thrMin</span></span><em class="property"> <span class="pre">=</span> <span class="pre">0</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.thrMin" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.totalIntensityNoise">
+<span class="sig-name descname"><span class="pre">totalIntensityNoise</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intensityArr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oXArr</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/matrix_overlaperr_stitch_fast.html#MatrixOverlapErrStitchFast.totalIntensityNoise"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.totalIntensityNoise" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.updateParams">
+<span class="sig-name descname"><span class="pre">updateParams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5StAttrs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/matrix_overlaperr_stitch_fast.html#MatrixOverlapErrStitchFast.updateParams"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.updateParams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve algorithm options</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>h5StAttrs</strong> – Stitching group attributes has the algorithm options</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.useFullImages">
+<span class="sig-name descname"><span class="pre">useFullImages</span></span><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.useFullImages" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.useRefMeasureData">
+<span class="sig-name descname"><span class="pre">useRefMeasureData</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'none'</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.useRefMeasureData" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.useThreshold">
+<span class="sig-name descname"><span class="pre">useThreshold</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'none'</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.useThreshold" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.use_applied_stage_tilt">
+<span class="sig-name descname"><span class="pre">use_applied_stage_tilt</span></span><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.use_applied_stage_tilt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.use_binning">
+<span class="sig-name descname"><span class="pre">use_binning</span></span><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.use_binning" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.use_calib_cor_x">
+<span class="sig-name descname"><span class="pre">use_calib_cor_x</span></span><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.use_calib_cor_x" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.use_calib_cor_y">
+<span class="sig-name descname"><span class="pre">use_calib_cor_y</span></span><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.use_calib_cor_y" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.use_calib_tilt_ref">
+<span class="sig-name descname"><span class="pre">use_calib_tilt_ref</span></span><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.use_calib_tilt_ref" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.use_ref_exclude_nb_edge_subaps">
+<span class="sig-name descname"><span class="pre">use_ref_exclude_nb_edge_subaps</span></span><em class="property"> <span class="pre">=</span> <span class="pre">0</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch_fast.MatrixOverlapErrStitchFast.use_ref_exclude_nb_edge_subaps" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-PyLOSt.ui.stitch_algorithms.progressive_stitch">
+<span id="pylost-ui-stitch-algorithms-progressive-stitch-module"></span><h2>PyLOSt.ui.stitch_algorithms.progressive_stitch module<a class="headerlink" href="#module-PyLOSt.ui.stitch_algorithms.progressive_stitch" title="Permalink to this headline">¶</a></h2>
+<p>Created on Apr 9, 2018</p>
+<p>Subapertures are progressively corrected for pitch/roll/piston errors with respect an intermediate stitching result and finally they are joined.</p>
+<p>&#64;author: ADAPA</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.progressive_stitch.ProgressiveStitch">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">PyLOSt.ui.stitch_algorithms.progressive_stitch.</span></span><span class="sig-name descname"><span class="pre">ProgressiveStitch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stitchPath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/progressive_stitch.html#ProgressiveStitch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.progressive_stitch.ProgressiveStitch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.progressive_stitch.ProgressiveStitch.avgScans">
+<span class="sig-name descname"><span class="pre">avgScans</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mXArr</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/progressive_stitch.html#ProgressiveStitch.avgScans"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.progressive_stitch.ProgressiveStitch.avgScans" title="Permalink to this definition">¶</a></dt>
+<dd><p>Average stitched scans</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>mXArr</strong> – Translation offset array</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.progressive_stitch.ProgressiveStitch.corAndAddSubapJ_hgt">
+<span class="sig-name descname"><span class="pre">corAndAddSubapJ_hgt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hArr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ox</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">szM</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_j</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isRepeat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/progressive_stitch.html#ProgressiveStitch.corAndAddSubapJ_hgt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.progressive_stitch.ProgressiveStitch.corAndAddSubapJ_hgt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.progressive_stitch.ProgressiveStitch.corAndAddSubapJ_slp">
+<span class="sig-name descname"><span class="pre">corAndAddSubapJ_slp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slxArr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slyArr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ox</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">szM</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_j</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isRepeat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/progressive_stitch.html#ProgressiveStitch.corAndAddSubapJ_slp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.progressive_stitch.ProgressiveStitch.corAndAddSubapJ_slp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.progressive_stitch.ProgressiveStitch.corOverlpaErr">
+<span class="sig-name descname"><span class="pre">corOverlpaErr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pat_o</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res_o</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">otype</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pix_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/progressive_stitch.html#ProgressiveStitch.corOverlpaErr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.progressive_stitch.ProgressiveStitch.corOverlpaErr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Correct j-th subaperture to intermediate (j-1)-th stitched result</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pat_o</strong> – j-th subaperture</p></li>
+<li><p><strong>res_o</strong> – (j-1)-th intermediate stitched result</p></li>
+<li><p><strong>mask</strong> – j-th subaperture mask</p></li>
+<li><p><strong>otype</strong> – Data type slope/height</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Corrected subaperture</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.progressive_stitch.ProgressiveStitch.errfunc_h">
+<span class="sig-name descname"><span class="pre">errfunc_h</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yy</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/progressive_stitch.html#ProgressiveStitch.errfunc_h"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.progressive_stitch.ProgressiveStitch.errfunc_h" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.progressive_stitch.ProgressiveStitch.errfunc_slp">
+<span class="sig-name descname"><span class="pre">errfunc_slp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/progressive_stitch.html#ProgressiveStitch.errfunc_slp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.progressive_stitch.ProgressiveStitch.errfunc_slp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.progressive_stitch.ProgressiveStitch.getMaxMaskSz">
+<span class="sig-name descname"><span class="pre">getMaxMaskSz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/progressive_stitch.html#ProgressiveStitch.getMaxMaskSz"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.progressive_stitch.ProgressiveStitch.getMaxMaskSz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.progressive_stitch.ProgressiveStitch.isSlopeStitch">
+<span class="sig-name descname"><span class="pre">isSlopeStitch</span></span><em class="property"> <span class="pre">=</span> <span class="pre">True</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.progressive_stitch.ProgressiveStitch.isSlopeStitch" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.progressive_stitch.ProgressiveStitch.repeatProgStitch_hgt">
+<span class="sig-name descname"><span class="pre">repeatProgStitch_hgt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hArr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mXArr_rp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iniErr</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/progressive_stitch.html#ProgressiveStitch.repeatProgStitch_hgt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.progressive_stitch.ProgressiveStitch.repeatProgStitch_hgt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.progressive_stitch.ProgressiveStitch.repeatProgStitch_slp">
+<span class="sig-name descname"><span class="pre">repeatProgStitch_slp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slxArr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slyArr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mXArr_rp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iniErr</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/progressive_stitch.html#ProgressiveStitch.repeatProgStitch_slp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.progressive_stitch.ProgressiveStitch.repeatProgStitch_slp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.progressive_stitch.ProgressiveStitch.saveMidResults">
+<span class="sig-name descname"><span class="pre">saveMidResults</span></span><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.progressive_stitch.ProgressiveStitch.saveMidResults" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.progressive_stitch.ProgressiveStitch.showPlots">
+<span class="sig-name descname"><span class="pre">showPlots</span></span><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.progressive_stitch.ProgressiveStitch.showPlots" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.progressive_stitch.ProgressiveStitch.stitch">
+<span class="sig-name descname"><span class="pre">stitch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/progressive_stitch.html#ProgressiveStitch.stitch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.progressive_stitch.ProgressiveStitch.stitch" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.progressive_stitch.ProgressiveStitch.stitch1DImage">
+<span class="sig-name descname"><span class="pre">stitch1DImage</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/progressive_stitch.html#ProgressiveStitch.stitch1DImage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.progressive_stitch.ProgressiveStitch.stitch1DImage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stitching function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.progressive_stitch.ProgressiveStitch.stitchHeights">
+<span class="sig-name descname"><span class="pre">stitchHeights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5si</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h5fi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subRefFlag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mXArr_rp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/progressive_stitch.html#ProgressiveStitch.stitchHeights"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.progressive_stitch.ProgressiveStitch.stitchHeights" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.progressive_stitch.ProgressiveStitch.stitchSlopes">
+<span class="sig-name descname"><span class="pre">stitchSlopes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5si</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h5fi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subRefFlag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mXArr_rp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/progressive_stitch.html#ProgressiveStitch.stitchSlopes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.progressive_stitch.ProgressiveStitch.stitchSlopes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.progressive_stitch.ProgressiveStitch.updateParams">
+<span class="sig-name descname"><span class="pre">updateParams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5StAttrs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/progressive_stitch.html#ProgressiveStitch.updateParams"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.progressive_stitch.ProgressiveStitch.updateParams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve algorithm otions</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>h5StAttrs</strong> – Stitching group attributes has the algorithm options</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.progressive_stitch.ProgressiveStitch.useLSOptimize">
+<span class="sig-name descname"><span class="pre">useLSOptimize</span></span><em class="property"> <span class="pre">=</span> <span class="pre">True</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.progressive_stitch.ProgressiveStitch.useLSOptimize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.progressive_stitch.ProgressiveStitch.useRefMeasureData">
+<span class="sig-name descname"><span class="pre">useRefMeasureData</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'none'</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.progressive_stitch.ProgressiveStitch.useRefMeasureData" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.progressive_stitch.ProgressiveStitch.use_ref_exclude_nb_edge_subaps">
+<span class="sig-name descname"><span class="pre">use_ref_exclude_nb_edge_subaps</span></span><em class="property"> <span class="pre">=</span> <span class="pre">0</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.progressive_stitch.ProgressiveStitch.use_ref_exclude_nb_edge_subaps" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-PyLOSt.ui.stitch_algorithms.simple_average">
+<span id="pylost-ui-stitch-algorithms-simple-average-module"></span><h2>PyLOSt.ui.stitch_algorithms.simple_average module<a class="headerlink" href="#module-PyLOSt.ui.stitch_algorithms.simple_average" title="Permalink to this headline">¶</a></h2>
+<p>Created on Apr 9, 2018</p>
+<p>Simple averaging of subapertures data (with piston removed for height data)</p>
+<p>&#64;author: ADAPA</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.simple_average.SimpleAverage">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">PyLOSt.ui.stitch_algorithms.simple_average.</span></span><span class="sig-name descname"><span class="pre">SimpleAverage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stitchPath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/simple_average.html#SimpleAverage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.simple_average.SimpleAverage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.simple_average.SimpleAverage.avgScans">
+<span class="sig-name descname"><span class="pre">avgScans</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mXArr</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/simple_average.html#SimpleAverage.avgScans"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.simple_average.SimpleAverage.avgScans" title="Permalink to this definition">¶</a></dt>
+<dd><p>Average stitched scans</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>mXArr</strong> – Translation offset array</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.simple_average.SimpleAverage.isSlopeStitch">
+<span class="sig-name descname"><span class="pre">isSlopeStitch</span></span><em class="property"> <span class="pre">=</span> <span class="pre">True</span></em><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.simple_average.SimpleAverage.isSlopeStitch" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.simple_average.SimpleAverage.stitch">
+<span class="sig-name descname"><span class="pre">stitch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/simple_average.html#SimpleAverage.stitch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.simple_average.SimpleAverage.stitch" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.simple_average.SimpleAverage.stitch1DImage">
+<span class="sig-name descname"><span class="pre">stitch1DImage</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/simple_average.html#SimpleAverage.stitch1DImage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.simple_average.SimpleAverage.stitch1DImage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stitching function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyLOSt.ui.stitch_algorithms.simple_average.SimpleAverage.updateParams">
+<span class="sig-name descname"><span class="pre">updateParams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5StAttrs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyLOSt/ui/stitch_algorithms/simple_average.html#SimpleAverage.updateParams"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyLOSt.ui.stitch_algorithms.simple_average.SimpleAverage.updateParams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve algorithm otions</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>h5StAttrs</strong> – Stitching group attributes has the algorithm options</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-PyLOSt.ui.stitch_algorithms">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-PyLOSt.ui.stitch_algorithms" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">PyLOSt</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="PyLOSt.html">PyLOSt package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="PyLOSt.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="PyLOSt.algorithms.html">PyLOSt.algorithms package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="PyLOSt.data_in.html">PyLOSt.data_in package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="PyLOSt.databases.html">PyLOSt.databases package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="PyLOSt.ui.html">PyLOSt.ui package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="PyLOSt.ui.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="PyLOSt.ui.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="PyLOSt.ui.html#module-PyLOSt.ui.hdf5widget_custom">PyLOSt.ui.hdf5widget_custom module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="PyLOSt.ui.html#module-PyLOSt.ui">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="PyLOSt.util.html">PyLOSt.util package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.html#module-PyLOSt.SG_gui">PyLOSt.SG_gui module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.html#module-PyLOSt.default_rc">PyLOSt.default_rc module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PyLOSt.html#module-PyLOSt">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="quick_guide.html">Quick Guide</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="PyLOSt.html">PyLOSt package</a><ul>
+  <li><a href="PyLOSt.ui.html">PyLOSt.ui package</a><ul>
+      <li>Previous: <a href="PyLOSt.ui.simulations.html" title="previous chapter">PyLOSt.ui.simulations package</a></li>
+      <li>Next: <a href="PyLOSt.ui.stitch_algorithms.util.html" title="next chapter">PyLOSt.ui.stitch_algorithms.util package</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/PyLOSt.ui.stitch_algorithms.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

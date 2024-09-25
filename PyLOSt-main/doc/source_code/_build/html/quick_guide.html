@@ -1,0 +1,262 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Quick Guide &#8212; PyLOSt  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="PyLOSt.util package" href="PyLOSt.util.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="quick-guide">
+<h1>Quick Guide<a class="headerlink" href="#quick-guide" title="Permalink to this headline">¶</a></h1>
+<p>This user manual explains how to use the PyLOSt application.</p>
+<p>The project has 3 different functionalities (a) setup of instruments and algorithms via settings, (b) preparing data in hdf5 format, (c) view/stitch hdf5 data</p>
+<dl class="simple">
+<dt><strong>1. Settings section:</strong></dt><dd><p>To add new instrument or algorithm and their options.
+This data is saved to a sql database, and this information will be used in data processing module</p>
+</dd>
+<dt><strong>2. Data preparation:</strong></dt><dd><p>In this section raw data from an instrument is converted to hdf5 format
+(.h5 file). A new conversion module has to be added for each new instrument.
+Ignore if the data is already in a compatible hdf5 fromat</p>
+</dd>
+<dt><strong>3. Stitching module:</strong></dt><dd><p>This module can stitch (2D) data over a number of subapertures. The data
+can be slopes or height of a surface. It has option to stitch with different stitching algorithms.
+Some additional features such as masking or binning the data are also available.</p>
+</dd>
+</dl>
+<section id="setting-up-instruments-and-algorithms">
+<h2>1. Setting up instruments and algorithms<a class="headerlink" href="#setting-up-instruments-and-algorithms" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>The application starts the following gui. The tab <em>Convert to H5</em> allows user to
+convert raw formats to hdf5, and the tab <em>Settings</em> is used to open the h5 file
+and do stitching. The button <em>Settings</em> opens a Settings GUI which can be used
+to add instruments or algorithms to the application</p>
+<img alt="_images/sg_i1.PNG" src="_images/sg_i1.PNG" />
+</div></blockquote>
+<section id="adding-a-new-instrument-or-algorithm">
+<h3>1.1. Adding a new instrument or algorithm<a class="headerlink" href="#adding-a-new-instrument-or-algorithm" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><p>Instruments and algorithms can be added as shown below. Instrument type is used to
+differentiate between multiple instruments of same type (e.g. two Zygo Fizeaus).
+Location field implies the physical location (e.g. ESRF).</p>
+<img alt="_images/settings_i1.PNG" src="_images/settings_i1.PNG" />
+<img alt="_images/settings_i2.PNG" src="_images/settings_i2.PNG" />
+</div></blockquote>
+</section>
+<section id="setting-stitching-setup-options">
+<h3>1.2. Setting stitching setup options<a class="headerlink" href="#setting-stitching-setup-options" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><p>Additionally stitching setup options can be defined for each instrument as shown below.
+These options are instrument specific and they are used when stitching methods are called.</p>
+<img alt="_images/settings_i3.PNG" src="_images/settings_i3.PNG" />
+</div></blockquote>
+</section>
+<section id="algorithm-options">
+<h3>1.3. Algorithm options<a class="headerlink" href="#algorithm-options" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><p>Stitching algorithms can take additional arguments such data is slopes or get reference
+from measurements. These options can be defined for each algorithm and they are passed
+as arguments to algorithm implementations while stitching.</p>
+<p>At the end a python file can be generated using the button <em>Generate function code</em>
+and it can be used as a link add to user stitching scripts</p>
+<img alt="_images/settings_i4.PNG" src="_images/settings_i4.PNG" />
+</div></blockquote>
+</section>
+</section>
+<section id="convert-raw-data-to-hdf5-file-format">
+<h2>2. Convert raw data to hdf5 file format<a class="headerlink" href="#convert-raw-data-to-hdf5-file-format" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>The PyLOSt application requires the input data in hdf5 (h5) format.
+Raw data from different instruments has to be converted to h5. This app
+contains h5 conversion functions for SHARPeR (.has), ESRF LTP (.slp2), Zygo Fizeau (.dat), Veeco MSI (.opd) formats.
+Additional converter functions for other instruments can be added by users.</p>
+<p>Each h5 file can contain measurements of a sample from different instruments.
+Entry name for each instrument can be specified as shown in figure below. The gui form was adapted to convert for
+ESRF measuremnt file names. A typical file of ESRF instruments contains the fields {prefix}, {forward/backward}, {scan_number}, {subaperture_number}.</p>
+<p>A reference measurement can also be uploaded to the measurement data in h5.</p>
+<img alt="_images/conv_i1.PNG" src="_images/conv_i1.PNG" />
+</div></blockquote>
+</section>
+<section id="stitching-section">
+<h2>3. Stitching section<a class="headerlink" href="#stitching-section" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>Stitching procedure has the following steps.</p>
+<div class="line-block">
+<div class="line"><em>Step 1:</em> Selected entry and add a new stitch setup. This creates a new group with the setup name in h5.</div>
+<div class="line"><em>Step 2:</em> (optional) Add mask in the setup group in h5</div>
+<div class="line"><em>Step 3:</em> Select a setup and stitch. This creates group ‘/stitched_scans’ with all stitched scans under setup group</div>
+<div class="line"><em>Step 4</em>: Post processes e.g. average/std stitched scans, integrate slopes, plot results etc…</div>
+</div>
+</div></blockquote>
+<section id="preview-data">
+<h3>3.1. Preview data<a class="headerlink" href="#preview-data" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><p>Data in the h5 file cn be visualized in the PyLOSt stitching gui, which was designed using widgets from
+<em>silx</em> widgets. The <em>silx</em> module is a data processing and visualization toolbox developed by the ESRF.
+The figure below shows the height subapertures of the moonpics HZB spherical mirror.</p>
+<img alt="_images/stitch_i1.PNG" src="_images/stitch_i1.PNG" />
+</div></blockquote>
+</section>
+<section id="add-new-stitching-setup">
+<h3>3.2. Add new stitching setup<a class="headerlink" href="#add-new-stitching-setup" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><p>To add a new stitching setup, an entry containing measurement data has to be selected.
+Clicking <strong>add new stitch setup</strong> button or through right click on entry, a new dialog with stitching options can be opened.</p>
+<img alt="_images/stitch_i2_1.PNG" src="_images/stitch_i2_1.PNG" />
+<p>Figure below shows the new setup dialog. Descriptions of stitching and algoirthm options can be viewed with help buttons.
+Stitch step provided here will be used if the translation motor positions are not saved in the raw data.</p>
+<p>In one of the options stitching algorithm has to be selected. Current PyLOSt version has four algorithms
+(1) Simple, (2) Progressive, (3) Matrix method of overlap errors, (4) Global optimization methods.
+Selecting an algorithm enables a set of options related to that algorithm. For more information on algorithms refer
+to documentation of each algorithms.</p>
+<img alt="_images/stitch_i2.PNG" src="_images/stitch_i2.PNG" />
+</div></blockquote>
+</section>
+<section id="add-mask">
+<h3>3.3. Add mask<a class="headerlink" href="#add-mask" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><p>PyLOSt has three types of masks, (1) input mask to apply for all of subapertures, (2) input mask to apply only for the subaperture currently displayed, (3) output mask.
+Input mask is applied on subapertures before stitching whereas output mask is applied to stitched results for post processing. A mask can be drawn on top of image displayed
+in dataviewer, or it is created of specific width &amp; height centered on the current image, or it is copied from other location, or it is created excluding an edge pixels.</p>
+<p><em>Important</em>: Input mask has to be saved to stitching folder (e.g./StitchResults/AB1/), Output mask has to be saved to the stitched data folder (e.g./StitchResults/AB1/scan_avg/)</p>
+<img alt="_images/stitch_i3.PNG" src="_images/stitch_i3.PNG" />
+</div></blockquote>
+</section>
+<section id="post-processing-average-std-stitched-scans-slope-to-height">
+<h3>3.4. Post processing : Average/std stitched scans, slope to height<a class="headerlink" href="#post-processing-average-std-stitched-scans-slope-to-height" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><p>Find the average / standard deviation of a number of stitched scans (e.g./StitchResults/AB1/stitched_scans/{Scan_xx}), which are saved to scan_avg (e.g./StitchResults/AB1/scan_avg/).
+Slope data (2D) can also be integrated to Height (2D) saved to scan_avg.</p>
+</div></blockquote>
+</section>
+<section id="post-processing-plot-stitched-data-remove-polynomial-ellipse">
+<h3>3.5. Post processing : Plot stitched data, remove polynomial / ellipse<a class="headerlink" href="#post-processing-plot-stitched-data-remove-polynomial-ellipse" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><p>Stitched data slopes or height (2D or 1D) can be plotted (output mask is applied if any), with a polynomial of nth order or a best fit ellipse removed.
+Multiple data can be selected and plotted together or plots can be added with hold on.</p>
+<img alt="_images/stitch_i4.PNG" src="_images/stitch_i4.PNG" />
+</div></blockquote>
+</section>
+<section id="post-processing-abba-average">
+<h3>3.6. Post processing : ABBA average<a class="headerlink" href="#post-processing-abba-average" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><p>ABBA average of the AB and BA (mirror flipped along stitch axis) slope/height measurements can be saved to a new group.
+The AB and BA should be open in the plot window to get the average.</p>
+</div></blockquote>
+</section>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">PyLOSt</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="PyLOSt.html">PyLOSt package</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quick Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#setting-up-instruments-and-algorithms">1. Setting up instruments and algorithms</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#adding-a-new-instrument-or-algorithm">1.1. Adding a new instrument or algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#setting-stitching-setup-options">1.2. Setting stitching setup options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#algorithm-options">1.3. Algorithm options</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#convert-raw-data-to-hdf5-file-format">2. Convert raw data to hdf5 file format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#stitching-section">3. Stitching section</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#preview-data">3.1. Preview data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#add-new-stitching-setup">3.2. Add new stitching setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#add-mask">3.3. Add mask</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#post-processing-average-std-stitched-scans-slope-to-height">3.4. Post processing : Average/std stitched scans, slope to height</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#post-processing-plot-stitched-data-remove-polynomial-ellipse">3.5. Post processing : Plot stitched data, remove polynomial / ellipse</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#post-processing-abba-average">3.6. Post processing : ABBA average</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="PyLOSt.util.html" title="previous chapter">PyLOSt.util package</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/quick_guide.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

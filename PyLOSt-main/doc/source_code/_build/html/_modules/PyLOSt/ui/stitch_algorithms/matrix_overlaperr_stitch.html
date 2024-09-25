@@ -1,0 +1,546 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch &#8212; PyLOSt  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/alabaster.css" />
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch</h1><div class="highlight"><pre>
+<span></span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Created on Apr 9, 2018</span>
+
+<span class="sd">Overlaps are fit to plane and the piston/pithc/roll errors between the subapertures are extracted.</span>
+<span class="sd">From this data piston/pithc/roll correction needed for each subaperture is determined using matrix techniques of solving linear equations</span>
+
+<span class="sd">@author: ADAPA</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">PyLOSt.ui.stitch_algorithms.util.util_stitching</span> <span class="kn">import</span> <span class="n">avgStitchedScans</span><span class="p">,</span>\
+    <span class="n">addAttributesStitchedScans</span><span class="p">,</span> <span class="n">calcMatrixInv</span><span class="p">,</span>\
+    <span class="n">applyExternalMask</span><span class="p">,</span> <span class="n">preprocessSlp</span><span class="p">,</span> <span class="n">preprocessHgt</span><span class="p">,</span> \
+    <span class="n">buildOverlapMatrices</span>
+<span class="kn">from</span> <span class="nn">PyLOSt.algorithms.util.util_fit</span> <span class="kn">import</span> <span class="n">getXYGrid</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">signal</span>
+<span class="kn">from</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">import</span> <span class="n">plot</span><span class="p">,</span> <span class="n">figure</span><span class="p">,</span> <span class="n">title</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">from</span> <span class="nn">PyLOSt.util.commons</span> <span class="kn">import</span> <span class="n">alertMsg</span>
+
+
+<div class="viewcode-block" id="MatrixOverlapErrStitch"><a class="viewcode-back" href="../../../../PyLOSt.ui.stitch_algorithms.html#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch">[docs]</a><span class="k">class</span> <span class="nc">MatrixOverlapErrStitch</span><span class="p">:</span>
+    <span class="c1"># use A x (C.T) = E</span>
+    <span class="c1"># C = [[cxi][cyi]] correctors</span>
+    <span class="c1"># E = [[exji][eyji]] pitch and roll errors</span>
+    
+    <span class="c1"># Algo params</span>
+    <span class="n">isSlopeStitch</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">invType</span> <span class="o">=</span> <span class="s1">&#39;SVD&#39;</span>
+    <span class="n">minOverlap</span> <span class="o">=</span> <span class="mf">0.6</span> <span class="c1">#60 percent</span>
+    <span class="n">oeType</span> <span class="o">=</span> <span class="s1">&#39;PF&#39;</span> <span class="c1"># SM-simple mean, PF-plane fit (default), FULL-use all pixels in the overlap diff</span>
+    <span class="n">removeOutlierPatches</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">useFullImages</span> <span class="o">=</span> <span class="kc">False</span>
+    
+    <span class="n">useRefMeasureData</span> <span class="o">=</span> <span class="s1">&#39;none&#39;</span>
+    <span class="n">removeGloabalTilt</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">preFiltArr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="kc">False</span><span class="p">,</span><span class="kc">False</span><span class="p">,</span><span class="kc">False</span><span class="p">,</span><span class="kc">False</span><span class="p">,</span><span class="kc">False</span><span class="p">,</span><span class="kc">False</span><span class="p">])</span> <span class="c1">#filter for coefficients of a0+a1*x+a2*y+a3*x**2+a4*y**2+a5*x*y</span>
+    <span class="n">post_process</span> <span class="o">=</span> <span class="s1">&#39;ref_cv&#39;</span> <span class="c1"># none/ref_cv</span>
+    
+    <span class="n">useThreshold</span> <span class="o">=</span> <span class="s1">&#39;none&#39;</span> <span class="c1">#preprocess</span>
+    <span class="n">thrMin</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">thrMax</span> <span class="o">=</span> <span class="mi">0</span>
+    
+    <span class="n">degRef</span> <span class="o">=</span> <span class="mi">15</span>
+    <span class="n">startDegRef</span> <span class="o">=</span> <span class="mi">3</span>
+
+    <span class="c1"># Filters</span>
+    <span class="n">filtBadPix</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">filtBadPixMaxStd</span> <span class="o">=</span> <span class="mi">3</span> <span class="c1"># filter &gt;3 orders of std from ideal shape</span>
+
+    <span class="n">saveMidResults</span> <span class="o">=</span> <span class="kc">False</span>
+    
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h5f</span><span class="p">,</span> <span class="n">stitchPath</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param h5f: HDF5 file object</span>
+<span class="sd">        :param stitchPath: Location to save the stitched data as a relative path in h5 file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h5f</span>                <span class="o">=</span> <span class="n">h5f</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stitch_loc</span>         <span class="o">=</span> <span class="n">stitchPath</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">useLSOptimize</span>      <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sarr_mask</span>          <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">applyMaskCorImg</span>    <span class="o">=</span> <span class="kc">False</span>
+    
+<div class="viewcode-block" id="MatrixOverlapErrStitch.stitch"><a class="viewcode-back" href="../../../../PyLOSt.ui.stitch_algorithms.html#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.stitch">[docs]</a>    <span class="k">def</span> <span class="nf">stitch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stitch1DImage</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
+            
+<div class="viewcode-block" id="MatrixOverlapErrStitch.updateParams"><a class="viewcode-back" href="../../../../PyLOSt.ui.stitch_algorithms.html#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.updateParams">[docs]</a>    <span class="k">def</span> <span class="nf">updateParams</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">h5StAttrs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve algorithm options</span>
+
+<span class="sd">        :param h5StAttrs: Stitching group attributes has the algorithm options</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s1">&#39;filter_subapertures&#39;</span> <span class="ow">in</span> <span class="n">h5StAttrs</span> <span class="ow">and</span> <span class="n">h5StAttrs</span><span class="p">[</span><span class="s1">&#39;filter_subapertures&#39;</span><span class="p">]</span><span class="o">!=</span><span class="s1">&#39;None&#39;</span><span class="p">:</span> 
+            <span class="k">if</span> <span class="n">h5StAttrs</span><span class="p">[</span><span class="s1">&#39;filter_subapertures&#39;</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;P&#39;</span><span class="p">:</span>           <span class="bp">self</span><span class="o">.</span><span class="n">preFiltArr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="kc">True</span>
+            <span class="k">elif</span> <span class="n">h5StAttrs</span><span class="p">[</span><span class="s1">&#39;filter_subapertures&#39;</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;PT&#39;</span><span class="p">:</span>        <span class="bp">self</span><span class="o">.</span><span class="n">preFiltArr</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span><span class="o">=</span><span class="kc">True</span>
+            <span class="k">elif</span> <span class="n">h5StAttrs</span><span class="p">[</span><span class="s1">&#39;filter_subapertures&#39;</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;PTS&#39;</span><span class="p">:</span>       <span class="bp">self</span><span class="o">.</span><span class="n">preFiltArr</span><span class="p">[:]</span><span class="o">=</span><span class="kc">True</span>
+        <span class="k">if</span> <span class="s1">&#39;inv_type&#39;</span> <span class="ow">in</span> <span class="n">h5StAttrs</span> <span class="p">:</span>                          <span class="bp">self</span><span class="o">.</span><span class="n">invType</span> <span class="o">=</span> <span class="n">h5StAttrs</span><span class="p">[</span><span class="s1">&#39;inv_type&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s1">&#39;min_overlap&#39;</span> <span class="ow">in</span> <span class="n">h5StAttrs</span> <span class="p">:</span>                       <span class="bp">self</span><span class="o">.</span><span class="n">minOverlap</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">h5StAttrs</span><span class="p">[</span><span class="s1">&#39;min_overlap&#39;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="s1">&#39;overlap_err_type&#39;</span> <span class="ow">in</span> <span class="n">h5StAttrs</span> <span class="p">:</span>                  <span class="bp">self</span><span class="o">.</span><span class="n">oeType</span> <span class="o">=</span> <span class="n">h5StAttrs</span><span class="p">[</span><span class="s1">&#39;overlap_err_type&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s1">&#39;post_process&#39;</span> <span class="ow">in</span> <span class="n">h5StAttrs</span> <span class="p">:</span>                      <span class="bp">self</span><span class="o">.</span><span class="n">post_process</span> <span class="o">=</span> <span class="n">h5StAttrs</span><span class="p">[</span><span class="s1">&#39;post_process&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s1">&#39;remove_outliers&#39;</span> <span class="ow">in</span> <span class="n">h5StAttrs</span> <span class="p">:</span>                   <span class="bp">self</span><span class="o">.</span><span class="n">removeOutlierPatches</span> <span class="o">=</span> <span class="n">h5StAttrs</span><span class="p">[</span><span class="s1">&#39;remove_outliers&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s1">&#39;use_full_images&#39;</span> <span class="ow">in</span> <span class="n">h5StAttrs</span> <span class="p">:</span>                   <span class="bp">self</span><span class="o">.</span><span class="n">useFullImages</span> <span class="o">=</span> <span class="n">h5StAttrs</span><span class="p">[</span><span class="s1">&#39;use_full_images&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s1">&#39;use_ref_from_measure_data&#39;</span> <span class="ow">in</span> <span class="n">h5StAttrs</span> <span class="p">:</span>         <span class="bp">self</span><span class="o">.</span><span class="n">useRefMeasureData</span> <span class="o">=</span> <span class="n">h5StAttrs</span><span class="p">[</span><span class="s1">&#39;use_ref_from_measure_data&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s1">&#39;data_type&#39;</span> <span class="ow">in</span> <span class="n">h5StAttrs</span> <span class="p">:</span>                         <span class="bp">self</span><span class="o">.</span><span class="n">isSlopeStitch</span> <span class="o">=</span> <span class="n">h5StAttrs</span><span class="p">[</span><span class="s1">&#39;data_type&#39;</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;slope&#39;</span>
+        <span class="k">if</span> <span class="s1">&#39;use_threshold&#39;</span> <span class="ow">in</span> <span class="n">h5StAttrs</span> <span class="p">:</span>                     <span class="bp">self</span><span class="o">.</span><span class="n">useThreshold</span> <span class="o">=</span> <span class="n">h5StAttrs</span><span class="p">[</span><span class="s1">&#39;use_threshold&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s1">&#39;use_threshold_maxval&#39;</span> <span class="ow">in</span> <span class="n">h5StAttrs</span> <span class="p">:</span>              <span class="bp">self</span><span class="o">.</span><span class="n">thrMax</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">h5StAttrs</span><span class="p">[</span><span class="s1">&#39;use_threshold_maxval&#39;</span><span class="p">])</span> <span class="k">if</span> <span class="n">h5StAttrs</span><span class="p">[</span><span class="s1">&#39;use_threshold_maxval&#39;</span><span class="p">]</span><span class="o">!=</span><span class="s1">&#39;&#39;</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="s1">&#39;use_threshold_minval&#39;</span> <span class="ow">in</span> <span class="n">h5StAttrs</span> <span class="p">:</span>              <span class="bp">self</span><span class="o">.</span><span class="n">thrMin</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">h5StAttrs</span><span class="p">[</span><span class="s1">&#39;use_threshold_minval&#39;</span><span class="p">])</span> <span class="k">if</span> <span class="n">h5StAttrs</span><span class="p">[</span><span class="s1">&#39;use_threshold_minval&#39;</span><span class="p">]</span><span class="o">!=</span><span class="s1">&#39;&#39;</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="s1">&#39;measurement_entry&#39;</span> <span class="ow">in</span> <span class="n">h5StAttrs</span> <span class="p">:</span>                 <span class="bp">self</span><span class="o">.</span><span class="n">msrEntry</span> <span class="o">=</span> <span class="n">h5StAttrs</span><span class="p">[</span><span class="s1">&#39;measurement_entry&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s1">&#39;apply_mask_to_corrected_imgs&#39;</span> <span class="ow">in</span> <span class="n">h5StAttrs</span> <span class="p">:</span>      <span class="bp">self</span><span class="o">.</span><span class="n">applyMaskCorImg</span> <span class="o">=</span> <span class="n">h5StAttrs</span><span class="p">[</span><span class="s1">&#39;apply_mask_to_corrected_imgs&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s1">&#39;filt_bad_pix&#39;</span> <span class="ow">in</span> <span class="n">h5StAttrs</span> <span class="p">:</span>                      <span class="bp">self</span><span class="o">.</span><span class="n">filtBadPix</span> <span class="o">=</span> <span class="n">h5StAttrs</span><span class="p">[</span><span class="s1">&#39;filt_bad_pix&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s1">&#39;filt_bad_pix_threshold&#39;</span> <span class="ow">in</span> <span class="n">h5StAttrs</span> <span class="p">:</span>            <span class="bp">self</span><span class="o">.</span><span class="n">filtBadPixMaxStd</span> <span class="o">=</span> <span class="n">h5StAttrs</span><span class="p">[</span><span class="s1">&#39;filt_bad_pix_threshold&#39;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="MatrixOverlapErrStitch.stitch1DImage"><a class="viewcode-back" href="../../../../PyLOSt.ui.stitch_algorithms.html#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.stitch1DImage">[docs]</a>    <span class="k">def</span> <span class="nf">stitch1DImage</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Stitching function</span>
+
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>                   
+        <span class="n">h5stitch</span>                                            <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">h5f</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">stitch_loc</span><span class="p">]</span>  
+        <span class="bp">self</span><span class="o">.</span><span class="n">updateParams</span><span class="p">(</span><span class="n">h5stitch</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
+        <span class="n">h5stitch</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span>                              <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">())</span>
+        <span class="n">h5stitch</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;creator&#39;</span><span class="p">]</span>                           <span class="o">=</span> <span class="sa">u</span><span class="s1">&#39;matrix_overlaperr_stitch.py&#39;</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">h5msr</span>                                          <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">h5f</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">msrEntry</span><span class="p">]</span>
+        <span class="n">instrScale</span>                                          <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">h5msr</span><span class="p">[</span><span class="s1">&#39;Instrument/scale_factor&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;Instrument/scale_factor&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">h5msr</span> <span class="k">else</span> <span class="mi">1</span>
+        <span class="n">h5scans</span>                                             <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">h5msr</span><span class="p">[</span><span class="s1">&#39;Data&#39;</span><span class="p">]</span>                                         
+        <span class="n">stitch_step</span>                                         <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="n">h5stitch</span><span class="p">[</span><span class="s1">&#39;stitch_step&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">])</span>  <span class="c1"># used when motorX/Y not available</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pix_size</span>                                       <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">h5msr</span><span class="p">[</span><span class="s1">&#39;Instrument/resolution&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">])</span>         <span class="c1">#pixel resolution in mm or um</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">saveMidResults</span>                                 <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;save_intermediate_results&#39;</span> <span class="ow">in</span> <span class="n">h5stitch</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">and</span> <span class="n">h5stitch</span><span class="p">[</span><span class="s1">&#39;save_intermediate_results&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;Y&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">False</span>
+        
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">h5scans</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="s1">&#39;NX_class&#39;</span> <span class="ow">in</span> <span class="n">h5scans</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span> <span class="ow">and</span> <span class="n">h5scans</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;NX_class&#39;</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;NXdata&#39;</span><span class="p">:</span> <span class="c1">#loop over scans</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Stitching &#39;</span><span class="o">+</span><span class="n">i</span><span class="p">)</span>
+                <span class="n">h5si</span>                        <span class="o">=</span> <span class="n">h5scans</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">h5fi</span>                        <span class="o">=</span> <span class="n">h5stitch</span><span class="o">.</span><span class="n">create_group</span><span class="p">(</span><span class="s1">&#39;stitched_scans/&#39;</span><span class="o">+</span><span class="n">h5si</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">])</span> <span class="c1"># create stitched folder with same name as data e.g.Scan_b1</span>
+                
+<span class="c1">#                 self.isSlopeStitch = True if &#39;slopes_x&#39; in h5si else False</span>
+                <span class="c1">#Apply external mask if exists</span>
+                <span class="n">mask</span>                        <span class="o">=</span> <span class="n">h5si</span><span class="p">[</span><span class="s1">&#39;mask&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">]</span>
+                <span class="k">if</span> <span class="s1">&#39;input_mask&#39;</span> <span class="ow">in</span> <span class="n">h5stitch</span><span class="p">:</span>
+                    <span class="n">mask</span>                    <span class="o">=</span> <span class="n">applyExternalMask</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">h5stitch</span><span class="p">[</span><span class="s1">&#39;input_mask&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">])</span>
+                
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">mask</span><span class="p">):</span>
+                    <span class="k">continue</span>
+                
+                <span class="c1"># do 1D stitching first</span>
+                <span class="n">mXArr</span>                       <span class="o">=</span> <span class="n">h5si</span><span class="p">[</span><span class="s1">&#39;motor_X&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">]</span>                                  <span class="c1">#1D array</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">mXArr</span><span class="p">)):</span>                                                         <span class="c1">#use stitch step if no data is available</span>
+                    <span class="n">mXArr</span>                   <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">mXArr</span><span class="p">))</span><span class="o">*</span><span class="n">stitch_step</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">mXArr</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span><span class="o">*</span><span class="n">mXArr</span> <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">mXArr</span><span class="p">)</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">)</span> <span class="k">else</span> <span class="n">mXArr</span>
+                    
+                <span class="n">mXArr_rel</span>                   <span class="o">=</span> <span class="n">mXArr</span><span class="o">-</span><span class="nb">min</span><span class="p">(</span><span class="n">mXArr</span><span class="p">)</span>                                      <span class="c1">#usually in mm</span>
+                <span class="n">mXArr_rp</span>                    <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rint</span><span class="p">(</span><span class="n">mXArr_rel</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">pix_size</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>          <span class="c1"># pixel offsets from start (rp: relative &amp; pixelwise)</span>
+                <span class="c1">########</span>
+                <span class="c1">#TODO: interpolation of slp/hgt if step is not integer multiple of pixel</span>
+                <span class="n">szPat</span>                       <span class="o">=</span> <span class="n">mask</span><span class="o">.</span><span class="n">shape</span>                                    <span class="c1"># patch size XY, last dimension is longest i.e. stitching dir</span>
+                <span class="n">res_szX</span>                     <span class="o">=</span> <span class="n">szPat</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="nb">max</span><span class="p">(</span><span class="n">mXArr_rp</span><span class="p">)</span>                               <span class="c1"># result size X stitch dirctn</span>
+                <span class="n">res_szY</span>                     <span class="o">=</span> <span class="n">szPat</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>                                             <span class="c1"># result size Y</span>
+                
+                <span class="n">subRefFlag</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="s1">&#39;ref&#39;</span> <span class="ow">in</span> <span class="n">h5si</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">h5msr</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;flag_ref_subtracted&#39;</span><span class="p">])</span> <span class="k">else</span> <span class="kc">False</span>
+                
+                <span class="c1">#stitching slopes</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isSlopeStitch</span><span class="p">:</span>
+                    <span class="n">h5fi</span><span class="p">,</span> <span class="n">C</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stitchSlopes</span><span class="p">(</span><span class="n">h5si</span><span class="p">,</span> <span class="n">h5fi</span><span class="p">,</span> <span class="n">subRefFlag</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">mXArr_rp</span><span class="p">,</span> <span class="n">res_szY</span><span class="p">,</span> <span class="n">res_szX</span><span class="p">,</span> <span class="n">instrScale</span><span class="p">)</span>
+                <span class="c1">#stitching height</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">h5fi</span><span class="p">,</span> <span class="n">C</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stitchHeights</span><span class="p">(</span><span class="n">h5si</span><span class="p">,</span> <span class="n">h5fi</span><span class="p">,</span> <span class="n">subRefFlag</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">mXArr_rp</span><span class="p">,</span> <span class="n">res_szY</span><span class="p">,</span> <span class="n">res_szX</span><span class="p">,</span> <span class="n">instrScale</span><span class="p">)</span>
+                    
+                <span class="n">h5fi</span><span class="p">[</span><span class="s1">&#39;intensity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">saveMidResults</span><span class="p">:</span>
+                    <span class="n">h5fi</span><span class="p">[</span><span class="s1">&#39;correctors&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">C</span>
+                    <span class="n">h5fi</span><span class="p">[</span><span class="s1">&#39;correctors&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="sa">u</span><span class="s1">&#39;format&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;num of subapertures x [pitch,roll,piston]&#39;</span>
+                <span class="n">addAttributesStitchedScans</span><span class="p">(</span><span class="n">h5si</span><span class="p">,</span> <span class="n">h5fi</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">isSlopeStitch</span><span class="p">,</span> <span class="n">subRefFlag</span><span class="p">,</span> <span class="n">pix_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pix_size</span><span class="p">,</span> <span class="n">gravitySubFlag</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="c1"># add attributes for scans</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">avgScans</span><span class="p">(</span><span class="n">mXArr</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">start</span><span class="p">)</span>
+        <span class="n">alertMsg</span><span class="p">(</span><span class="s1">&#39;Finished&#39;</span><span class="p">,</span><span class="s1">&#39;Finished stitching&#39;</span><span class="p">)</span></div>
+        <span class="c1"># show()</span>
+    
+<div class="viewcode-block" id="MatrixOverlapErrStitch.stitchSlopes"><a class="viewcode-back" href="../../../../PyLOSt.ui.stitch_algorithms.html#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.stitchSlopes">[docs]</a>    <span class="k">def</span> <span class="nf">stitchSlopes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h5si</span><span class="p">,</span> <span class="n">h5fi</span><span class="p">,</span> <span class="n">subRefFlag</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">mXArr_rp</span><span class="p">,</span> <span class="n">res_szY</span><span class="p">,</span> <span class="n">res_szX</span><span class="p">,</span> <span class="n">instrScale</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Slopes stitching function on i-th scan</span>
+
+<span class="sd">        :param h5si: H5 scan object containing subaperture data of i-th scan</span>
+<span class="sd">        :param h5fi: H5 stitched object</span>
+<span class="sd">        :param subRefFlag: Subtract reference flag</span>
+<span class="sd">        :param mask: Subaperture mask array</span>
+<span class="sd">        :param mXArr_rp: Translation offset array in pixels</span>
+<span class="sd">        :param res_szY: Stitched result size Y</span>
+<span class="sd">        :param res_szX: Stitched result size X</span>
+<span class="sd">        :param instrScale: Instrument scaling factor</span>
+<span class="sd">        :return: H5 stitched object (h5fi), correctors</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1">#####################################</span>
+        <span class="c1">## PreProcessing</span>
+        <span class="c1"># subtract reference</span>
+        <span class="n">slxArr</span> <span class="o">=</span> <span class="n">h5si</span><span class="p">[</span><span class="s1">&#39;slopes_x&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">]</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">subRefFlag</span> <span class="k">else</span> <span class="n">h5si</span><span class="p">[</span><span class="s1">&#39;slopes_x&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">]</span><span class="o">-</span><span class="n">h5si</span><span class="p">[</span><span class="s1">&#39;ref/slopes_x&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">]</span> <span class="c1">#ref should be broadcasted to all patches</span>
+        <span class="n">slyArr</span> <span class="o">=</span> <span class="n">h5si</span><span class="p">[</span><span class="s1">&#39;slopes_y&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">]</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">subRefFlag</span> <span class="k">else</span> <span class="n">h5si</span><span class="p">[</span><span class="s1">&#39;slopes_y&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">]</span><span class="o">-</span><span class="n">h5si</span><span class="p">[</span><span class="s1">&#39;ref/slopes_y&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">]</span>
+        
+        <span class="c1"># reference from measured data</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">useRefMeasureData</span><span class="o">==</span><span class="s1">&#39;avg&#39;</span><span class="p">:</span>
+            <span class="n">slxArr</span><span class="p">,</span><span class="n">slyArr</span> <span class="o">=</span> <span class="n">preprocessSlp</span><span class="p">(</span><span class="s1">&#39;REF_M_A&#39;</span><span class="p">,</span><span class="n">slxArr</span><span class="p">,</span><span class="n">slyArr</span><span class="p">,</span> <span class="n">pix_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pix_size</span><span class="p">,</span> <span class="n">mask</span> <span class="o">=</span> <span class="n">mask</span><span class="p">,</span> <span class="n">outH5Obj</span> <span class="o">=</span> <span class="n">h5fi</span><span class="p">,</span> <span class="n">isSave</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">saveMidResults</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">useRefMeasureData</span><span class="o">==</span><span class="s1">&#39;avg_high_freq&#39;</span><span class="p">:</span>
+            <span class="n">slxArr</span><span class="p">,</span><span class="n">slyArr</span> <span class="o">=</span> <span class="n">preprocessSlp</span><span class="p">(</span><span class="s1">&#39;REF_M_A_HF&#39;</span><span class="p">,</span><span class="n">slxArr</span><span class="p">,</span><span class="n">slyArr</span><span class="p">,</span> <span class="n">pix_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pix_size</span><span class="p">,</span> <span class="n">mask</span> <span class="o">=</span> <span class="n">mask</span><span class="p">,</span> <span class="n">outH5Obj</span> <span class="o">=</span> <span class="n">h5fi</span><span class="p">,</span> <span class="n">isSave</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">saveMidResults</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">useRefMeasureData</span><span class="o">==</span><span class="s1">&#39;high_freq&#39;</span><span class="p">:</span>
+            <span class="n">slxArr</span><span class="p">,</span><span class="n">slyArr</span> <span class="o">=</span> <span class="n">preprocessSlp</span><span class="p">(</span><span class="s1">&#39;REF_M_HF&#39;</span><span class="p">,</span><span class="n">slxArr</span><span class="p">,</span><span class="n">slyArr</span><span class="p">,</span> <span class="n">pix_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pix_size</span><span class="p">,</span> <span class="n">mask</span> <span class="o">=</span> <span class="n">mask</span><span class="p">,</span> <span class="n">outH5Obj</span> <span class="o">=</span> <span class="n">h5fi</span><span class="p">,</span> <span class="n">isSave</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">saveMidResults</span><span class="p">)</span>
+            
+        <span class="c1"># correction for ellipse</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">useThreshold</span><span class="o">==</span><span class="s1">&#39;pre_process&#39;</span><span class="p">:</span>
+            <span class="n">slxArr</span><span class="p">,</span><span class="n">slyArr</span> <span class="o">=</span> <span class="n">preprocessSlp</span><span class="p">(</span><span class="s1">&#39;E_FS&#39;</span><span class="p">,</span><span class="n">slxArr</span><span class="p">,</span><span class="n">slyArr</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">thrMin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">thrMax</span><span class="p">])</span>
+        <span class="c1">#####################################</span>
+         
+        <span class="k">if</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">slxArr</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="n">h5fi</span><span class="p">,</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">slyArr</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="n">h5fi</span><span class="p">,</span> <span class="p">[]</span>
+        <span class="n">Ax</span><span class="p">,</span> <span class="n">Ex</span><span class="p">,</span> <span class="n">validOvrX</span><span class="p">,</span> <span class="n">validPatchesX</span><span class="p">,</span> <span class="n">slxArr_i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildOverlapErrors</span><span class="p">(</span><span class="n">mXArr_rp</span><span class="p">,</span> <span class="n">slxArr</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">res_szY</span><span class="p">,</span> <span class="n">res_szX</span><span class="p">,</span> <span class="n">otype</span><span class="o">=</span><span class="s1">&#39;sx&#39;</span><span class="p">)</span>
+        <span class="n">Ay</span><span class="p">,</span> <span class="n">Ey</span><span class="p">,</span> <span class="n">validOvrY</span><span class="p">,</span> <span class="n">validPatchesY</span><span class="p">,</span> <span class="n">slyArr_i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildOverlapErrors</span><span class="p">(</span><span class="n">mXArr_rp</span><span class="p">,</span> <span class="n">slyArr</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">res_szY</span><span class="p">,</span> <span class="n">res_szX</span><span class="p">,</span> <span class="n">otype</span><span class="o">=</span><span class="s1">&#39;sy&#39;</span><span class="p">)</span>
+        
+        <span class="n">minVLen</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">validOvrX</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">validOvrY</span><span class="p">)])</span>
+        <span class="n">validOvrX</span><span class="p">[:</span><span class="n">minVLen</span><span class="p">]</span> <span class="o">=</span> <span class="n">validOvrX</span><span class="p">[:</span><span class="n">minVLen</span><span class="p">]</span> <span class="o">*</span> <span class="n">validOvrY</span><span class="p">[:</span><span class="n">minVLen</span><span class="p">]</span>
+        <span class="n">validOvrY</span><span class="p">[:</span><span class="n">minVLen</span><span class="p">]</span> <span class="o">=</span> <span class="n">validOvrX</span><span class="p">[:</span><span class="n">minVLen</span><span class="p">]</span> <span class="o">*</span> <span class="n">validOvrY</span><span class="p">[:</span><span class="n">minVLen</span><span class="p">]</span>
+        <span class="n">validOvrX</span><span class="p">[</span><span class="n">minVLen</span><span class="p">:]</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">validOvrY</span><span class="p">[</span><span class="n">minVLen</span><span class="p">:]</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">validPat</span> <span class="o">=</span> <span class="n">validPatchesX</span><span class="o">*</span><span class="n">validPatchesY</span>
+        <span class="k">if</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">validPat</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">h5fi</span><span class="p">,</span> <span class="p">[]</span>
+
+        <span class="n">A</span> <span class="o">=</span> <span class="n">Ax</span><span class="p">[</span><span class="n">validOvrX</span><span class="p">]</span>
+        <span class="n">Ex</span> <span class="o">=</span> <span class="n">Ex</span><span class="p">[</span><span class="n">validOvrX</span><span class="p">]</span>
+        <span class="n">Ey</span> <span class="o">=</span> <span class="n">Ey</span><span class="p">[</span><span class="n">validOvrY</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">oeType</span><span class="o">==</span><span class="s1">&#39;FULL&#39;</span><span class="p">:</span>
+            <span class="n">cx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getCorrectorsFullOE</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">Ex</span><span class="p">,</span> <span class="n">validPat</span><span class="p">)</span>
+            <span class="n">cy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getCorrectorsFullOE</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">Ey</span><span class="p">,</span> <span class="n">validPat</span><span class="p">)</span>
+            <span class="n">C</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">((</span><span class="n">cx</span><span class="p">,</span> <span class="n">cy</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">E</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">((</span><span class="n">Ex</span><span class="p">,</span> <span class="n">Ey</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="c1">#Ex,Ey are 1D arays stacked to 2D array E</span>
+            <span class="n">invA</span> <span class="o">=</span> <span class="n">calcMatrixInv</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">validPat</span> <span class="o">=</span> <span class="n">validPat</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">invType</span><span class="p">)</span>
+            <span class="n">C</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">invA</span><span class="p">,</span> <span class="n">E</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">post_process</span> <span class="o">==</span> <span class="s1">&#39;ref_cv&#39;</span><span class="p">:</span>
+                <span class="n">C</span><span class="p">[</span><span class="n">validPat</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">detrend</span><span class="p">(</span><span class="n">C</span><span class="p">[</span><span class="n">validPat</span><span class="p">,:],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                
+        <span class="n">h5fi</span><span class="p">[</span><span class="s1">&#39;slopes_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">instrScale</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">correctAndJoin</span><span class="p">(</span><span class="n">C</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">slxArr_i</span><span class="p">,</span> <span class="n">otype</span><span class="o">=</span><span class="s1">&#39;sx&#39;</span><span class="p">,</span> <span class="n">h5fi</span><span class="o">=</span><span class="n">h5fi</span><span class="p">)</span> <span class="c1"># scaling -0.5*1e3 is for sharper</span>
+        <span class="n">h5fi</span><span class="p">[</span><span class="s1">&#39;slopes_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">instrScale</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">correctAndJoin</span><span class="p">(</span><span class="n">C</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">slyArr_i</span><span class="p">,</span> <span class="n">otype</span><span class="o">=</span><span class="s1">&#39;sy&#39;</span><span class="p">,</span> <span class="n">h5fi</span><span class="o">=</span><span class="n">h5fi</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">h5fi</span><span class="p">,</span> <span class="n">C</span></div>
+    
+<div class="viewcode-block" id="MatrixOverlapErrStitch.stitchHeights"><a class="viewcode-back" href="../../../../PyLOSt.ui.stitch_algorithms.html#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.stitchHeights">[docs]</a>    <span class="k">def</span> <span class="nf">stitchHeights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h5si</span><span class="p">,</span> <span class="n">h5fi</span><span class="p">,</span> <span class="n">subRefFlag</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">mXArr_rp</span><span class="p">,</span> <span class="n">res_szY</span><span class="p">,</span> <span class="n">res_szX</span><span class="p">,</span> <span class="n">instrScale</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Height stitching function on i-th scan</span>
+
+<span class="sd">        :param h5si: H5 scan object containing subaperture data of i-th scan</span>
+<span class="sd">        :param h5fi: H5 stitched object</span>
+<span class="sd">        :param subRefFlag: Subtract reference flag</span>
+<span class="sd">        :param mask: Subaperture mask array</span>
+<span class="sd">        :param mXArr_rp: Translation offset array in pixels</span>
+<span class="sd">        :param res_szY: Stitched result size Y</span>
+<span class="sd">        :param res_szX: Stitched result size X</span>
+<span class="sd">        :param instrScale: Instrument scaling factor</span>
+<span class="sd">        :return: H5 stitched object (h5fi), correctors</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1">#####################################</span>
+        <span class="c1">## PreProcessing</span>
+        <span class="c1"># subtract reference</span>
+        <span class="n">hArr</span> <span class="o">=</span> <span class="n">h5si</span><span class="p">[</span><span class="s1">&#39;height&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">]</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">subRefFlag</span> <span class="k">else</span> <span class="n">h5si</span><span class="p">[</span><span class="s1">&#39;height&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">]</span><span class="o">-</span><span class="n">h5si</span><span class="p">[</span><span class="s1">&#39;ref/height&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">]</span> <span class="c1">#ref should be broadcasted to all patches</span>
+        <span class="c1"># reference from measured data</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">useRefMeasureData</span><span class="o">==</span><span class="s1">&#39;avg&#39;</span><span class="p">:</span>
+            <span class="n">hArr</span> <span class="o">=</span> <span class="n">preprocessHgt</span><span class="p">(</span><span class="s1">&#39;REF_M_A&#39;</span><span class="p">,</span><span class="n">hArr</span><span class="p">,</span> <span class="n">pix_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pix_size</span><span class="p">,</span> <span class="n">mask</span> <span class="o">=</span> <span class="n">mask</span><span class="p">,</span> <span class="n">outH5Obj</span> <span class="o">=</span> <span class="n">h5fi</span><span class="p">,</span> <span class="n">isSave</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">saveMidResults</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">useRefMeasureData</span><span class="o">==</span><span class="s1">&#39;avg_high_freq&#39;</span><span class="p">:</span>
+            <span class="n">hArr</span> <span class="o">=</span> <span class="n">preprocessHgt</span><span class="p">(</span><span class="s1">&#39;REF_M_A_HF&#39;</span><span class="p">,</span><span class="n">hArr</span><span class="p">,</span> <span class="n">pix_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pix_size</span><span class="p">,</span> <span class="n">mask</span> <span class="o">=</span> <span class="n">mask</span><span class="p">,</span> <span class="n">outH5Obj</span> <span class="o">=</span> <span class="n">h5fi</span><span class="p">,</span> <span class="n">isSave</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">saveMidResults</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">useRefMeasureData</span><span class="o">==</span><span class="s1">&#39;high_freq&#39;</span><span class="p">:</span>
+            <span class="n">hArr</span> <span class="o">=</span> <span class="n">preprocessHgt</span><span class="p">(</span><span class="s1">&#39;REF_M_HF&#39;</span><span class="p">,</span><span class="n">hArr</span><span class="p">,</span> <span class="n">pix_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pix_size</span><span class="p">,</span> <span class="n">mask</span> <span class="o">=</span> <span class="n">mask</span><span class="p">,</span> <span class="n">outH5Obj</span> <span class="o">=</span> <span class="n">h5fi</span><span class="p">,</span> <span class="n">isSave</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">saveMidResults</span><span class="p">)</span>
+        <span class="c1">#####################################</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Fin preprocessing&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">hArr</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="n">h5fi</span><span class="p">,</span> <span class="p">[]</span>
+        <span class="n">Ar</span><span class="p">,</span> <span class="n">Er</span><span class="p">,</span> <span class="n">validOvr</span><span class="p">,</span> <span class="n">validPat</span><span class="p">,</span> <span class="n">hArr_i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildOverlapErrors</span><span class="p">(</span><span class="n">mXArr_rp</span><span class="p">,</span> <span class="n">hArr</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">res_szY</span><span class="p">,</span> <span class="n">res_szX</span><span class="p">,</span> <span class="n">otype</span><span class="o">=</span><span class="s1">&#39;h&#39;</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">validPat</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">h5fi</span><span class="p">,</span> <span class="p">[]</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="n">Ar</span><span class="p">[</span><span class="n">validOvr</span><span class="p">]</span>
+        <span class="n">E</span> <span class="o">=</span> <span class="n">Er</span><span class="p">[</span><span class="n">validOvr</span><span class="p">]</span> <span class="c1"># 3 cols pitch/roll/piston</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">oeType</span><span class="o">==</span><span class="s1">&#39;FULL&#39;</span><span class="p">:</span>
+            <span class="n">C</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getCorrectorsFullOE</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">E</span><span class="p">,</span> <span class="n">validPat</span><span class="p">)</span>
+            <span class="n">C</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">C</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">validPat</span><span class="p">)))</span><span class="o">.</span><span class="n">T</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">invA</span> <span class="o">=</span> <span class="n">calcMatrixInv</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">validPat</span> <span class="o">=</span> <span class="n">validPat</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">invType</span><span class="p">)</span>
+            <span class="n">C</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">invA</span><span class="p">,</span> <span class="n">E</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Fin determining correctors array&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">post_process</span> <span class="o">==</span> <span class="s1">&#39;ref_cv&#39;</span><span class="p">:</span>
+            <span class="n">C</span><span class="p">[</span><span class="n">validPat</span><span class="p">,</span><span class="mi">1</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">detrend</span><span class="p">(</span><span class="n">C</span><span class="p">[</span><span class="n">validPat</span><span class="p">,</span><span class="mi">1</span><span class="p">:</span><span class="mi">3</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        
+        <span class="c1"># figure(101); plot(C[:,0]); title(&#39;Piston&#39;)</span>
+        <span class="c1"># figure(103); plot(C[:,1]); title(&#39;Roll&#39;)</span>
+        <span class="c1"># figure(103); plot(C[:,2]); title(&#39;Pitch&#39;)</span>
+        <span class="n">h5fi</span><span class="p">[</span><span class="s1">&#39;height&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">instrScale</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">correctAndJoin</span><span class="p">(</span><span class="n">C</span><span class="p">,</span> <span class="n">hArr_i</span><span class="p">,</span> <span class="n">otype</span><span class="o">=</span><span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="n">h5fi</span><span class="o">=</span><span class="n">h5fi</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Fin correction&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">h5fi</span><span class="p">,</span> <span class="n">C</span></div>
+
+<div class="viewcode-block" id="MatrixOverlapErrStitch.getCorrectorsFullOE"><a class="viewcode-back" href="../../../../PyLOSt.ui.stitch_algorithms.html#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.getCorrectorsFullOE">[docs]</a>    <span class="k">def</span> <span class="nf">getCorrectorsFullOE</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">A</span><span class="p">,</span><span class="n">E</span><span class="p">,</span><span class="n">validPat</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get correctors when all pixels in the overlap are used</span>
+
+<span class="sd">        :param A: IndexMatrix</span>
+<span class="sd">        :param E: Overlap errors array</span>
+<span class="sd">        :param validPat: Valid subapertures</span>
+<span class="sd">        :return: Correctors array</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">xvRef</span><span class="p">,</span> <span class="n">yvRef</span> <span class="o">=</span> <span class="n">getXYGrid</span><span class="p">(</span><span class="n">E</span><span class="p">,</span> <span class="n">pix_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pix_size</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">mask</span><span class="o">=~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">E</span><span class="p">))</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="n">A</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,:]</span>
+        <span class="n">B</span> <span class="o">=</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">E</span><span class="p">)</span>
+        <span class="n">B</span> <span class="o">=</span> <span class="n">B</span><span class="p">[:,:,:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="n">A</span><span class="o">*</span><span class="n">B</span>
+        <span class="n">sa</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="p">(</span><span class="n">sa</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">sa</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">sa</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="n">sa</span><span class="p">[</span><span class="mi">3</span><span class="p">]))</span>
+        <span class="n">E</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">E</span><span class="p">,</span> <span class="p">(</span><span class="n">sa</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">sa</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">sa</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">valPix</span> <span class="o">=</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">E</span><span class="p">[:,</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="n">A</span><span class="p">[</span><span class="n">valPix</span><span class="p">,:]</span>
+        <span class="n">xv</span><span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">xvRef</span><span class="p">,</span> <span class="p">(</span><span class="n">sa</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">sa</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">sa</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="mi">1</span><span class="p">))[</span><span class="n">valPix</span><span class="p">]</span>
+        <span class="n">yv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">yvRef</span><span class="p">,</span> <span class="p">(</span><span class="n">sa</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">sa</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">sa</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="mi">1</span><span class="p">))[</span><span class="n">valPix</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="o">~</span><span class="bp">self</span><span class="o">.</span><span class="n">isSlopeStitch</span><span class="p">:</span> <span class="c1"># for height stitching c0+c1X+c2Y = e0</span>
+            <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">A</span><span class="p">,</span><span class="n">A</span><span class="o">*</span><span class="n">yv</span><span class="p">,</span><span class="n">A</span><span class="o">*</span><span class="n">xv</span><span class="p">),</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">useRefMeasureData</span><span class="o">==</span><span class="s1">&#39;extract_from_stitching&#39;</span><span class="p">:</span> <span class="c1"># need to test</span>
+                <span class="n">A</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildAforExtractRef</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">xv</span><span class="p">,</span><span class="n">yv</span><span class="p">)</span>
+            <span class="n">A_shp</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">shape</span>
+            <span class="n">validPat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">validPat</span><span class="p">,</span> <span class="n">A_shp</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">useRefMeasureData</span><span class="o">==</span><span class="s1">&#39;extract_from_stitching&#39;</span><span class="p">:</span> <span class="c1"># need to test</span>
+                <span class="n">A</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildAforExtractRef</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">xv</span><span class="p">,</span><span class="n">yv</span><span class="p">)</span>
+        <span class="n">E</span> <span class="o">=</span> <span class="n">E</span><span class="p">[</span><span class="n">valPix</span><span class="p">,:]</span>
+        <span class="n">invA</span> <span class="o">=</span> <span class="n">calcMatrixInv</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">validPat</span><span class="o">=</span><span class="n">validPat</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">invType</span><span class="p">)</span>
+        <span class="n">C</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">invA</span><span class="p">,</span> <span class="n">E</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">C</span></div>
+
+<div class="viewcode-block" id="MatrixOverlapErrStitch.buildAforExtractRef"><a class="viewcode-back" href="../../../../PyLOSt.ui.stitch_algorithms.html#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.buildAforExtractRef">[docs]</a>    <span class="k">def</span> <span class="nf">buildAforExtractRef</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">A</span><span class="p">,</span><span class="n">xv</span><span class="p">,</span><span class="n">yv</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Expand index matrix to extract reference from measured data</span>
+
+<span class="sd">        :param A: IndexMatrix</span>
+<span class="sd">        :param xv: X-grid data in reference coordinates</span>
+<span class="sd">        :param yv: Y-grid data in reference coordinates</span>
+<span class="sd">        :return: Expanded index matrix</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">degree</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">degRef</span>
+        <span class="n">startDeg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">startDegRef</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">startDeg</span><span class="p">,</span> <span class="n">degree</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">A</span><span class="p">,</span> <span class="n">A</span> <span class="o">*</span> <span class="n">xv</span> <span class="o">**</span> <span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="o">*</span> <span class="n">yv</span> <span class="o">**</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="n">k</span><span class="p">)),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">A</span></div>
+
+<div class="viewcode-block" id="MatrixOverlapErrStitch.avgScans"><a class="viewcode-back" href="../../../../PyLOSt.ui.stitch_algorithms.html#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.avgScans">[docs]</a>    <span class="k">def</span> <span class="nf">avgScans</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mXArr</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Average stitched scans</span>
+
+<span class="sd">        :param mXArr: Translation offset array</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">h5stitched</span>                             <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">h5f</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">stitch_loc</span><span class="p">]</span>                                          
+        <span class="n">avgStitchedScans</span><span class="p">(</span><span class="n">h5stitched</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">isSlopeStitch</span><span class="p">,</span> <span class="n">mXArr</span><span class="p">)</span></div>
+        
+<div class="viewcode-block" id="MatrixOverlapErrStitch.buildOverlapErrors"><a class="viewcode-back" href="../../../../PyLOSt.ui.stitch_algorithms.html#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.buildOverlapErrors">[docs]</a>    <span class="k">def</span> <span class="nf">buildOverlapErrors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">oXArr</span><span class="p">,</span> <span class="n">pat_arr</span><span class="p">,</span> <span class="n">mask_arr</span><span class="p">,</span> <span class="n">res_szY</span><span class="p">,</span> <span class="n">res_szX</span><span class="p">,</span> <span class="n">otype</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Overlap errors are retrieved as numpy ndarray</span>
+
+<span class="sd">        :param oXArr: Translation offset array. Steps are in pixels</span>
+<span class="sd">        :param pat_arr: Subaperture slope/height array</span>
+<span class="sd">        :param mask_arr: Mask array with same shape as pat_arr</span>
+<span class="sd">        :param res_szY: Stitched result data size Y</span>
+<span class="sd">        :param res_szX: Stitched result data size X</span>
+<span class="sd">        :param otype: Sata object type, &#39;sx&#39; for slopes X, &#39;sy&#39; for slopes Y, &#39;h&#39; for height</span>
+<span class="sd">        :return: IndexMatrix, overlap errors, valid overlaps, valid subapertures, subaperture data array</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="n">A</span><span class="p">,</span> <span class="n">sarr_diff</span><span class="p">,</span> <span class="n">Ep_diff</span><span class="p">,</span> <span class="n">max_ov_cnt</span><span class="p">,</span> <span class="n">validOverlaps</span><span class="p">,</span> <span class="n">validPatches</span><span class="p">,</span> <span class="n">sarr_ret</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="n">buildOverlapMatrices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">oXArr</span><span class="p">,</span> <span class="n">pat_arr</span><span class="p">,</span> <span class="n">mask_arr</span><span class="p">,</span> <span class="n">res_szY</span><span class="p">,</span> <span class="n">res_szX</span><span class="p">,</span> <span class="n">otype</span><span class="p">,</span> <span class="n">fitData</span><span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">oeType</span><span class="o">==</span><span class="s1">&#39;PF&#39;</span><span class="p">),</span> <span class="n">degRef</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">degRef</span><span class="p">,</span> <span class="n">startDegRef</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">startDegRef</span><span class="p">,</span> <span class="n">extractRef</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">useRefMeasureData</span><span class="o">==</span><span class="s1">&#39;extract_from_stitching&#39;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">oeType</span><span class="o">==</span><span class="s1">&#39;SM&#39;</span><span class="p">:</span>
+            <span class="c1"># Method 1: overlap errors= simple average of 2D overlap diff image</span>
+            <span class="n">E</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">sarr_diff</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">oeType</span><span class="o">==</span><span class="s1">&#39;FULL&#39;</span><span class="p">:</span>
+            <span class="c1"># Method 2: overlap errors=  2D overlap diff image</span>
+            <span class="n">E</span> <span class="o">=</span> <span class="n">sarr_diff</span>
+        <span class="k">else</span><span class="p">:</span><span class="c1">#oetype=PF</span>
+            <span class="c1"># Method 3: plane fit errors (default)</span>
+            <span class="n">E</span> <span class="o">=</span> <span class="n">Ep_diff</span> <span class="k">if</span> <span class="n">otype</span><span class="o">==</span><span class="s1">&#39;h&#39;</span> <span class="k">else</span> <span class="n">Ep_diff</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span>
+                
+        <span class="k">return</span> <span class="n">A</span><span class="p">,</span> <span class="n">E</span><span class="p">,</span> <span class="n">validOverlaps</span><span class="p">,</span> <span class="n">validPatches</span><span class="p">,</span> <span class="n">sarr_ret</span></div>
+    
+<div class="viewcode-block" id="MatrixOverlapErrStitch.maskByThreshold"><a class="viewcode-back" href="../../../../PyLOSt.ui.stitch_algorithms.html#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.maskByThreshold">[docs]</a>    <span class="k">def</span> <span class="nf">maskByThreshold</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">carr</span><span class="p">,</span> <span class="n">oarr</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply a threshold on subaperture values</span>
+
+<span class="sd">        :param carr: Corrected subapertures</span>
+<span class="sd">        :param oarr: Original subapertures</span>
+<span class="sd">        :return: Corrected subapertures after threshold</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">carr</span><span class="p">[</span><span class="n">oarr</span><span class="o">&lt;</span><span class="bp">self</span><span class="o">.</span><span class="n">thrMin</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="n">carr</span><span class="p">[</span><span class="n">oarr</span><span class="o">&gt;</span><span class="bp">self</span><span class="o">.</span><span class="n">thrMax</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="k">return</span> <span class="n">carr</span></div>
+        
+<div class="viewcode-block" id="MatrixOverlapErrStitch.correctAndJoin"><a class="viewcode-back" href="../../../../PyLOSt.ui.stitch_algorithms.html#PyLOSt.ui.stitch_algorithms.matrix_overlaperr_stitch.MatrixOverlapErrStitch.correctAndJoin">[docs]</a>    <span class="k">def</span> <span class="nf">correctAndJoin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">sarr</span><span class="p">,</span> <span class="n">otype</span><span class="p">,</span> <span class="n">h5fi</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply corrections and join the subapertures</span>
+
+<span class="sd">        :param c: Correctors</span>
+<span class="sd">        :param sarr: Subaperture array</span>
+<span class="sd">        :param otype: Data type - slope/height</span>
+<span class="sd">        :param h5fi: H5 stitched object</span>
+<span class="sd">        :return: Stitched image</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">otype</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;sx&#39;</span><span class="p">,</span> <span class="s1">&#39;sy&#39;</span><span class="p">]:</span>
+            <span class="n">sarr_c</span> <span class="o">=</span> <span class="n">sarr</span> <span class="o">-</span> <span class="n">c</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">c</span><span class="p">),</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">useThreshold</span><span class="o">==</span><span class="s1">&#39;post_process&#39;</span><span class="p">:</span>       <span class="n">sarr_c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">maskByThreshold</span><span class="p">(</span><span class="n">sarr_c</span><span class="p">,</span> <span class="n">sarr</span><span class="p">)</span>
+            <span class="n">sf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">sarr_c</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            
+            <span class="c1">#figure; plot(sarr_c[:,int(sarr_c.shape[1]/2),:].T); title(&#39;Corrected patches centerline&#39;)</span>
+            <span class="k">return</span> <span class="n">sf</span>
+        
+        <span class="k">elif</span> <span class="n">otype</span><span class="o">==</span><span class="s1">&#39;h&#39;</span><span class="p">:</span>    
+            <span class="n">patch_count</span><span class="p">,</span><span class="n">ny</span><span class="p">,</span><span class="n">nx</span>           <span class="o">=</span> <span class="n">sarr</span><span class="o">.</span><span class="n">shape</span>
+            <span class="n">xx</span><span class="p">,</span><span class="n">yy</span>                       <span class="o">=</span> <span class="n">getXYGrid</span><span class="p">(</span><span class="n">sarr</span><span class="p">[</span><span class="mi">0</span><span class="p">,:,:],</span> <span class="bp">self</span><span class="o">.</span><span class="n">pix_size</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">sarr</span><span class="p">[</span><span class="mi">0</span><span class="p">,:,:]</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
+            
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">oeType</span><span class="o">==</span><span class="s1">&#39;SM&#39;</span><span class="p">:</span>
+                <span class="n">corPitch</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">corRoll</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">corPiston</span>   <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">patch_count</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">corPitch</span>    <span class="o">=</span> <span class="n">c</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">patch_count</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">xx</span>
+                <span class="n">corRoll</span>     <span class="o">=</span> <span class="n">c</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">patch_count</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">yy</span>
+                <span class="n">corPiston</span>   <span class="o">=</span> <span class="n">c</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">patch_count</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+            
+            <span class="n">cor</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">useRefMeasureData</span><span class="o">==</span><span class="s1">&#39;extract_from_stitching&#39;</span><span class="p">:</span>    <span class="c1"># polynomial fit only</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">degree</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">degRef</span>
+                <span class="n">startDeg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">startDegRef</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">oeType</span><span class="o">==</span><span class="s1">&#39;PF&#39;</span><span class="p">:</span>
+                    <span class="n">c</span> <span class="o">=</span> <span class="n">c</span><span class="p">[:,(</span><span class="n">startDeg</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span> <span class="c1">#ignore coeffs for degree less than startDeg</span>
+                <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">startDeg</span><span class="p">,</span><span class="n">degree</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+                    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+                        <span class="n">cor</span> <span class="o">=</span> <span class="n">c</span><span class="p">[:,</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">patch_count</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">n</span><span class="o">==</span><span class="mi">0</span> <span class="ow">and</span> <span class="n">k</span><span class="o">==</span><span class="mi">0</span> <span class="k">else</span> <span class="n">cor</span><span class="o">+</span><span class="p">(</span><span class="n">c</span><span class="p">[:,</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">patch_count</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span><span class="o">*</span><span class="n">xx</span><span class="o">**</span><span class="p">(</span><span class="n">k</span><span class="p">)</span><span class="o">*</span><span class="n">yy</span><span class="o">**</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="n">k</span><span class="p">)</span>
+                        <span class="n">i</span><span class="o">+=</span><span class="mi">1</span>
+            <span class="n">cor</span> <span class="o">=</span> <span class="n">cor</span> <span class="o">+</span> <span class="n">corPitch</span> <span class="o">+</span> <span class="n">corRoll</span> <span class="o">+</span> <span class="n">corPiston</span>
+            <span class="n">sarr_c</span> <span class="o">=</span> <span class="n">sarr</span> <span class="o">-</span> <span class="p">(</span><span class="n">cor</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">saveMidResults</span><span class="p">:</span>
+                <span class="n">h5fi</span><span class="p">[</span><span class="s1">&#39;correction_images&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cor</span>
+            <span class="n">figure</span><span class="p">(</span><span class="mi">11</span><span class="p">);</span> <span class="n">plot</span><span class="p">(</span><span class="n">sarr_c</span><span class="p">[:,</span><span class="nb">int</span><span class="p">(</span><span class="n">sarr_c</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="mi">2</span><span class="p">),:]</span><span class="o">.</span><span class="n">T</span><span class="p">);</span> <span class="n">title</span><span class="p">(</span><span class="s1">&#39;Corrected patches centerline&#39;</span><span class="p">)</span>
+            <span class="n">figure</span><span class="p">(</span><span class="mi">13</span><span class="p">);</span> <span class="n">plot</span><span class="p">(</span><span class="n">sarr</span><span class="p">[:,</span><span class="nb">int</span><span class="p">(</span><span class="n">sarr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="mi">2</span><span class="p">),:]</span><span class="o">.</span><span class="n">T</span><span class="p">);</span> <span class="n">title</span><span class="p">(</span><span class="s1">&#39; subaps centerline&#39;</span><span class="p">)</span>
+            <span class="n">sf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">sarr_c</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                
+            <span class="k">return</span> <span class="n">sf</span></div></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../index.html">PyLOSt</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../PyLOSt.html">PyLOSt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quick_guide.html">Quick Guide</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,205 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PyLOSt.ui.settings.SGSetupOptions &#8212; PyLOSt  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/alabaster.css" />
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for PyLOSt.ui.settings.SGSetupOptions</h1><div class="highlight"><pre>
+<span></span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Created on Jul 16, 2018</span>
+
+<span class="sd">Retrieve stitch setup options for the selected instrument from database and display in GUI. Add/delete stitch setup options.</span>
+
+<span class="sd">@author: adapa</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">PyQt5</span> <span class="kn">import</span> <span class="n">uic</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtWidgets</span> <span class="kn">import</span> <span class="n">QMainWindow</span><span class="p">,</span> <span class="n">QListWidgetItem</span>
+
+<span class="kn">from</span> <span class="nn">PyLOSt.databases.gs_table_classes</span> <span class="kn">import</span> <span class="n">StitchSetupOptionsInstr</span><span class="p">,</span> \
+    <span class="n">StitchSetupOptionsCommon</span>
+<span class="kn">from</span> <span class="nn">PyLOSt.ui.settings.SGNewOption</span> <span class="kn">import</span> <span class="n">SGNewOption</span>
+<span class="kn">from</span> <span class="nn">PyLOSt.util.commons</span> <span class="kn">import</span> <span class="n">alertMsg</span><span class="p">,</span> <span class="n">questionMsg</span>
+
+<span class="kn">from</span> <span class="nn">PyLOSt.util.resource_path</span> <span class="kn">import</span> <span class="n">resource_path</span>
+<span class="n">qtCreatorFile</span> <span class="o">=</span> <span class="n">resource_path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;ui&quot;</span><span class="p">,</span> <span class="s2">&quot;settings&quot;</span><span class="p">,</span> <span class="s2">&quot;setup_options_v1.ui&quot;</span><span class="p">))</span> <span class="c1"># Enter file here.</span>
+ 
+<span class="n">Ui_MainWindow</span><span class="p">,</span> <span class="n">QtBaseClass</span> <span class="o">=</span> <span class="n">uic</span><span class="o">.</span><span class="n">loadUiType</span><span class="p">(</span><span class="n">qtCreatorFile</span><span class="p">)</span>
+ 
+<div class="viewcode-block" id="SGSetupOptions"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGSetupOptions.SGSetupOptions">[docs]</a><span class="k">class</span> <span class="nc">SGSetupOptions</span><span class="p">(</span><span class="n">QMainWindow</span><span class="p">,</span> <span class="n">Ui_MainWindow</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">instrId</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">QMainWindow</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">parent</span><span class="p">)</span>
+        <span class="n">Ui_MainWindow</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setupUi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iID</span> <span class="o">=</span> <span class="n">instrId</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">loadList</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">allOptionsList</span><span class="o">.</span><span class="n">itemDoubleClicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">editOption</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">btnAdd</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">addNewOption</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">btnDelete</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deleteOption</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">btnAdd_iopt</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">addInsOption</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">btnDelete_iopt</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deleteInsOption</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">btnDone</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">done</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SGSetupOptions.done"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGSetupOptions.SGSetupOptions.done">[docs]</a>    <span class="k">def</span> <span class="nf">done</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="SGSetupOptions.addNewOption"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGSetupOptions.SGSetupOptions.addNewOption">[docs]</a>    <span class="k">def</span> <span class="nf">addNewOption</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">newoptDialog</span> <span class="o">=</span> <span class="n">SGNewOption</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">newoptDialog</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+        
+<div class="viewcode-block" id="SGSetupOptions.deleteOption"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGSetupOptions.SGSetupOptions.deleteOption">[docs]</a>    <span class="k">def</span> <span class="nf">deleteOption</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">cit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">allOptionsList</span><span class="o">.</span><span class="n">currentItem</span><span class="p">()</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="c1">#.toInt()[0]</span>
+            <span class="k">if</span> <span class="n">questionMsg</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Delete option&quot;</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="s2">&quot;Delete stitching setup option (Yes/No?). This will remove the option from all instruments setups&quot;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">qdinsopts</span> <span class="o">=</span> <span class="n">StitchSetupOptionsInstr</span><span class="o">.</span><span class="n">selectBy</span><span class="p">(</span><span class="n">optionID</span><span class="o">=</span><span class="n">cit</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">qdinsopts</span><span class="p">:</span>
+                    <span class="n">it</span><span class="o">.</span><span class="n">destroySelf</span><span class="p">()</span>
+                <span class="n">StitchSetupOptionsCommon</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">cit</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> 
+            <span class="n">alertMsg</span><span class="p">(</span><span class="s2">&quot;Error delete option (common)&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loadList</span><span class="p">()</span></div>
+        
+<div class="viewcode-block" id="SGSetupOptions.addInsOption"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGSetupOptions.SGSetupOptions.addInsOption">[docs]</a>    <span class="k">def</span> <span class="nf">addInsOption</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">cit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">allOptionsList</span><span class="o">.</span><span class="n">currentItem</span><span class="p">()</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="c1">#.toInt()[0]</span>
+            <span class="n">qo</span> <span class="o">=</span> <span class="n">StitchSetupOptionsCommon</span><span class="o">.</span><span class="n">selectBy</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">cit</span><span class="p">)</span>
+            <span class="n">StitchSetupOptionsInstr</span><span class="p">(</span><span class="n">instrID</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">iID</span><span class="p">,</span> <span class="n">optionID</span><span class="o">=</span><span class="n">cit</span><span class="p">,</span> <span class="n">defVal</span><span class="o">=</span><span class="n">qo</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">defVal</span><span class="p">,</span> <span class="n">defValUnit</span><span class="o">=</span><span class="n">qo</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">defValUnit</span><span class="p">,</span> <span class="n">addedBy</span><span class="o">=</span><span class="n">qo</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">addedBy</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="n">qo</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">locationID</span><span class="p">,</span> <span class="n">dateAdded</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> 
+            <span class="n">alertMsg</span><span class="p">(</span><span class="s2">&quot;Error add option (instr)&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loadList</span><span class="p">()</span></div>
+<div class="viewcode-block" id="SGSetupOptions.deleteInsOption"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGSetupOptions.SGSetupOptions.deleteInsOption">[docs]</a>    <span class="k">def</span> <span class="nf">deleteInsOption</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">cit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">insOptionsList</span><span class="o">.</span><span class="n">currentItem</span><span class="p">()</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="c1">#.toInt()[0]</span>
+            <span class="n">StitchSetupOptionsInstr</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">cit</span><span class="p">)</span>
+            
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> 
+            <span class="n">alertMsg</span><span class="p">(</span><span class="s2">&quot;Error delete option (instr)&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loadList</span><span class="p">()</span></div>
+        
+<div class="viewcode-block" id="SGSetupOptions.loadList"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGSetupOptions.SGSetupOptions.loadList">[docs]</a>    <span class="k">def</span> <span class="nf">loadList</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Instr options list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qinsopts</span> <span class="o">=</span> <span class="n">StitchSetupOptionsInstr</span><span class="o">.</span><span class="n">selectBy</span><span class="p">(</span><span class="n">instrID</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">iID</span><span class="p">)</span>
+<span class="c1">#         self.qopts = StitchSetupOptionsCommon.select(AND(StitchSetupOptionsInstr.q.instrID==self.iID, StitchSetupOptionsInstr.q.optionID==StitchSetupOptionsCommon.q.id))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">insOptionsList</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">qinsopts</span><span class="p">:</span>
+            <span class="n">qco</span> <span class="o">=</span> <span class="n">StitchSetupOptionsCommon</span><span class="o">.</span><span class="n">selectBy</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">it</span><span class="o">.</span><span class="n">optionID</span><span class="p">)</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="n">QListWidgetItem</span><span class="p">()</span>
+            <span class="n">item</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">qco</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">option</span><span class="p">)</span><span class="c1">#option desc</span>
+            <span class="n">item</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">it</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">insOptionsList</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        
+        <span class="c1"># All options list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qallopts</span> <span class="o">=</span> <span class="n">StitchSetupOptionsCommon</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">allOptionsList</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">qallopts</span><span class="p">:</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="n">QListWidgetItem</span><span class="p">()</span>
+            <span class="n">item</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">it</span><span class="o">.</span><span class="n">option</span><span class="p">)</span><span class="c1">#option desc</span>
+            <span class="n">item</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">it</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">allOptionsList</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="n">item</span><span class="p">)</span></div>
+        
+<div class="viewcode-block" id="SGSetupOptions.editOption"><a class="viewcode-back" href="../../../../PyLOSt.ui.settings.html#PyLOSt.ui.settings.SGSetupOptions.SGSetupOptions.editOption">[docs]</a>    <span class="k">def</span> <span class="nf">editOption</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">editoptDialog</span> <span class="o">=</span> <span class="n">SGNewOption</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">editoptDialog</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../index.html">PyLOSt</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../PyLOSt.html">PyLOSt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quick_guide.html">Quick Guide</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

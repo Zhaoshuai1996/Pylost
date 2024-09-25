@@ -1,0 +1,1049 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pylost_widgets.util.ow_filereaders &#8212; pylost_widgets  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for pylost_widgets.util.ow_filereaders</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">contextlib</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">path</span><span class="p">,</span> <span class="n">remove</span>
+
+<span class="kn">import</span> <span class="nn">h5py</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">silx</span>
+<span class="kn">from</span> <span class="nn">Orange.data</span> <span class="kn">import</span> <span class="n">FileFormat</span>
+<span class="kn">from</span> <span class="nn">PyQt5</span> <span class="kn">import</span> <span class="n">uic</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtCore</span> <span class="kn">import</span> <span class="n">QModelIndex</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtWidgets</span> <span class="kn">import</span> <span class="n">QDialog</span><span class="p">,</span> <span class="n">QTableWidgetItem</span><span class="p">,</span> <span class="n">QDialogButtonBox</span><span class="p">,</span> <span class="n">QHeaderView</span><span class="p">,</span> <span class="n">QInputDialog</span><span class="p">,</span> <span class="n">QAction</span>
+<span class="kn">from</span> <span class="nn">astropy.units</span> <span class="kn">import</span> <span class="n">Quantity</span>
+<span class="kn">from</span> <span class="nn">silx.io.dictdump</span> <span class="kn">import</span> <span class="n">h5todict</span><span class="p">,</span> <span class="n">dicttoh5</span>
+
+<span class="kn">from</span> <span class="nn">PyLOSt.data_in.fizeau.datx.read_datx</span> <span class="kn">import</span> <span class="n">readDatxFile</span>
+<span class="kn">from</span> <span class="nn">PyLOSt.data_in.francois_esrf.ltp</span> <span class="kn">import</span> <span class="n">LTPdata</span>
+<span class="kn">from</span> <span class="nn">PyLOSt.data_in.francois_esrf.veeco</span> <span class="kn">import</span> <span class="n">OpdData</span>
+<span class="kn">from</span> <span class="nn">PyLOSt.data_in.francois_esrf.zygo</span> <span class="kn">import</span> <span class="n">MetroProData</span>
+<span class="kn">from</span> <span class="nn">PyLOSt.data_in.sharper.ImopHasoSlopes</span> <span class="kn">import</span> <span class="n">ImopHasoSlopes</span>
+<span class="kn">from</span> <span class="nn">pylost_widgets.util.DictionaryTree</span> <span class="kn">import</span> <span class="n">DictionaryTreeDialog</span>
+<span class="kn">from</span> <span class="nn">pylost_widgets.util.MetrologyData</span> <span class="kn">import</span> <span class="n">MetrologyData</span>
+<span class="kn">from</span> <span class="nn">pylost_widgets.util.resource_path</span> <span class="kn">import</span> <span class="n">resource_path</span>
+<span class="kn">from</span> <span class="nn">pylost_widgets.util.util_functions</span> <span class="kn">import</span> <span class="n">format_nanarr</span><span class="p">,</span> <span class="n">flip_data</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">qtCreatorFile</span> <span class="o">=</span> <span class="n">resource_path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;gui&quot;</span><span class="p">,</span> <span class="s2">&quot;dialog_data_tree.ui&quot;</span><span class="p">))</span> <span class="c1"># Enter file here.</span>
+<span class="n">Ui_tree</span><span class="p">,</span> <span class="n">QtBaseClass</span> <span class="o">=</span> <span class="n">uic</span><span class="o">.</span><span class="n">loadUiType</span><span class="p">(</span><span class="n">qtCreatorFile</span><span class="p">)</span>
+<span class="n">qtCreatorFile</span> <span class="o">=</span> <span class="n">resource_path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;gui&quot;</span><span class="p">,</span> <span class="s2">&quot;dialog_ascii_reader.ui&quot;</span><span class="p">))</span> <span class="c1"># Enter file here.</span>
+<span class="n">Ui_ascii</span><span class="p">,</span> <span class="n">QtBaseClass</span> <span class="o">=</span> <span class="n">uic</span><span class="o">.</span><span class="n">loadUiType</span><span class="p">(</span><span class="n">qtCreatorFile</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AsciiDialog"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.AsciiDialog">[docs]</a><span class="k">class</span> <span class="nc">AsciiDialog</span><span class="p">(</span><span class="n">QDialog</span><span class="p">,</span> <span class="n">Ui_ascii</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Dialog for loading ascii files&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize Dialog for ascii file loader.</span>
+
+<span class="sd">        :param parent: Parent object</span>
+<span class="sd">        :type parent: QWidget</span>
+<span class="sd">        :param filename: Loaded file name</span>
+<span class="sd">        :type filename: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">QDialog</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setupUi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buttonBox</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">Apply</span><span class="p">)</span><span class="o">.</span><span class="n">setAutoDefault</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buttonBox</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">Apply</span><span class="p">)</span><span class="o">.</span><span class="n">setDefault</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buttonBox</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">Cancel</span><span class="p">)</span><span class="o">.</span><span class="n">setAutoDefault</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buttonBox</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">Cancel</span><span class="p">)</span><span class="o">.</span><span class="n">setDefault</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buttonBox</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">Apply</span><span class="p">)</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">accept</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">filename</span><span class="o">!=</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">content</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">content</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">skip_rows</span><span class="o">.</span><span class="n">returnPressed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">apply_options</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">delimiter</span><span class="o">.</span><span class="n">returnPressed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">apply_options</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">read_table_header</span><span class="o">.</span><span class="n">toggled</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">apply_options</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">apply_options</span><span class="p">()</span>
+
+<div class="viewcode-block" id="AsciiDialog.accept"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.AsciiDialog.accept">[docs]</a>    <span class="k">def</span> <span class="nf">accept</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Callback after clicking apply button&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">apply_options</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="AsciiDialog.apply_options"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.AsciiDialog.apply_options">[docs]</a>    <span class="k">def</span> <span class="nf">apply_options</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Apply selected options (e.g. no of rows to skip) to the file data.&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span>
+            <span class="n">skip</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">skip_rows</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">skip</span><span class="o">&gt;</span><span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">)</span><span class="o">&gt;</span><span class="n">skip</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">skip</span><span class="p">:]</span>
+
+            <span class="n">delim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">delimiter</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">delim</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;tab&#39;</span><span class="p">,</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">t&#39;</span><span class="p">]:</span>
+                <span class="n">delim</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span>
+            <span class="k">if</span> <span class="n">delim</span><span class="o">!=</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="p">[[</span><span class="n">y</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">delim</span><span class="p">)]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]</span>
+
+            <span class="n">keys</span> <span class="o">=</span> <span class="s1">&#39;file_data&#39;</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_table_header</span><span class="o">.</span><span class="n">isChecked</span><span class="p">()</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">&gt;=</span><span class="mi">2</span><span class="p">:</span>
+                <span class="n">keys</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                    <span class="k">pass</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_table_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">fill_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">keys</span><span class="p">)</span>
+                <span class="n">header</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">horizontalHeader</span><span class="p">()</span>
+                <span class="n">header</span><span class="o">.</span><span class="n">setSectionResizeMode</span><span class="p">(</span><span class="n">QHeaderView</span><span class="o">.</span><span class="n">ResizeToContents</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;AsciiDialog--&gt;apply_options&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AsciiDialog.set_table_data"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.AsciiDialog.set_table_data">[docs]</a>    <span class="k">def</span> <span class="nf">set_table_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Display file lines in table (limited to 100 lines)</span>
+
+<span class="sd">        :param content: File content</span>
+<span class="sd">        :type content: list/np.ndarray</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">content</span><span class="p">[:</span><span class="mi">100</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">content</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">100</span> <span class="k">else</span> <span class="n">content</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">setRowCount</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">setColumnCount</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">setItem</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">QTableWidgetItem</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="n">data</span><span class="o">.</span><span class="n">ndim</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">ndim</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+                    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">setRowCount</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">setColumnCount</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">setItem</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">QTableWidgetItem</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">])))</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;AsciiDialog--&gt;set_table_data&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AsciiDialog.fill_data"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.AsciiDialog.fill_data">[docs]</a>    <span class="k">def</span> <span class="nf">fill_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">keys</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update data to retrieve in dictionary format. If header is selected, keys are taken from header names if they match the size of columns, else the header is used as a single key.</span>
+
+<span class="sd">        :param data: File data formatted with current dialog options</span>
+<span class="sd">        :type data: np.ndarray/list</span>
+<span class="sd">        :param keys: Key names to convert to dictionary format, e.g. from header</span>
+<span class="sd">        :type keys: list/str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="n">data</span><span class="o">.</span><span class="n">ndim</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">ndim</span><span class="o">==</span><span class="mi">2</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span><span class="o">==</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">keys</span><span class="p">):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">keys</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">data</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">keys</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="n">keys</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">keys</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="n">data</span><span class="p">}</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;AsciiDialog--&gt;fill_data&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="AsciiReader"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.AsciiReader">[docs]</a><span class="k">class</span> <span class="nc">AsciiReader</span><span class="p">(</span><span class="n">FileFormat</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base ascii file reader. Needs to be subclassed with field &#39;EXTENSIONS&#39; to be used.&quot;&quot;&quot;</span>
+    <span class="n">DESCRIPTION</span> <span class="o">=</span> <span class="s1">&#39;Ascii file reader&#39;</span>
+    <span class="n">SUPPORT_COMPRESSED</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">SUPPORT_SPARSE_DATA</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">PRIORITY</span> <span class="o">=</span> <span class="mi">10</span>
+
+<div class="viewcode-block" id="AsciiReader.read"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.AsciiReader.read">[docs]</a>    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Default reader for ascii file formats. It opens a dialog and provides options to skip rows, split by string etc., to format file data.</span>
+
+<span class="sd">        :return: Formatted file data as dictionary</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">dialog</span> <span class="o">=</span> <span class="n">AsciiDialog</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dialog</span><span class="o">.</span><span class="n">exec_</span><span class="p">():</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">dialog</span><span class="o">.</span><span class="n">data</span>
+        <span class="k">return</span> <span class="n">data</span></div>
+
+<div class="viewcode-block" id="AsciiReader.write_file"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.AsciiReader.write_file">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">write_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Default ascii writer to save dictionary data.</span>
+
+<span class="sd">        :param filename: Save file name</span>
+<span class="sd">        :type filename: str</span>
+<span class="sd">        :param data: Dictionary data</span>
+<span class="sd">        :type data: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">MetrologyData</span><span class="p">):</span>
+                        <span class="n">attrs</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">get_print_attributes</span><span class="p">()</span>
+                        <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="si">{}</span><span class="s1"> attributes&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+                        <span class="k">for</span> <span class="n">akey</span> <span class="ow">in</span> <span class="n">attrs</span><span class="p">:</span>
+                            <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\t</span><span class="si">{}</span><span class="s1"> = </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">akey</span><span class="p">,</span> <span class="n">attrs</span><span class="p">[</span><span class="n">akey</span><span class="p">]))</span>
+                    <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">),</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%.5f</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="si">{}</span><span class="s1"> = </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]))</span></div>
+
+<div class="viewcode-block" id="AsciiReader.data_standard_format"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.AsciiReader.data_standard_format">[docs]</a>    <span class="k">def</span> <span class="nf">data_standard_format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert data in standard format readable by orange pylost widgets, e.g. import heights / slopes_x as MetrologyData from the raw file data.</span>
+
+<span class="sd">        :param data: Raw file data</span>
+<span class="sd">        :type data: dict</span>
+<span class="sd">        :return: Standard format data</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ret_data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">motors</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="s1">&#39;slopes_x&#39;</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;slopes_x&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">ndim</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s1">&#39;x&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">])</span>
+                    <span class="n">motors</span> <span class="o">+=</span> <span class="p">[{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="s1">&#39;motor_X&#39;</span><span class="p">,</span> <span class="s1">&#39;values&#39;</span><span class="p">:</span><span class="n">format_nanarr</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]),</span> <span class="s1">&#39;axis&#39;</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;unit&#39;</span><span class="p">:</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;xunit&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;xunit&#39;</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">else</span> <span class="s1">&#39;mm&#39;</span><span class="p">}]</span>
+                    <span class="n">ret_data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;slopes_x&#39;</span><span class="p">:</span> <span class="n">MetrologyData</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;slopes_x&#39;</span><span class="p">],</span>
+                                         <span class="n">unit</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;unit&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;unit&#39;</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">else</span> <span class="s1">&#39;urad&#39;</span><span class="p">,</span>
+                                         <span class="n">pix_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">axis_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Motor_x&#39;</span><span class="p">],</span> <span class="n">axis_values</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;motor_X&#39;</span><span class="p">],</span> <span class="n">motors</span><span class="o">=</span><span class="n">motors</span><span class="p">)}</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Error while converting to standard format: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">e</span><span class="p">)))</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ret_data</span></div></div>
+
+<div class="viewcode-block" id="TextDataReader"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.TextDataReader">[docs]</a><span class="k">class</span> <span class="nc">TextDataReader</span><span class="p">(</span><span class="n">AsciiReader</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;File loader subclassed from AsciiReader for txt, asc types. Uses default ascii reader and writer.&quot;&quot;&quot;</span>
+    <span class="n">DESCRIPTION</span> <span class="o">=</span> <span class="s1">&#39;Text data file reader&#39;</span>
+    <span class="n">EXTENSIONS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;.asc&#39;</span><span class="p">)</span>
+    <span class="n">PRIORITY</span> <span class="o">=</span> <span class="mi">11</span></div>
+
+<div class="viewcode-block" id="H5TreeDialog"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.H5TreeDialog">[docs]</a><span class="k">class</span> <span class="nc">H5TreeDialog</span><span class="p">(</span><span class="n">QDialog</span><span class="p">,</span> <span class="n">Ui_tree</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Dialog for loading HDF5 files&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialization for HDF5 file loader dialog.</span>
+
+<span class="sd">        :param parent: Parent object</span>
+<span class="sd">        :type parent: QWidget</span>
+<span class="sd">        :param filename: Loaded file name</span>
+<span class="sd">        :type filename: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">QDialog</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setupUi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">selected_item</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">selected_item_name</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">selected_item_type</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file_name</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h5f</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__treeview</span> <span class="o">=</span> <span class="n">silx</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">hdf5</span><span class="o">.</span><span class="n">Hdf5TreeView</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span>      <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__treeview</span><span class="o">.</span><span class="n">findHdf5TreeModel</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__treeview</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">selectItem</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lt</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__treeview</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">filename</span><span class="o">!=</span><span class="s1">&#39;&#39;</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">h5f</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">insertFile</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buttonBox</span><span class="o">.</span><span class="n">accepted</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">accept</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buttonBox</span><span class="o">.</span><span class="n">rejected</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reject</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__treeview</span><span class="o">.</span><span class="n">addContextMenuCallback</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">customContextMenu</span><span class="p">)</span>
+
+<div class="viewcode-block" id="H5TreeDialog.accept"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.H5TreeDialog.accept">[docs]</a>    <span class="k">def</span> <span class="nf">accept</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Callback after clicking apply button&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">h5f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span> <span class="k">pass</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="H5TreeDialog.reject"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.H5TreeDialog.reject">[docs]</a>    <span class="k">def</span> <span class="nf">reject</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Callback after clicking cancel button&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">h5f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span> <span class="k">pass</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">reject</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="H5TreeDialog.selectItem"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.H5TreeDialog.selectItem">[docs]</a>    <span class="k">def</span> <span class="nf">selectItem</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Callback after selecting an item in h5 tree&quot;&quot;&quot;</span>
+        <span class="n">selected</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__treeview</span><span class="o">.</span><span class="n">selectedH5Nodes</span><span class="p">())</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">selected</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">selected_item</span> <span class="o">=</span> <span class="n">selected</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">selected_item_name</span> <span class="o">=</span> <span class="n">selected</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">basename</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">selected_item_type</span> <span class="o">=</span> <span class="n">selected</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ntype</span></div>
+
+<div class="viewcode-block" id="H5TreeDialog.customContextMenu"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.H5TreeDialog.customContextMenu">[docs]</a>    <span class="k">def</span> <span class="nf">customContextMenu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Custom right click context for items in h5 tree, with options to add new group/sub-group&quot;&quot;&quot;</span>
+        <span class="n">selectedObjects</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">source</span><span class="p">()</span><span class="o">.</span><span class="n">selectedH5Nodes</span><span class="p">())</span>
+        <span class="n">menu</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">menu</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">selectedObjects</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+            <span class="n">obj</span> <span class="o">=</span> <span class="n">selectedObjects</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">ntype</span> <span class="ow">is</span> <span class="n">h5py</span><span class="o">.</span><span class="n">Group</span><span class="p">:</span>
+                <span class="n">action</span> <span class="o">=</span> <span class="n">QAction</span><span class="p">(</span><span class="s2">&quot;Add new sub group&quot;</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">source</span><span class="p">())</span>
+                <span class="n">action</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">flag</span><span class="p">,</span> <span class="n">h5obj</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">h5py_object</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_new_group</span><span class="p">(</span><span class="n">flag</span><span class="p">,</span> <span class="n">h5obj</span><span class="p">))</span>
+                <span class="n">menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">obj</span><span class="o">.</span><span class="n">ntype</span> <span class="ow">is</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">:</span>
+                <span class="n">action</span> <span class="o">=</span> <span class="n">QAction</span><span class="p">(</span><span class="s2">&quot;Add new group&quot;</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">source</span><span class="p">())</span>
+                <span class="n">action</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">flag</span><span class="p">,</span> <span class="n">h5obj</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">h5py_object</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_new_group</span><span class="p">(</span><span class="n">flag</span><span class="p">,</span> <span class="n">h5obj</span><span class="p">))</span>
+                <span class="n">menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">action</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="H5TreeDialog.create_new_group"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.H5TreeDialog.create_new_group">[docs]</a>    <span class="k">def</span> <span class="nf">create_new_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flag</span><span class="p">,</span> <span class="n">h5obj</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new group in h5 file.</span>
+
+<span class="sd">        :param flag: Action flag</span>
+<span class="sd">        :type flag: bool</span>
+<span class="sd">        :param h5obj: H5 parent node object</span>
+<span class="sd">        :type h5obj: silx.gui.hdf5._utils.H5Node</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">h5obj</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;No node is selected&#39;</span><span class="p">)</span>
+        <span class="n">text</span><span class="p">,</span> <span class="n">ok</span> <span class="o">=</span> <span class="n">QInputDialog</span><span class="o">.</span><span class="n">getText</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;Add group&#39;</span><span class="p">,</span> <span class="s1">&#39;Group name: &#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ok</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">h5obj</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Group name already exists&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">h5f</span><span class="p">[</span><span class="n">h5obj</span><span class="o">.</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">create_group</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">synchronizeIndex</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">QModelIndex</span><span class="p">()))</span></div></div>
+
+
+<div class="viewcode-block" id="H5Reader"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.H5Reader">[docs]</a><span class="k">class</span> <span class="nc">H5Reader</span><span class="p">(</span><span class="n">FileFormat</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;File reader for hdf5 formats&quot;&quot;&quot;</span>
+    <span class="n">EXTENSIONS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;.h5&#39;</span><span class="p">,</span><span class="s1">&#39;.hdf5&#39;</span><span class="p">,</span><span class="s1">&#39;.hdf&#39;</span><span class="p">)</span>
+    <span class="n">DESCRIPTION</span> <span class="o">=</span> <span class="s1">&#39;HDF5 file reader&#39;</span>
+    <span class="n">SUPPORT_COMPRESSED</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">SUPPORT_SPARSE_DATA</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">PRIORITY</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">selected_group</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">open_dialog</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">overwrite</span> <span class="o">=</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="H5Reader.read"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.H5Reader.read">[docs]</a>    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dialog</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reader for hdf5 file formats. It opens a dialog and provides option to load partially a single group in file.</span>
+
+<span class="sd">        :return: Formatted file data as dictionary</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_dialog</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">selected_group</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+            <span class="k">if</span> <span class="n">dialog</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">dialog</span> <span class="o">=</span> <span class="n">H5TreeDialog</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">dialog</span><span class="o">.</span><span class="n">exec_</span><span class="p">():</span>
+                <span class="n">h5f</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">dialog</span><span class="o">.</span><span class="n">selected_item</span><span class="o">!=</span><span class="s1">&#39;&#39;</span> <span class="ow">and</span> <span class="n">dialog</span><span class="o">.</span><span class="n">selected_item_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">dialog</span><span class="o">.</span><span class="n">selected_item_type</span> <span class="ow">is</span> <span class="n">h5py</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+                        <span class="n">item</span> <span class="o">=</span> <span class="n">dialog</span><span class="o">.</span><span class="n">selected_item_name</span> <span class="k">if</span> <span class="n">dialog</span><span class="o">.</span><span class="n">selected_item_name</span><span class="o">!=</span><span class="s1">&#39;&#39;</span> <span class="k">else</span> <span class="n">dialog</span><span class="o">.</span><span class="n">selected_item</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="n">data</span><span class="p">[</span><span class="n">item</span><span class="p">]</span> <span class="o">=</span> <span class="n">h5f</span><span class="p">[</span><span class="n">dialog</span><span class="o">.</span><span class="n">selected_item</span><span class="p">][</span><span class="o">...</span><span class="p">]</span>
+                        <span class="n">data</span><span class="p">[</span><span class="n">item</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_attributes_dataset</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">item</span><span class="p">],</span> <span class="n">h5f</span><span class="p">[</span><span class="n">dialog</span><span class="o">.</span><span class="n">selected_item</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">dialog</span><span class="o">.</span><span class="n">selected_item_type</span> <span class="ow">is</span> <span class="n">h5py</span><span class="o">.</span><span class="n">Group</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">selected_group</span> <span class="o">=</span> <span class="n">dialog</span><span class="o">.</span><span class="n">selected_item</span>
+                        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump_to_dict</span><span class="p">(</span><span class="n">h5f</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">dialog</span><span class="o">.</span><span class="n">selected_item</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">load_attributes</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">h5f</span><span class="p">[</span><span class="n">dialog</span><span class="o">.</span><span class="n">selected_item</span><span class="p">])</span>
+                        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;h5path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dialog</span><span class="o">.</span><span class="n">selected_item</span>
+                    <span class="k">elif</span> <span class="n">dialog</span><span class="o">.</span><span class="n">selected_item_type</span> <span class="ow">is</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">:</span>
+                        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump_to_dict</span><span class="p">(</span><span class="n">h5f</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">load_attributes</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">h5f</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump_to_dict</span><span class="p">(</span><span class="n">h5f</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">load_attributes</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">h5f</span><span class="p">)</span>
+                <span class="n">h5f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">h5f</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump_to_dict</span><span class="p">(</span><span class="n">h5f</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">selected_group</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">selected_group</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump_to_dict</span><span class="p">(</span><span class="n">h5f</span><span class="p">)</span>
+            <span class="n">h5object</span> <span class="o">=</span> <span class="n">h5f</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">selected_group</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">selected_group</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span> <span class="k">else</span> <span class="n">h5f</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">load_attributes</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">h5object</span><span class="p">)</span>
+            <span class="n">h5f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">data</span></div>
+
+<div class="viewcode-block" id="H5Reader.dump_to_dict"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.H5Reader.dump_to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">dump_to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                     <span class="n">h5f</span><span class="p">,</span>
+                     <span class="n">path</span><span class="o">=</span><span class="s2">&quot;/&quot;</span><span class="p">,</span>
+                     <span class="n">exclude_names</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">asarray</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                     <span class="n">dereference_links</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                     <span class="n">include_attributes</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                     <span class="n">errors</span><span class="o">=</span><span class="s1">&#39;raise&#39;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">h5todict</span><span class="p">(</span><span class="n">h5f</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">exclude_names</span><span class="p">,</span> <span class="n">asarray</span><span class="p">,</span> <span class="n">dereference_links</span><span class="p">,</span> <span class="n">include_attributes</span><span class="p">,</span> <span class="n">errors</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="H5Reader.write_file"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.H5Reader.write_file">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">write_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H5 writer to save dictionary data.</span>
+
+<span class="sd">        :param filename: Save file name</span>
+<span class="sd">        :type filename: str</span>
+<span class="sd">        :param data: Dictionary data</span>
+<span class="sd">        :type data: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">selected_group</span><span class="o">!=</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">overwrite</span><span class="p">:</span>
+                <span class="n">h5f</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r+&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">selected_group</span> <span class="ow">in</span> <span class="n">h5f</span><span class="p">:</span>
+                    <span class="k">del</span> <span class="n">h5f</span><span class="p">[</span><span class="bp">cls</span><span class="o">.</span><span class="n">selected_group</span><span class="p">]</span>
+                <span class="n">h5f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="n">dicttoh5</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">selected_group</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r+&#39;</span><span class="p">,</span> <span class="n">update_mode</span><span class="o">=</span><span class="s1">&#39;replace&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;w&#39;</span> <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">overwrite</span> <span class="k">else</span> <span class="s1">&#39;r+&#39;</span>
+            <span class="n">dicttoh5</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="n">update_mode</span><span class="o">=</span><span class="s1">&#39;replace&#39;</span><span class="p">)</span>
+        <span class="c1"># Save attributes</span>
+        <span class="n">h5f</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r+&#39;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">h5object</span> <span class="o">=</span> <span class="n">h5f</span><span class="p">[</span><span class="bp">cls</span><span class="o">.</span><span class="n">selected_group</span><span class="p">]</span> <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">selected_group</span><span class="o">!=</span><span class="s1">&#39;&#39;</span> <span class="k">else</span> <span class="n">h5f</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">update_attributes</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">h5object</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Error adding attributes to data&#39;</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">h5f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="H5Reader.update_attributes"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.H5Reader.update_attributes">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">update_attributes</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">h5object</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update attributes of hdf5 file datasets. MetrologyData or Quantity objects are saved as numpy arrays with their parameters (like units, pixel size) as hdf5 dataset attributes.</span>
+<span class="sd">        Name of class is also saved as attribute.</span>
+
+<span class="sd">        :param data: Dictionary data</span>
+<span class="sd">        :type data: dict</span>
+<span class="sd">        :param h5object: Selected h5 group/file object</span>
+<span class="sd">        :type h5object:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="n">update_attributes</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">h5object</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">])</span> <span class="o">==</span> <span class="n">MetrologyData</span><span class="p">:</span>
+                <span class="n">h5object</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;class&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;MetrologyData&#39;</span>
+                <span class="n">attributes</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">get_attributes</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">akey</span> <span class="ow">in</span> <span class="n">attributes</span><span class="p">:</span>
+                    <span class="n">h5object</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">akey</span><span class="p">]</span> <span class="o">=</span> <span class="n">attributes</span><span class="p">[</span><span class="n">akey</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">])</span> <span class="o">==</span> <span class="n">Quantity</span><span class="p">:</span>
+                <span class="n">h5object</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;class&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Quantity&#39;</span>
+                <span class="n">h5object</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;unit&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">unit</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="H5Reader.load_attributes"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.H5Reader.load_attributes">[docs]</a>    <span class="k">def</span> <span class="nf">load_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">h5object</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load hdf5 attributes and apply them.</span>
+
+<span class="sd">        :param data: Output data after loading hdf5 file</span>
+<span class="sd">        :type data: dict</span>
+<span class="sd">        :param h5object: Selected h5 group/file object</span>
+<span class="sd">        :type h5object:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        :rtype:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_attributes</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">h5object</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="s1">&#39;class&#39;</span> <span class="ow">in</span> <span class="n">h5object</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_attributes_dataset</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">h5object</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="o">==</span><span class="p">():</span>
+                    <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">data</span></div>
+
+<div class="viewcode-block" id="H5Reader.load_attributes_dataset"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.H5Reader.load_attributes_dataset">[docs]</a>    <span class="k">def</span> <span class="nf">load_attributes_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">attrs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load and apply hdf5 attributes for a dataset. Numpy arrays are converted to MetrologyData or Quantity if attribute &#39;class&#39; with such value is present in dataset attributes.</span>
+
+<span class="sd">        :param data: HDF5 dataset</span>
+<span class="sd">        :type data: H5 compatible dataset types (np.ndarray, str, ...)</span>
+<span class="sd">        :param attrs: Attributes of dataset</span>
+<span class="sd">        :type attrs: dict</span>
+<span class="sd">        :return: Converted dataset</span>
+<span class="sd">        :rtype: MetrologyData/Quantity or same as &#39;data&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s1">&#39;class&#39;</span> <span class="ow">in</span> <span class="n">attrs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;class&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Quantity&#39;</span> <span class="ow">and</span> <span class="s1">&#39;unit&#39;</span> <span class="ow">in</span> <span class="n">attrs</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">Quantity</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;unit&#39;</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;class&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;MetrologyData&#39;</span> <span class="ow">and</span> <span class="s1">&#39;unit&#39;</span> <span class="ow">in</span> <span class="n">attrs</span> <span class="ow">and</span> <span class="s1">&#39;pix_size&#39;</span> <span class="ow">in</span> <span class="n">attrs</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">MetrologyData</span><span class="o">.</span><span class="n">apply_attributes</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">attrs</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">data</span></div></div>
+
+<div class="viewcode-block" id="PickleReader"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.PickleReader">[docs]</a><span class="k">class</span> <span class="nc">PickleReader</span><span class="p">(</span><span class="n">FileFormat</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;File reader for pickle formats&quot;&quot;&quot;</span>
+    <span class="n">EXTENSIONS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;.pkl&#39;</span><span class="p">,)</span>
+    <span class="n">DESCRIPTION</span> <span class="o">=</span> <span class="s1">&#39;Pickle reader&#39;</span>
+    <span class="n">SUPPORT_COMPRESSED</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">SUPPORT_SPARSE_DATA</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">PRIORITY</span> <span class="o">=</span> <span class="mi">1</span>
+
+<div class="viewcode-block" id="PickleReader.read"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.PickleReader.read">[docs]</a>    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load pickle file</span>
+
+<span class="sd">        :return: Loaded data</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">))</span>
+        <span class="n">dialog</span> <span class="o">=</span> <span class="n">DictionaryTreeDialog</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dialog</span><span class="o">.</span><span class="n">exec_</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">dialog</span><span class="o">.</span><span class="n">get_selected_data</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">data</span></div>
+
+<div class="viewcode-block" id="PickleReader.write_file"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.PickleReader.write_file">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">write_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Wrtie dictionary data to pickle format.</span>
+
+<span class="sd">        :param filename: Save file name</span>
+<span class="sd">        :type filename: str</span>
+<span class="sd">        :param data: Dictionary data to save</span>
+<span class="sd">        :type data: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="MetroProReader"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.MetroProReader">[docs]</a><span class="k">class</span> <span class="nc">MetroProReader</span><span class="p">(</span><span class="n">FileFormat</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;File reader for Zygo MetroPro/MX formats dat, datx&quot;&quot;&quot;</span>
+    <span class="n">EXTENSIONS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;.dat&#39;</span><span class="p">,</span><span class="s1">&#39;.datx&#39;</span><span class="p">)</span>
+    <span class="n">DESCRIPTION</span> <span class="o">=</span> <span class="s1">&#39;MetroPro file reader&#39;</span>
+    <span class="n">SUPPORT_COMPRESSED</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">SUPPORT_SPARSE_DATA</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">PRIORITY</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">PARAMS</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;instr_scale_factor&#39;</span><span class="p">:</span><span class="mf">1.0</span><span class="p">}</span>
+    <span class="n">clear_output_before_loading</span> <span class="o">=</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="MetroProReader.read"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.MetroProReader.read">[docs]</a>    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load Zygo dat or datx file.</span>
+
+<span class="sd">        :return: Loaded data</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.dat&#39;</span><span class="p">):</span>
+            <span class="c1"># data = readDatFile(self.filename)</span>
+            <span class="n">hgt</span> <span class="o">=</span> <span class="n">MetroProData</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">hgt</span><span class="o">.</span><span class="vm">__dict__</span>
+            <span class="k">if</span> <span class="s1">&#39;values&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                <span class="n">data</span><span class="p">[</span><span class="s1">&#39;values&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;values&#39;</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_comments</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">hgt</span><span class="o">.</span><span class="n">title</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.datx&#39;</span><span class="p">):</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">readDatxFile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data</span></div>
+
+    <span class="k">def</span> <span class="nf">_parse_comments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">comments</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parse comments in dat file (implementation for ESRF Fizeau comment format), to extract motor X/Y positions.</span>
+
+<span class="sd">        :param data: File data as dictionary</span>
+<span class="sd">        :type data: dict</span>
+<span class="sd">        :param comments: Comments string</span>
+<span class="sd">        :type comments: str</span>
+<span class="sd">        :return: Data dictionary with parser motor positions included</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Current ESRF comments format &#39;Position= 1  X-coord= 32.75  X-shift= 0.929&#39;</span>
+            <span class="n">cArr</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;[= ]&#39;</span><span class="p">,</span> <span class="n">comments</span><span class="p">)</span>
+            <span class="n">cFilt</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="n">cArr</span><span class="p">))</span>
+            <span class="c1"># if comments format changes??</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;motorX&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;motorY&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cArr</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">cFilt</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;X-coord&#39;</span><span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;motorX&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="n">cFilt</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]))</span>
+                <span class="k">if</span> <span class="n">cFilt</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;X-shift&#39;</span><span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;motorXShift&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="n">cFilt</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]))</span>
+                <span class="k">if</span> <span class="n">cFilt</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Y-coord&#39;</span><span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;motorY&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="n">cFilt</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]))</span>
+                <span class="k">if</span> <span class="n">cFilt</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Y-shift&#39;</span><span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;motorYShift&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="n">cFilt</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;_parse_comments &lt;- MetroProReader&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data</span>
+
+<div class="viewcode-block" id="MetroProReader.get_start_pos_keys"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.MetroProReader.get_start_pos_keys">[docs]</a>    <span class="k">def</span> <span class="nf">get_start_pos_keys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Start position locator keys. Used while loading multiple subaperture sequence to match data sizes.</span>
+
+<span class="sd">        :return: [start pos y, start pos x]</span>
+<span class="sd">        :rtype: [str, str]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;cn_org_y&#39;</span><span class="p">,</span> <span class="s1">&#39;cn_org_x&#39;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="MetroProReader.get_stack_selected_keys"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.MetroProReader.get_stack_selected_keys">[docs]</a>    <span class="k">def</span> <span class="nf">get_stack_selected_keys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Stack values in selected keys while loading file sequence.</span>
+
+<span class="sd">        :return: list of keys which needs to be stacked, e.g. &#39;motorX&#39;</span>
+<span class="sd">        :rtype: list[str]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.datx&#39;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;motorX&#39;</span><span class="p">,</span> <span class="s1">&#39;motorY&#39;</span><span class="p">,</span> <span class="s1">&#39;motorTz&#39;</span><span class="p">,</span> <span class="s1">&#39;motorRx&#39;</span><span class="p">,</span> <span class="s1">&#39;motorRy&#39;</span><span class="p">,</span> <span class="s1">&#39;motorRz&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span></div>
+
+<div class="viewcode-block" id="MetroProReader.get_cam_size"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.MetroProReader.get_cam_size">[docs]</a>    <span class="k">def</span> <span class="nf">get_cam_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get keys locating camera size.</span>
+
+<span class="sd">        :return: [camera height key, camera width key]</span>
+<span class="sd">        :rtype: [str, str]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;ac_height&#39;</span><span class="p">,</span> <span class="s1">&#39;ac_width&#39;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="MetroProReader.write_file"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.MetroProReader.write_file">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">write_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Wrtie dictionary data to Zygo dat format.</span>
+
+<span class="sd">        :param filename: Save file name</span>
+<span class="sd">        :type filename: str</span>
+<span class="sd">        :param data: Dictionary data to save</span>
+<span class="sd">        :type data: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pixel_size</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">start_pos</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">frame_size</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">if</span> <span class="s1">&#39;height&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span> <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;height&#39;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Dictionary data has no key &quot;height&quot;&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">MetrologyData</span><span class="p">):</span>
+            <span class="n">pixel_size</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">pix_size_detector</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;m&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">start_pos</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">start_position_pix</span>
+            <span class="n">frame_size</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">init_shape</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">init_shape</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">init_shape</span><span class="p">)</span><span class="o">==</span><span class="n">data</span><span class="o">.</span><span class="n">ndim</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;m&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="n">text</span><span class="p">,</span> <span class="n">ok</span> <span class="o">=</span> <span class="n">QInputDialog</span><span class="o">.</span><span class="n">getText</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">DESCRIPTION</span><span class="p">,</span> <span class="s1">&#39;Pixel size (um): &#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ok</span><span class="p">:</span>
+                <span class="n">pixel_size</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">text</span><span class="p">)</span><span class="o">*</span><span class="mf">1e-6</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">*</span><span class="mf">1e-9</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Data should be numpy array or MetrologyData&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">ndim</span><span class="o">!=</span><span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Data should have two dimensions&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pixel_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Pixel size not found&#39;</span><span class="p">)</span>
+        <span class="n">MetroProData</span><span class="o">.</span><span class="n">writeMetroprofile</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span> <span class="n">pixel_size</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">frame_size</span><span class="o">=</span><span class="n">frame_size</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MetroProReader.data_standard_format"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.MetroProReader.data_standard_format">[docs]</a>    <span class="k">def</span> <span class="nf">data_standard_format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert data in standard format readable by orange pylost widgets, e.g. import heights / slopes_x as MetrologyData from the raw file data.</span>
+
+<span class="sd">        :param data: Raw file data</span>
+<span class="sd">        :type data: dict</span>
+<span class="sd">        :return: Standard format data</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ret_data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">motors</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">==</span><span class="s1">&#39;.datx&#39;</span><span class="p">:</span>
+                <span class="n">pix_sz</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;CameraRes&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1e3</span>
+                <span class="k">if</span> <span class="s1">&#39;motorX&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                    <span class="n">motors</span> <span class="o">+=</span> <span class="p">[{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;motor_X&#39;</span><span class="p">,</span> <span class="s1">&#39;values&#39;</span><span class="p">:</span> <span class="n">format_nanarr</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;motorX&#39;</span><span class="p">]),</span> <span class="s1">&#39;axis&#39;</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">],</span> <span class="s1">&#39;unit&#39;</span><span class="p">:</span> <span class="s1">&#39;mm&#39;</span><span class="p">}]</span>
+                <span class="k">if</span> <span class="s1">&#39;motorY&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                    <span class="n">motors</span> <span class="o">+=</span> <span class="p">[{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;motor_Y&#39;</span><span class="p">,</span> <span class="s1">&#39;values&#39;</span><span class="p">:</span> <span class="n">format_nanarr</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;motorY&#39;</span><span class="p">]),</span> <span class="s1">&#39;axis&#39;</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">],</span> <span class="s1">&#39;unit&#39;</span><span class="p">:</span><span class="s1">&#39;mm&#39;</span><span class="p">}]</span>
+                <span class="n">height</span> <span class="o">=</span> <span class="n">MetrologyData</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;height_nm&#39;</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;nm&#39;</span><span class="p">,</span> <span class="n">pix_size</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;CameraRes&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1e3</span><span class="p">,</span>
+                                     <span class="n">pix_unit</span><span class="o">=</span><span class="s1">&#39;mm&#39;</span><span class="p">,</span> <span class="n">dim_detector</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">axis_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Motor&#39;</span><span class="p">,</span> <span class="s1">&#39;Y&#39;</span><span class="p">,</span> <span class="s1">&#39;X&#39;</span><span class="p">],</span>
+                                     <span class="n">motors</span><span class="o">=</span><span class="n">motors</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ac_height&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ac_width&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">height</span><span class="o">.</span><span class="n">_set_init_shape</span><span class="p">([</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;ac_height&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ac_width&#39;</span><span class="p">]])</span>
+                <span class="n">start_pos_pix</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;start_pos&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;start_pos&#39;</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">else</span> <span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;cn_org_y&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;cn_org_x&#39;</span><span class="p">]]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">pix_sz</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;header&#39;</span><span class="p">][</span><span class="s1">&#39;lateral_res&#39;</span><span class="p">]</span><span class="o">*</span><span class="mf">1e3</span>
+                <span class="k">if</span> <span class="s1">&#39;motorX&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                    <span class="n">motors</span> <span class="o">+=</span> <span class="p">[{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="s1">&#39;motor_X&#39;</span><span class="p">,</span> <span class="s1">&#39;values&#39;</span><span class="p">:</span><span class="n">format_nanarr</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;motorX&#39;</span><span class="p">]),</span> <span class="s1">&#39;axis&#39;</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">],</span> <span class="s1">&#39;unit&#39;</span><span class="p">:</span><span class="s1">&#39;mm&#39;</span><span class="p">}]</span>
+                <span class="k">if</span> <span class="s1">&#39;motorY&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                    <span class="n">motors</span> <span class="o">+=</span> <span class="p">[{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="s1">&#39;motor_Y&#39;</span><span class="p">,</span> <span class="s1">&#39;values&#39;</span><span class="p">:</span><span class="n">format_nanarr</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;motorY&#39;</span><span class="p">]),</span> <span class="s1">&#39;axis&#39;</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">],</span> <span class="s1">&#39;unit&#39;</span><span class="p">:</span><span class="s1">&#39;mm&#39;</span><span class="p">}]</span>
+                <span class="n">height</span> <span class="o">=</span> <span class="n">MetrologyData</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;values&#39;</span><span class="p">],</span> <span class="c1">#np.moveaxis(data[&#39;values&#39;],-1,-2),</span>
+                                     <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">][</span><span class="s1">&#39;values&#39;</span><span class="p">]),</span>
+                                     <span class="n">pix_size</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;header&#39;</span><span class="p">][</span><span class="s1">&#39;lateral_res&#39;</span><span class="p">]</span><span class="o">*</span><span class="mf">1e3</span><span class="p">,</span>
+                                     <span class="n">pix_unit</span><span class="o">=</span><span class="s1">&#39;mm&#39;</span><span class="p">,</span> <span class="n">dim_detector</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">axis_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Motor&#39;</span><span class="p">,</span><span class="s1">&#39;Y&#39;</span><span class="p">,</span><span class="s1">&#39;X&#39;</span><span class="p">],</span> <span class="n">motors</span><span class="o">=</span><span class="n">motors</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;nm&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;header&#39;</span><span class="p">][</span><span class="s1">&#39;ac_height&#39;</span><span class="p">]</span><span class="o">!=</span><span class="mi">0</span> <span class="ow">and</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;header&#39;</span><span class="p">][</span><span class="s1">&#39;ac_width&#39;</span><span class="p">]</span><span class="o">!=</span><span class="mi">0</span><span class="p">:</span>
+                    <span class="n">height</span><span class="o">.</span><span class="n">_set_init_shape</span><span class="p">([</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;header&#39;</span><span class="p">][</span><span class="s1">&#39;ac_height&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;header&#39;</span><span class="p">][</span><span class="s1">&#39;ac_width&#39;</span><span class="p">]])</span>
+                <span class="n">start_pos_pix</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;start_pos&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;start_pos&#39;</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">else</span> <span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;header&#39;</span><span class="p">][</span><span class="s1">&#39;cn_org_y&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;header&#39;</span><span class="p">][</span><span class="s1">&#39;cn_org_x&#39;</span><span class="p">]]</span>
+            <span class="n">start_pos_pix</span> <span class="o">=</span> <span class="p">[</span><span class="n">Quantity</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">start_pos_pix</span><span class="p">]</span>
+            <span class="n">height</span><span class="o">.</span><span class="n">_set_start_position</span><span class="p">(</span><span class="n">start_pos_pix</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># height.add_flag(&#39;invert_y_axis&#39;, True)</span>
+                <span class="n">height</span> <span class="o">=</span> <span class="n">flip_data</span><span class="p">(</span><span class="n">height</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="n">flip_motors</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">])</span>
+                <span class="c1"># height = np.flip(height, -2)    # Flip data along Y axis</span>
+                <span class="c1"># index_list = height.index_list</span>
+                <span class="c1"># index_list[-2] = list(height.init_shape[-2] - index_list[-2]) if height.init_shape[-2] &gt; np.max(index_list[-2]) else index_list[-2]</span>
+                <span class="c1"># height._set_index_list(index_list)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Error while flipping Y axis&#39;</span><span class="p">)</span>
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="n">ret_data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;height&#39;</span><span class="p">:</span> <span class="n">height</span><span class="p">}</span>
+            <span class="c1"># self.PARAMS[&#39;pixel_size&#39;] = [pix_sz*u.mm]*2</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Error while converting to standard format: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">e</span><span class="p">)))</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ret_data</span></div></div>
+
+<div class="viewcode-block" id="VeecoReader"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.VeecoReader">[docs]</a><span class="k">class</span> <span class="nc">VeecoReader</span><span class="p">(</span><span class="n">FileFormat</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;File reader for Veeco opd format&quot;&quot;&quot;</span>
+    <span class="n">EXTENSIONS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;.OPD&#39;</span><span class="p">,</span><span class="s1">&#39;.opd&#39;</span><span class="p">,)</span>
+    <span class="n">DESCRIPTION</span> <span class="o">=</span> <span class="s1">&#39;Veeco file reader&#39;</span>
+    <span class="n">SUPPORT_COMPRESSED</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">SUPPORT_SPARSE_DATA</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">PRIORITY</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">PARAMS</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;instr_scale_factor&#39;</span><span class="p">:</span><span class="mf">1.0</span><span class="p">}</span>
+    <span class="n">clear_output_before_loading</span> <span class="o">=</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="VeecoReader.read"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.VeecoReader.read">[docs]</a>    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load Veeco MSI opd file.</span>
+
+<span class="sd">        :return: Loaded data</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># data = Read_opd_file(self.filename)</span>
+        <span class="n">hgt</span> <span class="o">=</span> <span class="n">OpdData</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">hgt</span><span class="o">.</span><span class="vm">__dict__</span>
+        <span class="k">return</span> <span class="n">data</span></div>
+
+<div class="viewcode-block" id="VeecoReader.get_stack_selected_keys"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.VeecoReader.get_stack_selected_keys">[docs]</a>    <span class="k">def</span> <span class="nf">get_stack_selected_keys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Stack values in selected keys while loading file sequence.</span>
+
+<span class="sd">        :return: list of keys which needs to be stacked, e.g. &#39;StageX&#39;</span>
+<span class="sd">        :rtype: list[str]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;StageX&#39;</span><span class="p">,</span> <span class="s1">&#39;StageY&#39;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="VeecoReader.write_file"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.VeecoReader.write_file">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">write_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Not yet implemented&quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="VeecoReader.data_standard_format"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.VeecoReader.data_standard_format">[docs]</a>    <span class="k">def</span> <span class="nf">data_standard_format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert data in standard format readable by orange pylost widgets, e.g. import heights / slopes_x as MetrologyData from the raw file data.</span>
+
+<span class="sd">        :param data: Raw file data</span>
+<span class="sd">        :type data: dict</span>
+<span class="sd">        :return: Standard format data</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ret_data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># IN_TO_MM = 25.4</span>
+            <span class="n">motors</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="s1">&#39;StageX&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;header&#39;</span><span class="p">]:</span>
+                <span class="n">motors</span> <span class="o">+=</span> <span class="p">[{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="s1">&#39;motor_X&#39;</span><span class="p">,</span> <span class="s1">&#39;values&#39;</span><span class="p">:</span><span class="n">format_nanarr</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;header&#39;</span><span class="p">][</span><span class="s1">&#39;StageX&#39;</span><span class="p">]),</span> <span class="s1">&#39;axis&#39;</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">],</span>
+                           <span class="s1">&#39;unit&#39;</span><span class="p">:</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">][</span><span class="s1">&#39;pixel&#39;</span><span class="p">])}]</span>
+            <span class="k">if</span> <span class="s1">&#39;StageY&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;header&#39;</span><span class="p">]:</span>
+                <span class="n">motors</span> <span class="o">+=</span> <span class="p">[{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="s1">&#39;motor_Y&#39;</span><span class="p">,</span> <span class="s1">&#39;values&#39;</span><span class="p">:</span><span class="n">format_nanarr</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;header&#39;</span><span class="p">][</span><span class="s1">&#39;StageY&#39;</span><span class="p">]),</span> <span class="s1">&#39;axis&#39;</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">],</span> <span class="s1">&#39;unit&#39;</span><span class="p">:</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">][</span><span class="s1">&#39;pixel&#39;</span><span class="p">])}]</span>
+            <span class="n">ret_data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;height&#39;</span> <span class="p">:</span> <span class="n">MetrologyData</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;values&#39;</span><span class="p">],</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">2</span><span class="p">),</span>
+                                 <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">][</span><span class="s1">&#39;values&#39;</span><span class="p">]),</span>
+                                 <span class="n">pix_size</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;header&#39;</span><span class="p">][</span><span class="s1">&#39;Pixel_size&#39;</span><span class="p">],</span>
+                                 <span class="n">pix_unit</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">][</span><span class="s1">&#39;pixel&#39;</span><span class="p">]),</span>
+                                 <span class="n">dim_detector</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">axis_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Motor&#39;</span><span class="p">,</span><span class="s1">&#39;Y&#39;</span><span class="p">,</span><span class="s1">&#39;X&#39;</span><span class="p">],</span> <span class="n">motors</span><span class="o">=</span><span class="n">motors</span><span class="p">)</span>
+                    <span class="p">}</span>
+            <span class="c1"># pix_sz = np.array(data[&#39;header&#39;][&#39;Pixel_size&#39;])</span>
+            <span class="c1"># pix_unit = &#39;{}&#39;.format(data[&#39;units&#39;][&#39;pixel&#39;])</span>
+            <span class="c1"># self.PARAMS[&#39;pixel_size&#39;] = [Quantity(pix_sz, pix_unit)]*2</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Error while converting to standard format: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">e</span><span class="p">)))</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ret_data</span></div></div>
+
+<div class="viewcode-block" id="LTPReader"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.LTPReader">[docs]</a><span class="k">class</span> <span class="nc">LTPReader</span><span class="p">(</span><span class="n">FileFormat</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;File reader for ESRF LTP slp, slp2 formats&quot;&quot;&quot;</span>
+    <span class="n">EXTENSIONS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;.slp2&#39;</span><span class="p">,</span> <span class="s1">&#39;.slp&#39;</span><span class="p">)</span>
+    <span class="n">DESCRIPTION</span> <span class="o">=</span> <span class="s1">&#39;LTP (ESRF) file reader&#39;</span>
+    <span class="n">SUPPORT_COMPRESSED</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">SUPPORT_SPARSE_DATA</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">PRIORITY</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">PARAMS</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;instr_scale_factor&#39;</span><span class="p">:</span><span class="mf">1.0</span><span class="p">}</span>
+    <span class="n">clear_output_before_loading</span> <span class="o">=</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="LTPReader.read"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.LTPReader.read">[docs]</a>    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load LTP slp/slp2 file.</span>
+
+<span class="sd">        :return: Loaded data</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># data = readSlp2File(self.filename)</span>
+        <span class="n">slp</span> <span class="o">=</span> <span class="n">LTPdata</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">slp</span><span class="o">.</span><span class="vm">__dict__</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">&#39;coords&#39;</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;coords&#39;</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">):</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;coords&#39;</span><span class="p">]</span>
+                <span class="n">data</span><span class="p">[</span><span class="s1">&#39;start_pix&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
+            <span class="c1"># if &#39;start&#39; in data and &#39;step&#39; in data:</span>
+            <span class="c1">#     data[&#39;start_pix&#39;] = int(data[&#39;start&#39;]/data[&#39;step&#39;])</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data</span></div>
+
+<div class="viewcode-block" id="LTPReader.get_start_pos_keys"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.LTPReader.get_start_pos_keys">[docs]</a>    <span class="k">def</span> <span class="nf">get_start_pos_keys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Start position locator keys. Used while loading multiple subaperture sequence to match data sizes.</span>
+
+<span class="sd">        :return: [start pos x]</span>
+<span class="sd">        :rtype: [str]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;start_pix&#39;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="LTPReader.get_merge_selected_keys"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.LTPReader.get_merge_selected_keys">[docs]</a>    <span class="k">def</span> <span class="nf">get_merge_selected_keys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Merge values in selected keys while loading file sequence.</span>
+
+<span class="sd">        :return: list of keys which needs to be merged, e.g. &#39;coords&#39;</span>
+<span class="sd">        :rtype: list[str]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;coords&#39;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="LTPReader.write_file"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.LTPReader.write_file">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">write_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Not yet implemented&quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="LTPReader.data_standard_format"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.LTPReader.data_standard_format">[docs]</a>    <span class="k">def</span> <span class="nf">data_standard_format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert data in standard format readable by orange pylost widgets, e.g. import heights / slopes_x as MetrologyData from the raw file data.</span>
+
+<span class="sd">        :param data: Raw file data</span>
+<span class="sd">        :type data: dict</span>
+<span class="sd">        :return: Standard format data</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ret_data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">motors</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;motor_X&#39;</span><span class="p">,</span> <span class="s1">&#39;values&#39;</span><span class="p">:</span> <span class="n">format_nanarr</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;coords&#39;</span><span class="p">]),</span> <span class="s1">&#39;axis&#39;</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+                       <span class="s1">&#39;unit&#39;</span><span class="p">:</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">][</span><span class="s1">&#39;coords&#39;</span><span class="p">])}]</span>
+            <span class="n">ret_data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;slopes_x&#39;</span> <span class="p">:</span> <span class="n">MetrologyData</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;values&#39;</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">][</span><span class="s1">&#39;values&#39;</span><span class="p">]),</span>
+                                 <span class="n">pix_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">axis_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Motor_x&#39;</span><span class="p">],</span> <span class="n">axis_values</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;motor_X&#39;</span><span class="p">],</span> <span class="n">motors</span><span class="o">=</span><span class="n">motors</span><span class="p">)</span>
+                    <span class="p">}</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Error while converting to standard format: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">e</span><span class="p">)))</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ret_data</span></div></div>
+
+<div class="viewcode-block" id="SharperReader"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.SharperReader">[docs]</a><span class="k">class</span> <span class="nc">SharperReader</span><span class="p">(</span><span class="n">FileFormat</span><span class="p">):</span>
+    <span class="n">EXTENSIONS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;.has&#39;</span><span class="p">,)</span>
+    <span class="n">DESCRIPTION</span> <span class="o">=</span> <span class="s1">&#39;SHARPeR file reader&#39;</span>
+    <span class="n">SUPPORT_COMPRESSED</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">SUPPORT_SPARSE_DATA</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">PRIORITY</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">PARAMS</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;instr_scale_factor&#39;</span><span class="p">:</span><span class="o">-</span><span class="mf">0.5</span><span class="p">}</span>
+    <span class="n">clear_output_before_loading</span> <span class="o">=</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="SharperReader.read"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.SharperReader.read">[docs]</a>    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.has&#39;</span><span class="p">):</span>
+            <span class="n">obj</span>  <span class="o">=</span> <span class="n">ImopHasoSlopes</span><span class="p">(</span><span class="s1">&#39;Wrap&#39;</span><span class="p">,</span> <span class="n">readXML</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fname</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="vm">__dict__</span>
+        <span class="k">return</span> <span class="n">data</span></div>
+
+<div class="viewcode-block" id="SharperReader.get_stack_selected_keys"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.SharperReader.get_stack_selected_keys">[docs]</a>    <span class="k">def</span> <span class="nf">get_stack_selected_keys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Stack values in selected keys while loading file sequence.</span>
+
+<span class="sd">        :return: list of keys which needs to be stacked, e.g. &#39;motorX&#39;</span>
+<span class="sd">        :rtype: list[str]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;motorX&#39;</span><span class="p">,</span> <span class="s1">&#39;motorY&#39;</span><span class="p">,</span> <span class="s1">&#39;motorTz&#39;</span><span class="p">,</span> <span class="s1">&#39;motorRx&#39;</span><span class="p">,</span> <span class="s1">&#39;motorRy&#39;</span><span class="p">,</span> <span class="s1">&#39;motorRz&#39;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="SharperReader.write_file"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.SharperReader.write_file">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">write_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Not yet implemented&quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="SharperReader.data_standard_format"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.SharperReader.data_standard_format">[docs]</a>    <span class="k">def</span> <span class="nf">data_standard_format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert data in standard format readable by orange pylost widgets, e.g. import heights / slopes_x as MetrologyData from the raw file data.</span>
+
+<span class="sd">        :param data: Raw file data</span>
+<span class="sd">        :type data: dict</span>
+<span class="sd">        :return: Standard format data</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ret_data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">motors</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;motorX&#39;</span><span class="p">:</span><span class="s1">&#39;motor_X&#39;</span><span class="p">,</span> <span class="s1">&#39;motorY&#39;</span><span class="p">:</span><span class="s1">&#39;motor_Y&#39;</span><span class="p">,</span> <span class="s1">&#39;motorTz&#39;</span><span class="p">:</span><span class="s1">&#39;motor_Z&#39;</span><span class="p">,</span> <span class="s1">&#39;motorRx&#39;</span><span class="p">:</span><span class="s1">&#39;motor_RX&#39;</span><span class="p">,</span> <span class="s1">&#39;motorRy&#39;</span><span class="p">:</span><span class="s1">&#39;motor_RY&#39;</span><span class="p">,</span> <span class="s1">&#39;motorRz&#39;</span><span class="p">:</span><span class="s1">&#39;motor_RZ&#39;</span><span class="p">}</span>
+            <span class="n">du</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;motorX&#39;</span><span class="p">:</span><span class="s1">&#39;mm&#39;</span><span class="p">,</span> <span class="s1">&#39;motorY&#39;</span><span class="p">:</span><span class="s1">&#39;mm&#39;</span><span class="p">,</span> <span class="s1">&#39;motorTz&#39;</span><span class="p">:</span><span class="s1">&#39;mm&#39;</span><span class="p">,</span> <span class="s1">&#39;motorRx&#39;</span><span class="p">:</span><span class="s1">&#39;mrad&#39;</span><span class="p">,</span> <span class="s1">&#39;motorRy&#39;</span><span class="p">:</span><span class="s1">&#39;mrad&#39;</span><span class="p">,</span> <span class="s1">&#39;motorRz&#39;</span><span class="p">:</span><span class="s1">&#39;mrad&#39;</span><span class="p">}</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                    <span class="n">motors</span> <span class="o">+=</span> <span class="p">[{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="n">v</span><span class="p">,</span> <span class="s1">&#39;values&#39;</span><span class="p">:</span> <span class="n">format_nanarr</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span> <span class="s1">&#39;axis&#39;</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">],</span> <span class="s1">&#39;unit&#39;</span><span class="p">:</span><span class="n">du</span><span class="p">[</span><span class="n">i</span><span class="p">]}]</span>
+            <span class="n">pix_sz</span> <span class="o">=</span> <span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;steps&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">Y</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;steps&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">X</span><span class="o">/</span><span class="mi">1000</span><span class="p">]</span>
+            <span class="n">ret_data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;slopes_x&#39;</span><span class="p">:</span> <span class="n">MetrologyData</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;slopes_x&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1e3</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;urad&#39;</span><span class="p">,</span> <span class="n">pix_size</span><span class="o">=</span><span class="n">pix_sz</span><span class="p">,</span> <span class="n">pix_unit</span><span class="o">=</span><span class="s1">&#39;mm&#39;</span><span class="p">,</span>
+                         <span class="n">dim_detector</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">axis_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Motors&#39;</span><span class="p">,</span> <span class="s1">&#39;Y&#39;</span><span class="p">,</span> <span class="s1">&#39;X&#39;</span><span class="p">],</span> <span class="n">motors</span><span class="o">=</span><span class="n">motors</span><span class="p">),</span>
+                        <span class="s1">&#39;slopes_y&#39;</span><span class="p">:</span> <span class="n">MetrologyData</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;slopes_y&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1e3</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;urad&#39;</span><span class="p">,</span> <span class="n">pix_size</span><span class="o">=</span><span class="n">pix_sz</span><span class="p">,</span> <span class="n">pix_unit</span><span class="o">=</span><span class="s1">&#39;mm&#39;</span><span class="p">,</span>
+                             <span class="n">dim_detector</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">axis_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Motors&#39;</span><span class="p">,</span> <span class="s1">&#39;Y&#39;</span><span class="p">,</span> <span class="s1">&#39;X&#39;</span><span class="p">],</span> <span class="n">motors</span><span class="o">=</span><span class="n">motors</span><span class="p">)</span>
+                        <span class="p">}</span>
+            <span class="c1"># self.PARAMS[&#39;pixel_size&#39;] = [x*u.mm for x in pix_sz]</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Error while converting to standard format: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">e</span><span class="p">)))</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ret_data</span></div></div>
+
+<span class="c1"># TODO: Need to correctly implement URL reader for h5 files and other formats</span>
+<span class="kn">from</span> <span class="nn">tempfile</span> <span class="kn">import</span> <span class="n">NamedTemporaryFile</span>
+<span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="n">urlparse</span><span class="p">,</span> <span class="n">unquote</span> <span class="k">as</span> <span class="n">urlunquote</span>
+<span class="kn">from</span> <span class="nn">urllib.request</span> <span class="kn">import</span> <span class="n">urlopen</span><span class="p">,</span> <span class="n">Request</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<div class="viewcode-block" id="H5UrlReader"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.H5UrlReader">[docs]</a><span class="k">class</span> <span class="nc">H5UrlReader</span><span class="p">(</span><span class="n">FileFormat</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">scheme</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;http://&#39;</span> <span class="o">+</span> <span class="n">filename</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+<div class="viewcode-block" id="H5UrlReader.urlopen"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.H5UrlReader.urlopen">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">urlopen</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+        <span class="n">req</span> <span class="o">=</span> <span class="n">Request</span><span class="p">(</span>
+            <span class="n">url</span><span class="p">,</span>
+            <span class="c1"># Avoid 403 error with servers that dislike scrapers</span>
+            <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;User-Agent&#39;</span><span class="p">:</span> <span class="s1">&#39;Mozilla/5.0 (X11; Linux) Gecko/20100101 Firefox/&#39;</span><span class="p">})</span>
+        <span class="k">return</span> <span class="n">urlopen</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="H5UrlReader.read"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.H5UrlReader.read">[docs]</a>    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_redirects</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">closing</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">))</span> <span class="k">as</span> <span class="n">response</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_suggest_filename</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s1">&#39;content-disposition&#39;</span><span class="p">])</span>
+            <span class="c1"># using Path since splitext does not extract more extensions</span>
+            <span class="n">extension</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">suffixes</span><span class="p">)</span>  <span class="c1"># get only file extension</span>
+            <span class="k">with</span> <span class="n">NamedTemporaryFile</span><span class="p">(</span><span class="n">suffix</span><span class="o">=</span><span class="n">extension</span><span class="p">,</span> <span class="n">delete</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+                <span class="c1"># delete=False is a workaround for https://bugs.python.org/issue14243</span>
+
+            <span class="n">reader</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_reader</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="n">remove</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="c1"># Override name set in from_file() to avoid holding the temp prefix</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">name</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">origin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span>
+        <span class="k">return</span> <span class="n">data</span></div>
+
+<div class="viewcode-block" id="H5UrlReader.get_extension"><a class="viewcode-back" href="../../../pylost_widgets.util.html#pylost_widgets.util.ow_filereaders.H5UrlReader.get_extension">[docs]</a>    <span class="k">def</span> <span class="nf">get_extension</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_redirects</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
+            <span class="k">with</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">closing</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">))</span> <span class="k">as</span> <span class="n">response</span><span class="p">:</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_suggest_filename</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s1">&#39;content-disposition&#39;</span><span class="p">])</span>
+                <span class="c1"># using Path since splitext does not extract more extensions</span>
+                <span class="n">extension</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">suffixes</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;extension : &#39;</span><span class="o">+</span><span class="n">extension</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">extension</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+    <span class="k">def</span> <span class="nf">_resolve_redirects</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
+        <span class="c1"># Resolve (potential) redirects to a final URL</span>
+        <span class="k">with</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">closing</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">url</span><span class="p">))</span> <span class="k">as</span> <span class="n">response</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">url</span>
+
+    <span class="k">def</span> <span class="nf">_suggest_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content_disposition</span><span class="p">):</span>
+        <span class="n">default_name</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[</span><span class="se">\\</span><span class="s1">:/]&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="n">urlparse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+
+        <span class="c1"># See https://tools.ietf.org/html/rfc6266#section-4.1</span>
+        <span class="n">matches</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;filename\*?=(?:</span><span class="se">\&quot;</span><span class="s2">|.{0,10}?&#39;[^&#39;]*&#39;)([^</span><span class="se">\&quot;</span><span class="s2">]+)&quot;</span><span class="p">,</span>
+                             <span class="n">content_disposition</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">urlunquote</span><span class="p">(</span><span class="n">matches</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="k">if</span> <span class="n">matches</span> <span class="k">else</span> <span class="n">default_name</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">pylost_widgets</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../pylost_widgets.html">pylost_widgets package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

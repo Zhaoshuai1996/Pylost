@@ -1,0 +1,889 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>pylost_widgets.scripts.general.ellipse_esrf package &#8212; pylost_widgets  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pylost_widgets.util package" href="pylost_widgets.util.html" />
+    <link rel="prev" title="pylost_widgets.scripts.general package" href="pylost_widgets.scripts.general.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="pylost-widgets-scripts-general-ellipse-esrf-package">
+<h1>pylost_widgets.scripts.general.ellipse_esrf package<a class="headerlink" href="#pylost-widgets-scripts-general-ellipse-esrf-package" title="Permalink to this headline">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="module-pylost_widgets.scripts.general.ellipse_esrf.ellipse">
+<span id="pylost-widgets-scripts-general-ellipse-esrf-ellipse-module"></span><h2>pylost_widgets.scripts.general.ellipse_esrf.ellipse module<a class="headerlink" href="#module-pylost_widgets.scripts.general.ellipse_esrf.ellipse" title="Permalink to this headline">¶</a></h2>
+<p>ellipse class</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.ellipse.Ellipse">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pylost_widgets.scripts.general.ellipse_esrf.ellipse.</span></span><span class="sig-name descname"><span class="pre">Ellipse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">measurement</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/ellipse.html#Ellipse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.ellipse.Ellipse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>p and q in meter, theta in mrad</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.ellipse.Ellipse.from_class">
+<span class="sig-name descname"><span class="pre">from_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/ellipse.html#Ellipse.from_class"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.ellipse.Ellipse.from_class" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.ellipse.Ellipse.from_parameters">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">from_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">piston</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tilt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/ellipse.html#Ellipse.from_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.ellipse.Ellipse.from_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>theoretical ellipse (meter, radian). Returns slopes or heights</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.ellipse.Ellipse.optimize">
+<span class="sig-name descname"><span class="pre">optimize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">optimization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('q',</span> <span class="pre">'theta')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/ellipse.html#Ellipse.optimize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.ellipse.Ellipse.optimize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.ellipse.Optimization">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pylost_widgets.scripts.general.ellipse_esrf.ellipse.</span></span><span class="sig-name descname"><span class="pre">Optimization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ellipse</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('q',</span> <span class="pre">'theta')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/ellipse.html#Optimization"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.ellipse.Optimization" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pylost_widgets.scripts.general.ellipse_esrf.ellipse.Ellipse" title="pylost_widgets.scripts.general.ellipse_esrf.ellipse.Ellipse"><code class="xref py py-class docutils literal notranslate"><span class="pre">pylost_widgets.scripts.general.ellipse_esrf.ellipse.Ellipse</span></code></a></p>
+<p>optimization: (tuple/list) including one or more following key:
+‘p’, ‘q’, ‘theta’, ‘piston’, ‘tilt’</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.ellipse.Optimization.Wrap">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">Wrap</span></span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/ellipse.html#Optimization.Wrap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.ellipse.Optimization.Wrap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.ellipse.Optimization.Wrap.ellipse_removal">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">ellipse_removal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/ellipse.html#Optimization.Wrap.ellipse_removal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.ellipse.Optimization.Wrap.ellipse_removal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.ellipse.Optimization.get_opt_params">
+<span class="sig-name descname"><span class="pre">get_opt_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/ellipse.html#Optimization.get_opt_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.ellipse.Optimization.get_opt_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.ellipse.Optimization.mask">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">mask</span></span><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.ellipse.Optimization.mask" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.ellipse.Optimization.x">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">x</span></span><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.ellipse.Optimization.x" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.ellipse.Optimization.z">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">z</span></span><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.ellipse.Optimization.z" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pylost_widgets.scripts.general.ellipse_esrf.ellipse_interface">
+<span id="pylost-widgets-scripts-general-ellipse-esrf-ellipse-interface-module"></span><h2>pylost_widgets.scripts.general.ellipse_esrf.ellipse_interface module<a class="headerlink" href="#module-pylost_widgets.scripts.general.ellipse_esrf.ellipse_interface" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.ellipse_interface.EllipseESRFLab">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pylost_widgets.scripts.general.ellipse_esrf.ellipse_interface.</span></span><span class="sig-name descname"><span class="pre">EllipseESRFLab</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ellipse_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checked_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">1,</span> <span class="pre">1,</span> <span class="pre">0,</span> <span class="pre">1,</span> <span class="pre">0]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/ellipse_interface.html#EllipseESRFLab"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.ellipse_interface.EllipseESRFLab" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pylost_widgets.util.base.html#pylost_widgets.util.base.EllipseBase.EllipseBase" title="pylost_widgets.util.base.EllipseBase.EllipseBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">pylost_widgets.util.base.EllipseBase.EllipseBase</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.ellipse_interface.EllipseESRFLab.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dtype</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/ellipse_interface.html#EllipseESRFLab.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.ellipse_interface.EllipseESRFLab.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implemented in subclasses</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dtype</strong> (<em>str</em>) – Data type, ‘slopes_x’ or ‘height’</p></li>
+<li><p><strong>x</strong> (<em>np.ndarray</em>) – X position vector with same length as data</p></li>
+<li><p><strong>data</strong> (<em>np.ndarray</em>) – Data in slopes or height</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Fitted parameters</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list[float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.ellipse_interface.EllipseESRFLab.get_ellipse">
+<span class="sig-name descname"><span class="pre">get_ellipse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dtype</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ellipse_params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/ellipse_interface.html#EllipseESRFLab.get_ellipse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.ellipse_interface.EllipseESRFLab.get_ellipse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implemented in subclasses</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dtype</strong> (<em>str</em>) – Data type, ‘slopes_x’ or ‘height’</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Ellipse tangential slopes for given parameters</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.ellipse_interface.EllipseESRFLab.units">
+<span class="sig-name descname"><span class="pre">units</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'angle':</span> <span class="pre">SimpleUnit(radians),</span> <span class="pre">'coords':</span> <span class="pre">SimpleUnit(meters),</span> <span class="pre">'height':</span> <span class="pre">SimpleUnit(meters),</span> <span class="pre">'length':</span> <span class="pre">SimpleUnit(meters),</span> <span class="pre">'radius':</span> <span class="pre">SimpleUnit(meters),</span> <span class="pre">'values':</span> <span class="pre">SimpleUnit(meters)}</span></em><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.ellipse_interface.EllipseESRFLab.units" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pylost_widgets.scripts.general.ellipse_esrf.generic">
+<span id="pylost-widgets-scripts-general-ellipse-esrf-generic-module"></span><h2>pylost_widgets.scripts.general.ellipse_esrf.generic module<a class="headerlink" href="#module-pylost_widgets.scripts.general.ellipse_esrf.generic" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://hplgit.github.io/primer.html/doc/pub/class/._class-solarized003.html">http://hplgit.github.io/primer.html/doc/pub/class/._class-solarized003.html</a></p>
+<p><a class="reference external" href="https://docs.python.org/3/glossary.html#term-bytecode">https://docs.python.org/3/glossary.html#term-bytecode</a></p>
+<p><a class="reference external" href="https://realpython.com/python-descriptors/">https://realpython.com/python-descriptors/</a></p>
+<p><a class="reference external" href="https://stackoverflow.com/questions/2278426/inner-classes-how-can-i-get-the-outer-class-object-at-construction-time">https://stackoverflow.com/questions/2278426/inner-classes-how-can-i-get-the-outer-class-object-at-construction-time</a></p>
+<p><a class="reference external" href="https://medium.com/&#64;vadimpushtaev/decorator-inside-python-class-1e74d23107f6">https://medium.com/&#64;vadimpushtaev/decorator-inside-python-class-1e74d23107f6</a></p>
+<p><a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/tutorial/interpolate.html#spline-interpolation">https://docs.scipy.org/doc/scipy/reference/tutorial/interpolate.html#spline-interpolation</a></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ESRFOpticsLabData">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pylost_widgets.scripts.general.ellipse_esrf.generic.</span></span><span class="sig-name descname"><span class="pre">ESRFOpticsLabData</span></span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#ESRFOpticsLabData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ESRFOpticsLabData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Common data class.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ESRFOpticsLabData.add_analysis_step">
+<span class="sig-name descname"><span class="pre">add_analysis_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">funcname</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#ESRFOpticsLabData.add_analysis_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ESRFOpticsLabData.add_analysis_step" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ESRFOpticsLabData.analyze">
+<span class="sig-name descname"><span class="pre">analyze</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#ESRFOpticsLabData.analyze"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ESRFOpticsLabData.analyze" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ESRFOpticsLabData.division">
+<span class="sig-name descname"><span class="pre">division</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'ISDD'</span></em><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ESRFOpticsLabData.division" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ESRFOpticsLabData.group">
+<span class="sig-name descname"><span class="pre">group</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'XOG'</span></em><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ESRFOpticsLabData.group" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ESRFOpticsLabData.header_dict_to_class">
+<span class="sig-name descname"><span class="pre">header_dict_to_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#ESRFOpticsLabData.header_dict_to_class"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ESRFOpticsLabData.header_dict_to_class" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ESRFOpticsLabData.laboratory">
+<span class="sig-name descname"><span class="pre">laboratory</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'Mirror</span> <span class="pre">&amp;</span> <span class="pre">Metrology</span> <span class="pre">Lab'</span></em><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ESRFOpticsLabData.laboratory" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ESRFOpticsLabData.organisation">
+<span class="sig-name descname"><span class="pre">organisation</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'ESRF'</span></em><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ESRFOpticsLabData.organisation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ESRFOpticsLabData.read">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">read</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#ESRFOpticsLabData.read"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ESRFOpticsLabData.read" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ESRFOpticsLabData.readfile">
+<span class="sig-name descname"><span class="pre">readfile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#ESRFOpticsLabData.readfile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ESRFOpticsLabData.readfile" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Header">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pylost_widgets.scripts.general.ellipse_esrf.generic.</span></span><span class="sig-name descname"><span class="pre">Header</span></span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#Header"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Header" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Profile">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pylost_widgets.scripts.general.ellipse_esrf.generic.</span></span><span class="sig-name descname"><span class="pre">Profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#Profile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Profile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData" title="pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData"><code class="xref py py-class docutils literal notranslate"><span class="pre">pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Profile.derivative">
+<span class="sig-name descname"><span class="pre">derivative</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gradient'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#Profile.derivative"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Profile.derivative" title="Permalink to this definition">¶</a></dt>
+<dd><p>methods: gradient, cubicbspline,</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Profile.integral">
+<span class="sig-name descname"><span class="pre">integral</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'simpson'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#Profile.integral"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Profile.integral" title="Permalink to this definition">¶</a></dt>
+<dd><p>methods: trapezoidal, simpson, romb, cubicbspline,</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Profile.interpolation">
+<span class="sig-name descname"><span class="pre">interpolation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cubicbspline'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#Profile.interpolation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Profile.interpolation" title="Permalink to this definition">¶</a></dt>
+<dd><p>method: cubicbspline</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Profile.mean_step">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">mean_step</span></span><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Profile.mean_step" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Profile.offsetting">
+<span class="sig-name descname"><span class="pre">offsetting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#Profile.offsetting"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Profile.offsetting" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Profile.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#Profile.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Profile.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Matplotlib 1D plot with some additional functions.</p>
+<dl class="simple">
+<dt>Parameters :</dt><dd><p>matplotlib.pyplot.plot arguments
+<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.plot.html">https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.plot.html</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Profile.polynomial_removal">
+<span class="sig-name descname"><span class="pre">polynomial_removal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#Profile.polynomial_removal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Profile.polynomial_removal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove a polynomial fit to the values.
+Return the polynomial fit</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Profile.radius">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">radius</span></span><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Profile.radius" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Profile.reverse">
+<span class="sig-name descname"><span class="pre">reverse</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#Profile.reverse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Profile.reverse" title="Permalink to this definition">¶</a></dt>
+<dd><p>slopes: Flip the X coordinates and negate the values.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Profile.subarray">
+<span class="sig-name descname"><span class="pre">subarray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xrangearray</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#Profile.subarray"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Profile.subarray" title="Permalink to this definition">¶</a></dt>
+<dd><p>profile: Cut the data to the x coordinates given by [Xmin, Xmax].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Profile.theoretical">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">theoretical</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">roc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#Profile.theoretical"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Profile.theoretical" title="Permalink to this definition">¶</a></dt>
+<dd><p>kind: ‘elliptical’, ‘parabolic’, ‘spherical’    (SI units)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pylost_widgets.scripts.general.ellipse_esrf.generic.</span></span><span class="sig-name descname"><span class="pre">ProtoData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#ProtoData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.apply">
+<span class="sig-name descname"><span class="pre">apply</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#ProtoData.apply"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.apply" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.auto_coords_unit">
+<span class="sig-name descname"><span class="pre">auto_coords_unit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#ProtoData.auto_coords_unit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.auto_coords_unit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.auto_units">
+<span class="sig-name descname"><span class="pre">auto_units</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#ProtoData.auto_units"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.auto_units" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.auto_values_unit">
+<span class="sig-name descname"><span class="pre">auto_values_unit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#ProtoData.auto_values_unit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.auto_values_unit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.automasking">
+<span class="sig-name descname"><span class="pre">automasking</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apply</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#ProtoData.automasking"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.automasking" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.center_coordinates">
+<span class="sig-name descname"><span class="pre">center_coordinates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#ProtoData.center_coordinates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.center_coordinates" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.change_coords_unit">
+<span class="sig-name descname"><span class="pre">change_coords_unit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_unit</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#ProtoData.change_coords_unit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.change_coords_unit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.change_defaults_units">
+<span class="sig-name descname"><span class="pre">change_defaults_units</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_units</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#ProtoData.change_defaults_units"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.change_defaults_units" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.change_units">
+<span class="sig-name descname"><span class="pre">change_units</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_units</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#ProtoData.change_units"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.change_units" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.change_values_unit">
+<span class="sig-name descname"><span class="pre">change_values_unit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_unit</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#ProtoData.change_values_unit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.change_values_unit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.coords_unit">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">coords_unit</span></span><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.coords_unit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.coords_unit_to_SI">
+<span class="sig-name descname"><span class="pre">coords_unit_to_SI</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#ProtoData.coords_unit_to_SI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.coords_unit_to_SI" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.default_coords_unit">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">default_coords_unit</span></span><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.default_coords_unit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.default_values_unit">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">default_values_unit</span></span><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.default_values_unit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.duplicate">
+<span class="sig-name descname"><span class="pre">duplicate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#ProtoData.duplicate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.duplicate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.ellipse_removal">
+<span class="sig-name descname"><span class="pre">ellipse_removal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('q',</span> <span class="pre">'theta')</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#ProtoData.ellipse_removal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.ellipse_removal" title="Permalink to this definition">¶</a></dt>
+<dd><p>p and q in meter, theta in mrad</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.flip">
+<span class="sig-name descname"><span class="pre">flip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'x'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#ProtoData.flip"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.flip" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.hasnan">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">hasnan</span></span><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.hasnan" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.kind">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">kind</span></span><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.kind" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.level_data">
+<span class="sig-name descname"><span class="pre">level_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#ProtoData.level_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.level_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Level the central value (along the X-axis) to zero and return the new values.
+Perform a small interpolation if case of even number of points.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.max">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">max</span></span><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.max" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.mean">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">mean</span></span><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.mean" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.mean_removal">
+<span class="sig-name descname"><span class="pre">mean_removal</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#ProtoData.mean_removal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.mean_removal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Substract the average of the values.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.median">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">median</span></span><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.median" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.min">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">min</span></span><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.min" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.min_removal">
+<span class="sig-name descname"><span class="pre">min_removal</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#ProtoData.min_removal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.min_removal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Substract the minimum of the values.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.pv">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">pv</span></span><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.pv" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.reload">
+<span class="sig-name descname"><span class="pre">reload</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#ProtoData.reload"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.reload" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.reset_coords_unit">
+<span class="sig-name descname"><span class="pre">reset_coords_unit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#ProtoData.reset_coords_unit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.reset_coords_unit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.reset_units">
+<span class="sig-name descname"><span class="pre">reset_units</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#ProtoData.reset_units"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.reset_units" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.reset_values_unit">
+<span class="sig-name descname"><span class="pre">reset_values_unit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#ProtoData.reset_values_unit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.reset_values_unit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.rms">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">rms</span></span><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.rms" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.set_ellipse">
+<span class="sig-name descname"><span class="pre">set_ellipse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#ProtoData.set_ellipse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.set_ellipse" title="Permalink to this definition">¶</a></dt>
+<dd><p>p and q in meter, theta in mrad</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.shape">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">shape</span></span><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.shape" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.u">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">u</span></span><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.u" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.units_to_SI">
+<span class="sig-name descname"><span class="pre">units_to_SI</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#ProtoData.units_to_SI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.units_to_SI" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.values_unit">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">values_unit</span></span><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.values_unit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.values_unit_to_SI">
+<span class="sig-name descname"><span class="pre">values_unit_to_SI</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#ProtoData.values_unit_to_SI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.values_unit_to_SI" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.x">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">x</span></span><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.x" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.x_unit">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">x_unit</span></span><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.x_unit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.z">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">z</span></span><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.z" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.z_unit">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">z_unit</span></span><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData.z_unit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Surface">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pylost_widgets.scripts.general.ellipse_esrf.generic.</span></span><span class="sig-name descname"><span class="pre">Surface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#Surface"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Surface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData" title="pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData"><code class="xref py py-class docutils literal notranslate"><span class="pre">pylost_widgets.scripts.general.ellipse_esrf.generic.ProtoData</span></code></a></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.ColorScale">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">ColorScale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">surface</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'turbo'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#Surface.ColorScale"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.ColorScale" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>base: ‘ra’, ‘rq’, ‘pv’, ‘fixed’
+params: list</p>
+<blockquote>
+<div><p>if stats based:  ‘zfac’ as stretching factor (&lt;0 to force default)
+if manual scale: ‘zmin, zmax, z_lo, z_hi’</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.auto_coords_unit">
+<span class="sig-name descname"><span class="pre">auto_coords_unit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#Surface.auto_coords_unit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.auto_coords_unit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.calc_colormap">
+<span class="sig-name descname"><span class="pre">calc_colormap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#Surface.calc_colormap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.calc_colormap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.change_coords_unit">
+<span class="sig-name descname"><span class="pre">change_coords_unit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_unit</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#Surface.change_coords_unit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.change_coords_unit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.change_resolution">
+<span class="sig-name descname"><span class="pre">change_resolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">new_pixel_size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#Surface.change_resolution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.change_resolution" title="Permalink to this definition">¶</a></dt>
+<dd><p>size in meter</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.coords2pix">
+<span class="sig-name descname"><span class="pre">coords2pix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">from_center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">short</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#Surface.coords2pix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.coords2pix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.cylinder_removal">
+<span class="sig-name descname"><span class="pre">cylinder_removal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#Surface.cylinder_removal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.cylinder_removal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.derivative">
+<span class="sig-name descname"><span class="pre">derivative</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">origin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'lower-left'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#Surface.derivative"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.derivative" title="Permalink to this definition">¶</a></dt>
+<dd><p>methods: gradient
+origin: combination of ‘lower’ ‘upper’ ‘right’ ‘left’  (default: ‘lower-left’)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.dropnan">
+<span class="sig-name descname"><span class="pre">dropnan</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#Surface.dropnan"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.dropnan" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.extract_profile">
+<span class="sig-name descname"><span class="pre">extract_profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">from_center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'x'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">SimpleUnit(millimeters)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#Surface.extract_profile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.extract_profile" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.filt_rz">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">filt_rz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">surfacedata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_pts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#Surface.filt_rz"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.filt_rz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.invalid_pct">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">invalid_pct</span></span><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.invalid_pct" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.invalid_pts">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">invalid_pts</span></span><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.invalid_pts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.meshgrid">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">meshgrid</span></span><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.meshgrid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.pixel_size">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">pixel_size</span></span><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.pixel_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.plane_removal">
+<span class="sig-name descname"><span class="pre">plane_removal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#Surface.plane_removal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.plane_removal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#Surface.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Matplotlib 2D plot with some additional functions.</p>
+<dl>
+<dt>Parameters :</dt><dd><p>‘title’ : string</p>
+<p>‘reverse’ : None,’x’, ‘y’ or ‘xy’  (default None).</p>
+<dl>
+<dt>colormap parameters to set the colormap (see ColorScale class):</dt><dd><p>‘base’: ‘ra’, ‘rq’, ‘pv’, ‘fixed’
+‘params’: list</p>
+<blockquote>
+<div><p>if stats based:  ‘zfac’ as stretching factor
+if manual scale: ‘zmin, zmax, z_lo, z_hi’</p>
+</div></blockquote>
+</dd>
+</dl>
+<p>matplotlib.axes.Axes.imshow arguments
+<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.imshow.html">https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.imshow.html</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.ra">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">ra</span></span><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.ra" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.rku">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">rku</span></span><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.rku" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.rotate">
+<span class="sig-name descname"><span class="pre">rotate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#Surface.rotate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.rotate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rotation angle in degrees.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.rp">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">rp</span></span><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.rp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.rq">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">rq</span></span><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.rq" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.rsk">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">rsk</span></span><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.rsk" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.rt">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">rt</span></span><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.rt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.rv">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">rv</span></span><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.rv" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.rz">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">rz</span></span><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.rz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.sphere_removal">
+<span class="sig-name descname"><span class="pre">sphere_removal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#Surface.sphere_removal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.sphere_removal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.subarray">
+<span class="sig-name descname"><span class="pre">subarray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">from_center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">short</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apply</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#Surface.subarray"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.subarray" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mask the data according to the position and the size.
+if center is not None, use lower-left egde.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.subarray_pixel">
+<span class="sig-name descname"><span class="pre">subarray_pixel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xrangearray</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yrangearray</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apply</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#Surface.subarray_pixel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.subarray_pixel" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.valid_mask">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">valid_mask</span></span><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.valid_mask" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.valid_size">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">valid_size</span></span><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.valid_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.writeMetroprofile">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">writeMetroprofile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pixel_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase_res</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/generic.html#Surface.writeMetroprofile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.writeMetroprofile" title="Permalink to this definition">¶</a></dt>
+<dd><p>data heights array and pixel_size in meters,
+frame_size as tuple (width, height), data.shape by default
+phase_res: present in the Metropro file format v3, default 1 -&gt; 32768</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.y">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">y</span></span><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.y" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.y_unit">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">y_unit</span></span><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.generic.Surface.y_unit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pylost_widgets.scripts.general.ellipse_esrf.units">
+<span id="pylost-widgets-scripts-general-ellipse-esrf-units-module"></span><h2>pylost_widgets.scripts.general.ellipse_esrf.units module<a class="headerlink" href="#module-pylost_widgets.scripts.general.ellipse_esrf.units" title="Permalink to this headline">¶</a></h2>
+<p>Created on Fri Sep  4 16:10:37 2020</p>
+<p>&#64;author: fraperri (from matplotlib)</p>
+<p><a class="reference external" href="https://stackoverflow.com/questions/45332056/decompose-a-float-into-mantissa-and-exponent-in-base-10-without-strings">https://stackoverflow.com/questions/45332056/decompose-a-float-into-mantissa-and-exponent-in-base-10-without-strings</a>
+<a class="reference external" href="https://docs.python.org/3/reference/lexical_analysis.html#formatted-string-literals">https://docs.python.org/3/reference/lexical_analysis.html#formatted-string-literals</a>
+<a class="reference external" href="https://realpython.com/python-f-strings/">https://realpython.com/python-f-strings/</a></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.units.SimpleUnit">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pylost_widgets.scripts.general.ellipse_esrf.units.</span></span><span class="sig-name descname"><span class="pre">SimpleUnit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fullname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">si</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/units.html#SimpleUnit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.units.SimpleUnit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py property">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.units.SimpleUnit.SI_unit">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">SI_unit</span></span><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.units.SimpleUnit.SI_unit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.units.SimpleUnit.add_conversion">
+<span class="sig-name descname"><span class="pre">add_conversion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conversion</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/units.html#SimpleUnit.add_conversion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.units.SimpleUnit.add_conversion" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.units.SimpleUnit.angle">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">angle</span></span><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.units.SimpleUnit.angle" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.units.SimpleUnit.auto">
+<span class="sig-name descname"><span class="pre">auto</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modulo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/units.html#SimpleUnit.auto"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.units.SimpleUnit.auto" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.units.SimpleUnit.auto_str">
+<span class="sig-name descname"><span class="pre">auto_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.2f'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modulo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/units.html#SimpleUnit.auto_str"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.units.SimpleUnit.auto_str" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.units.SimpleUnit.curvature">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">curvature</span></span><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.units.SimpleUnit.curvature" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.units.SimpleUnit.get_conversion">
+<span class="sig-name descname"><span class="pre">get_conversion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unit</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/units.html#SimpleUnit.get_conversion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.units.SimpleUnit.get_conversion" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.units.SimpleUnit.length">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">length</span></span><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.units.SimpleUnit.length" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pylost_widgets.scripts.general.ellipse_esrf.units.SimpleUnit.to_string">
+<span class="sig-name descname"><span class="pre">to_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.2f'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylost_widgets/scripts/general/ellipse_esrf/units.html#SimpleUnit.to_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylost_widgets.scripts.general.ellipse_esrf.units.SimpleUnit.to_string" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pylost_widgets.scripts.general.ellipse_esrf">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pylost_widgets.scripts.general.ellipse_esrf" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">pylost_widgets</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="pylost_widgets.html">pylost_widgets package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pylost_widgets.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="pylost_widgets.config.html">pylost_widgets.config package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pylost_widgets.icons.html">pylost_widgets.icons package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pylost_widgets.learning.html">pylost_widgets.learning package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="pylost_widgets.scripts.html">pylost_widgets.scripts package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="pylost_widgets.scripts.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pylost_widgets.scripts.html#module-pylost_widgets.scripts">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pylost_widgets.util.html">pylost_widgets.util package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pylost_widgets.widgets.html">pylost_widgets.widgets package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pylost_widgets.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pylost_widgets.html#module-pylost_widgets.test_widget">pylost_widgets.test_widget module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pylost_widgets.html#module-pylost_widgets">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="pylost_widgets.html">pylost_widgets package</a><ul>
+  <li><a href="pylost_widgets.scripts.html">pylost_widgets.scripts package</a><ul>
+  <li><a href="pylost_widgets.scripts.general.html">pylost_widgets.scripts.general package</a><ul>
+      <li>Previous: <a href="pylost_widgets.scripts.general.html" title="previous chapter">pylost_widgets.scripts.general package</a></li>
+      <li>Next: <a href="pylost_widgets.util.html" title="next chapter">pylost_widgets.util package</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/pylost_widgets.scripts.general.ellipse_esrf.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

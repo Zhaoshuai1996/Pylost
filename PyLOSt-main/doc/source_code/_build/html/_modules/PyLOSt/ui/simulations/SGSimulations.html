@@ -1,0 +1,260 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PyLOSt.ui.simulations.SGSimulations &#8212; PyLOSt  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/alabaster.css" />
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for PyLOSt.ui.simulations.SGSimulations</h1><div class="highlight"><pre>
+<span></span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Created on Jul 12, 2018</span>
+
+<span class="sd">Simulate a mirror with different noise terms and save data to a h5 file</span>
+
+<span class="sd">@author: adapa</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">from</span> <span class="nn">PyQt5</span> <span class="kn">import</span> <span class="n">uic</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtWidgets</span> <span class="kn">import</span> <span class="n">QMainWindow</span><span class="p">,</span> <span class="n">QApplication</span><span class="p">,</span>\
+    <span class="n">QFileDialog</span>
+<span class="kn">from</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">import</span> <span class="n">show</span><span class="p">,</span> <span class="n">imshow</span>
+
+<span class="kn">from</span> <span class="nn">PyLOSt.util.commons</span> <span class="kn">import</span> <span class="n">alertMsg</span>
+<span class="kn">import</span> <span class="nn">h5py</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">PyLOSt.algorithms.util.util_fit</span> <span class="kn">import</span> <span class="n">getXYGrid</span>
+
+<span class="kn">from</span> <span class="nn">PyLOSt.util.resource_path</span> <span class="kn">import</span> <span class="n">resource_path</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="n">ui</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;ui&quot;</span><span class="p">,</span> <span class="s2">&quot;simulations&quot;</span><span class="p">,</span> <span class="s2">&quot;simulations_v1.ui&quot;</span><span class="p">)</span>
+<span class="n">qtCreatorFile</span> <span class="o">=</span> <span class="n">resource_path</span><span class="p">(</span><span class="n">ui</span><span class="p">)</span> <span class="c1"># Enter file here.</span>
+<span class="c1"># qtCreatorFile = &quot;simulations_v1.ui&quot; # Enter file here.</span>
+ 
+<span class="n">Ui_MainWindow</span><span class="p">,</span> <span class="n">QtBaseClass</span> <span class="o">=</span> <span class="n">uic</span><span class="o">.</span><span class="n">loadUiType</span><span class="p">(</span><span class="n">qtCreatorFile</span><span class="p">)</span>
+ 
+<div class="viewcode-block" id="SGSimulations"><a class="viewcode-back" href="../../../../PyLOSt.ui.simulations.html#PyLOSt.ui.simulations.SGSimulations.SGSimulations">[docs]</a><span class="k">class</span> <span class="nc">SGSimulations</span><span class="p">(</span><span class="n">QMainWindow</span><span class="p">,</span> <span class="n">Ui_MainWindow</span><span class="p">):</span>
+
+    <span class="n">loc_h5File</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">QMainWindow</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">parent</span><span class="p">)</span>
+        <span class="n">Ui_MainWindow</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setupUi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">saveFileBtn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">saveTo</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mirSelect</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="s1">&#39;Flat&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mirSelect</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="s1">&#39;Sphere&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refSelect</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="s1">&#39;Polynomial&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">btnGenerate</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">genSimu</span><span class="p">)</span>
+        
+<div class="viewcode-block" id="SGSimulations.saveTo"><a class="viewcode-back" href="../../../../PyLOSt.ui.simulations.html#PyLOSt.ui.simulations.SGSimulations.SGSimulations.saveTo">[docs]</a>    <span class="k">def</span> <span class="nf">saveTo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h5File</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">QFileDialog</span><span class="o">.</span><span class="n">getSaveFileName</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;Save to file&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">loc_h5File</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span><span class="o">+</span><span class="s1">&#39;.h5&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">saveFile</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">h5File</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">h5f</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">h5File</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">)</span></div>
+        
+<div class="viewcode-block" id="SGSimulations.genSimu"><a class="viewcode-back" href="../../../../PyLOSt.ui.simulations.html#PyLOSt.ui.simulations.SGSimulations.SGSimulations.genSimu">[docs]</a>    <span class="k">def</span> <span class="nf">genSimu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mLen</span><span class="o">.</span><span class="n">text</span><span class="p">()</span><span class="o">==</span><span class="s1">&#39;&#39;</span><span class="p">:</span>            <span class="n">alertMsg</span><span class="p">(</span><span class="s1">&#39;Missing data&#39;</span><span class="p">,</span> <span class="s1">&#39;Enter mirror length&#39;</span><span class="p">);</span><span class="k">return</span>
+        <span class="k">else</span><span class="p">:</span> <span class="n">ml</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mLen</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mWid</span><span class="o">.</span><span class="n">text</span><span class="p">()</span><span class="o">==</span><span class="s1">&#39;&#39;</span><span class="p">:</span>            <span class="n">alertMsg</span><span class="p">(</span><span class="s1">&#39;Missing data&#39;</span><span class="p">,</span> <span class="s1">&#39;Enter mirror width&#39;</span><span class="p">);</span><span class="k">return</span>
+        <span class="k">else</span><span class="p">:</span> <span class="n">mw</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mWid</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">saLen</span><span class="o">.</span><span class="n">text</span><span class="p">()</span><span class="o">==</span><span class="s1">&#39;&#39;</span><span class="p">:</span>            <span class="n">alertMsg</span><span class="p">(</span><span class="s1">&#39;Missing data&#39;</span><span class="p">,</span> <span class="s1">&#39;Enter subaperture length&#39;</span><span class="p">);</span><span class="k">return</span>
+        <span class="k">else</span><span class="p">:</span> <span class="n">sal</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">saLen</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">saStep</span><span class="o">.</span><span class="n">text</span><span class="p">()</span><span class="o">==</span><span class="s1">&#39;&#39;</span><span class="p">:</span>            <span class="n">alertMsg</span><span class="p">(</span><span class="s1">&#39;Missing data&#39;</span><span class="p">,</span> <span class="s1">&#39;Enter step&#39;</span><span class="p">);</span><span class="k">return</span>
+        <span class="k">else</span><span class="p">:</span> <span class="n">sas</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">saStep</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
+        
+        <span class="n">nbPat</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">ml</span><span class="o">-</span><span class="n">sal</span><span class="p">)</span><span class="o">/</span><span class="n">sas</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">ref</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mHgt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nbPat</span><span class="p">,</span> <span class="n">mw</span><span class="p">,</span> <span class="n">sal</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mHgt</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mHgt</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nbPat</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span> <span class="c1"># corrrectors</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">addRef</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">refSelect</span><span class="o">.</span><span class="n">currentIndex</span><span class="p">()</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span><span class="c1">#Polynomial</span>
+                <span class="n">coeffs</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">refCoeffs</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mHgt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">addRefErr</span><span class="p">(</span><span class="n">coeffs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mHgt</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mirSelect</span><span class="o">.</span><span class="n">currentIndex</span><span class="p">()</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span><span class="c1">#Flat</span>
+            <span class="k">pass</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">mirSelect</span><span class="o">.</span><span class="n">currentIndex</span><span class="p">()</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span><span class="c1">#Sphere</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">radCv</span><span class="o">.</span><span class="n">text</span><span class="p">()</span><span class="o">==</span><span class="s1">&#39;&#39;</span><span class="p">:</span>            <span class="n">alertMsg</span><span class="p">(</span><span class="s1">&#39;Missing data&#39;</span><span class="p">,</span> <span class="s1">&#39;Enter radius of curvature&#39;</span><span class="p">);</span><span class="k">return</span>
+            <span class="k">else</span><span class="p">:</span> <span class="n">Rc</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">radCv</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
+            <span class="n">cv</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">Rc</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mHgt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">addSphere</span><span class="p">(</span><span class="n">cv</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mHgt</span><span class="p">)</span>
+            
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">addPPR</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
+            <span class="n">pPV</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pitchPV</span><span class="o">.</span><span class="n">text</span><span class="p">()</span><span class="o">==</span><span class="s1">&#39;&#39;</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pitchPV</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
+            <span class="n">rPV</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">rollPV</span><span class="o">.</span><span class="n">text</span><span class="p">()</span><span class="o">==</span><span class="s1">&#39;&#39;</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rollPV</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
+            <span class="n">pstPV</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pistonPV</span><span class="o">.</span><span class="n">text</span><span class="p">()</span><span class="o">==</span><span class="s1">&#39;&#39;</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pistonPV</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
+            <span class="n">c</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="mf">0.5</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">nbPat</span><span class="p">))</span><span class="o">*</span><span class="n">pPV</span>
+            <span class="n">c</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="mf">0.5</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">nbPat</span><span class="p">))</span><span class="o">*</span><span class="n">rPV</span>
+            <span class="n">c</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="mf">0.5</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">nbPat</span><span class="p">))</span><span class="o">*</span><span class="n">pstPV</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mHgt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">addStageErr</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mHgt</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">sx</span><span class="p">[:,:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mHgt</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sy</span><span class="p">[:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mHgt</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">h5f</span><span class="p">[</span><span class="s1">&#39;Data/Scan1/height&#39;</span><span class="p">]</span>                               <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mHgt</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h5f</span><span class="p">[</span><span class="s1">&#39;Data/Scan1/height&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span>                <span class="o">=</span> <span class="sa">u</span><span class="s1">&#39;nm&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h5f</span><span class="p">[</span><span class="s1">&#39;Data/Scan1/slopes_x&#39;</span><span class="p">]</span>                             <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sx</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h5f</span><span class="p">[</span><span class="s1">&#39;Data/Scan1/slopes_x&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span>              <span class="o">=</span> <span class="sa">u</span><span class="s1">&#39;urad&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h5f</span><span class="p">[</span><span class="s1">&#39;Data/Scan1/slopes_y&#39;</span><span class="p">]</span>                             <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h5f</span><span class="p">[</span><span class="s1">&#39;Data/Scan1/slopes_y&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span>              <span class="o">=</span> <span class="sa">u</span><span class="s1">&#39;urad&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h5f</span><span class="p">[</span><span class="s1">&#39;Data/Scan1/correctors&#39;</span><span class="p">]</span>                           <span class="o">=</span> <span class="n">c</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h5f</span><span class="p">[</span><span class="s1">&#39;Data/Scan1/correctors&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span>            <span class="o">=</span> <span class="sa">u</span><span class="s1">&#39;[urad,urad,nm]&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h5f</span><span class="p">[</span><span class="s1">&#39;Data/Scan1/correctors&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;format&#39;</span><span class="p">]</span>           <span class="o">=</span> <span class="sa">u</span><span class="s1">&#39;[pitch,roll,piston]&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h5f</span><span class="p">[</span><span class="s1">&#39;Data/Scan1/motor_X&#39;</span><span class="p">]</span>                              <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="nb">int</span><span class="p">(</span><span class="n">ml</span><span class="o">-</span><span class="n">sal</span><span class="p">)</span><span class="o">+</span><span class="n">sas</span><span class="p">,</span><span class="n">sas</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h5f</span><span class="p">[</span><span class="s1">&#39;Data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;flag_ref_subtracted&#39;</span><span class="p">]</span>               <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h5f</span><span class="p">[</span><span class="s1">&#39;Data/Scan1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;NX_class&#39;</span><span class="p">]</span>                    <span class="o">=</span> <span class="sa">u</span><span class="s1">&#39;NXdata&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h5f</span><span class="p">[</span><span class="s1">&#39;Data/Scan1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>                        <span class="o">=</span> <span class="sa">u</span><span class="s1">&#39;Scan1&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h5f</span><span class="p">[</span><span class="s1">&#39;Data/Scan1/mask&#39;</span><span class="p">]</span>                                 <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">nbPat</span><span class="p">,</span> <span class="n">mw</span><span class="p">,</span> <span class="n">sal</span><span class="p">),</span><span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h5f</span><span class="p">[</span><span class="s1">&#39;Instrument/resolution&#39;</span><span class="p">]</span>                           <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h5f</span><span class="p">[</span><span class="s1">&#39;Instrument&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="sa">u</span><span class="s1">&#39;instr_id&#39;</span><span class="p">]</span>                   <span class="o">=</span> <span class="s2">&quot;FIZ1E&quot;</span></div>
+
+<div class="viewcode-block" id="SGSimulations.addRefErr"><a class="viewcode-back" href="../../../../PyLOSt.ui.simulations.html#PyLOSt.ui.simulations.SGSimulations.SGSimulations.addRefErr">[docs]</a>    <span class="k">def</span> <span class="nf">addRefErr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coeffs</span><span class="p">,</span> <span class="n">sarr</span><span class="p">,</span> <span class="n">otype</span><span class="o">=</span><span class="s1">&#39;h&#39;</span><span class="p">):</span>
+        <span class="n">deg_x</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">deg_y</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">refErr</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">pix_size</span>                                              <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">xx</span><span class="p">,</span><span class="n">yy</span> <span class="o">=</span> <span class="n">getXYGrid</span><span class="p">(</span><span class="n">sarr</span><span class="p">,</span>  <span class="n">pix_size</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">cij</span> <span class="ow">in</span> <span class="n">coeffs</span><span class="p">:</span>
+            <span class="n">refErr</span> <span class="o">=</span> <span class="n">refErr</span> <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">cij</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">xx</span><span class="o">**</span><span class="n">deg_x</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">yy</span><span class="o">**</span><span class="n">deg_y</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">deg_y</span> <span class="o">==</span> <span class="n">deg_x</span><span class="p">:</span>
+                <span class="n">deg_x</span> <span class="o">=</span> <span class="n">deg_x</span><span class="o">+</span><span class="mi">1</span>
+                <span class="n">deg_y</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">deg_y</span> <span class="o">=</span> <span class="n">deg_y</span><span class="o">+</span><span class="mi">1</span>
+        <span class="n">imshow</span><span class="p">(</span><span class="n">refErr</span><span class="p">)</span>
+        <span class="n">show</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h5f</span><span class="p">[</span><span class="s1">&#39;Data/ref&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">refErr</span>
+        <span class="n">sarr_c</span> <span class="o">=</span> <span class="n">sarr</span> <span class="o">+</span> <span class="n">refErr</span>
+        <span class="k">return</span> <span class="n">sarr_c</span></div>
+
+<div class="viewcode-block" id="SGSimulations.addStageErr"><a class="viewcode-back" href="../../../../PyLOSt.ui.simulations.html#PyLOSt.ui.simulations.SGSimulations.SGSimulations.addStageErr">[docs]</a>    <span class="k">def</span> <span class="nf">addStageErr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">sarr</span><span class="p">,</span> <span class="n">otype</span><span class="o">=</span><span class="s1">&#39;h&#39;</span><span class="p">):</span>
+        <span class="n">pix_size</span>                                               <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">otype</span><span class="o">==</span><span class="s1">&#39;h&#39;</span><span class="p">:</span>    
+            <span class="n">patch_count</span><span class="p">,</span><span class="n">ny</span><span class="p">,</span><span class="n">nx</span>           <span class="o">=</span> <span class="n">sarr</span><span class="o">.</span><span class="n">shape</span>
+            <span class="n">xx</span><span class="p">,</span><span class="n">yy</span>                       <span class="o">=</span> <span class="n">getXYGrid</span><span class="p">(</span><span class="n">sarr</span><span class="p">,</span>  <span class="n">pix_size</span><span class="p">)</span>
+        
+            <span class="n">corPitch</span>    <span class="o">=</span> <span class="n">c</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">patch_count</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">xx</span>
+            <span class="n">corRoll</span>     <span class="o">=</span> <span class="n">c</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">patch_count</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">yy</span>
+            <span class="n">corPiston</span>   <span class="o">=</span> <span class="n">c</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">patch_count</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+           
+            <span class="n">sarr_c</span> <span class="o">=</span> <span class="n">sarr</span> <span class="o">+</span> <span class="p">(</span><span class="n">corPitch</span> <span class="o">+</span> <span class="n">corRoll</span> <span class="o">+</span> <span class="n">corPiston</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">sarr_c</span></div>
+        
+<div class="viewcode-block" id="SGSimulations.addSphere"><a class="viewcode-back" href="../../../../PyLOSt.ui.simulations.html#PyLOSt.ui.simulations.SGSimulations.SGSimulations.addSphere">[docs]</a>    <span class="k">def</span> <span class="nf">addSphere</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cv</span><span class="p">,</span> <span class="n">sarr</span><span class="p">,</span> <span class="n">otype</span><span class="o">=</span><span class="s1">&#39;h&#39;</span><span class="p">):</span>
+        <span class="n">pix_size</span>                                               <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">otype</span><span class="o">==</span><span class="s1">&#39;h&#39;</span><span class="p">:</span>    
+            <span class="n">xx</span><span class="p">,</span><span class="n">yy</span> <span class="o">=</span> <span class="n">getXYGrid</span><span class="p">(</span><span class="n">sarr</span><span class="p">,</span>  <span class="n">pix_size</span><span class="p">)</span>
+           
+            <span class="n">sarr_c</span> <span class="o">=</span> <span class="n">sarr</span> <span class="o">+</span> <span class="n">cv</span><span class="o">*</span><span class="n">xx</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">cv</span><span class="o">*</span><span class="n">yy</span><span class="o">**</span><span class="mi">2</span>
+            <span class="k">return</span> <span class="n">sarr_c</span></div>
+        
+<div class="viewcode-block" id="SGSimulations.closeEvent"><a class="viewcode-back" href="../../../../PyLOSt.ui.simulations.html#PyLOSt.ui.simulations.SGSimulations.SGSimulations.closeEvent">[docs]</a>    <span class="k">def</span> <span class="nf">closeEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="c1"># self.h5f.close()</span>
+        <span class="n">event</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span></div></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">app</span> <span class="o">=</span> <span class="n">QApplication</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span>
+    <span class="n">window</span> <span class="o">=</span> <span class="n">SGSimulations</span><span class="p">()</span>
+    <span class="n">window</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">exec_</span><span class="p">())</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../index.html">PyLOSt</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../PyLOSt.html">PyLOSt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quick_guide.html">Quick Guide</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

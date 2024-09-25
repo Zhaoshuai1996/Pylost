@@ -1,0 +1,1119 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>orangewidget.settings &#8212; pylost_widgets  documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for orangewidget.settings</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Widget Settings and Settings Handlers</span>
+
+<span class="sd">Settings are used to declare widget attributes that persist through sessions.</span>
+<span class="sd">When widget is removed or saved to a schema file, its settings are packed,</span>
+<span class="sd">serialized and stored. When a new widget is created, values of attributes</span>
+<span class="sd">marked as settings are read from disk. When schema is loaded, attribute values</span>
+<span class="sd">are set to one stored in schema.</span>
+
+<span class="sd">Each widget has its own SettingsHandler that takes care of serializing and</span>
+<span class="sd">storing of settings and SettingProvider that is incharge of reading and</span>
+<span class="sd">writing the setting values.</span>
+
+<span class="sd">All widgets extending from OWBaseWidget use SettingsHandler, unless they</span>
+<span class="sd">declare otherwise. SettingsHandler ensures that setting attributes</span>
+<span class="sd">are replaced with default (last used) setting values when the widget is</span>
+<span class="sd">initialized and stored when the widget is removed.</span>
+
+<span class="sd">Widgets with settings whose values depend on the widget inputs use</span>
+<span class="sd">settings handlers based on ContextHandler. These handlers have two</span>
+<span class="sd">additional methods, open_context and close_context.</span>
+
+<span class="sd">open_context is called when widgets receives new data. It finds a suitable</span>
+<span class="sd">context and sets the widget attributes to the values stored in context.</span>
+<span class="sd">If no suitable context exists, a new one is created and values from widget</span>
+<span class="sd">are copied to it.</span>
+
+<span class="sd">close_context stores values that were last used on the widget to the context</span>
+<span class="sd">so they can be used alter. It should be called before widget starts modifying</span>
+<span class="sd">(initializing) the value of the setting attributes.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">pprint</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">operator</span> <span class="k">import</span> <span class="n">itemgetter</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">from</span> <span class="nn">orangewidget.gui</span> <span class="k">import</span> <span class="n">OWComponent</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;Setting&quot;</span><span class="p">,</span> <span class="s2">&quot;SettingsHandler&quot;</span><span class="p">,</span> <span class="s2">&quot;SettingProvider&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ContextSetting&quot;</span><span class="p">,</span> <span class="s2">&quot;Context&quot;</span><span class="p">,</span> <span class="s2">&quot;ContextHandler&quot;</span><span class="p">,</span> <span class="s2">&quot;IncompatibleContext&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SettingsPrinter&quot;</span><span class="p">,</span> <span class="s2">&quot;rename_setting&quot;</span><span class="p">,</span> <span class="s2">&quot;widget_settings_dir&quot;</span>
+<span class="p">]</span>
+
+<span class="n">_IMMUTABLES</span> <span class="o">=</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span>
+
+<span class="n">VERSION_KEY</span> <span class="o">=</span> <span class="s2">&quot;__version__&quot;</span>
+
+<span class="c1"># protocol v4 is supported since Python 3.4, protocol v5 since Python 3.8</span>
+<span class="n">PICKLE_PROTOCOL</span> <span class="o">=</span> <span class="mi">4</span>
+
+
+<span class="n">__WIDGET_SETTINGS_DIR</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># type: Optional[Tuple[str, str]]</span>
+
+
+<span class="k">def</span> <span class="nf">set_widget_settings_dir_components</span><span class="p">(</span><span class="n">basedir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">versionstr</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set the directory path components where widgets save their settings.</span>
+
+<span class="sd">    This overrides the global current application name/version derived paths.</span>
+
+<span class="sd">    Note</span>
+<span class="sd">    ----</span>
+<span class="sd">    This should be set early in the application startup before any</span>
+<span class="sd">    `OWBaseWidget` subclasses are imported (because it is needed at class</span>
+<span class="sd">    definition time).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    basedir: str</span>
+<span class="sd">        The application specific data directory.</span>
+<span class="sd">    versionstr: str</span>
+<span class="sd">        The application version string for the versioned path component.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    widget_settings_dir</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">__WIDGET_SETTINGS_DIR</span>
+    <span class="n">__WIDGET_SETTINGS_DIR</span> <span class="o">=</span> <span class="p">(</span><span class="n">basedir</span><span class="p">,</span> <span class="n">versionstr</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">widget_settings_dir</span><span class="p">(</span><span class="n">versioned</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the effective directory where widgets save their settings.</span>
+
+<span class="sd">    This is a composed path based on a application specific data directory</span>
+<span class="sd">    and application version string (if `versioned` is True) with a final</span>
+<span class="sd">    &#39;widgets&#39; path component added (e.g. `&#39;~/.local/share/MyApp/9.9.9/widgets&#39;`)</span>
+
+<span class="sd">    By default `QCoreApplication.applicationName` and</span>
+<span class="sd">    `QCoreApplication.applicationVersion` are used to derive suitable paths</span>
+<span class="sd">    (with a fallback if they are not set).</span>
+
+<span class="sd">    Note</span>
+<span class="sd">    ----</span>
+<span class="sd">    If the application sets the `applicationName`/`applicationVersion`, it</span>
+<span class="sd">    should do this early in the application startup before any</span>
+<span class="sd">    `OWBaseWidget` subclasses are imported (because it is needed at class</span>
+<span class="sd">    definition time).</span>
+
+<span class="sd">    Use `set_widget_settings_dir_components` to override the default paths.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    versioned: bool</span>
+<span class="sd">        Should the returned path include the application version component.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    set_widget_settings_dir_components</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">__WIDGET_SETTINGS_DIR</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">orangewidget.workflow.config</span> <span class="k">import</span> <span class="n">data_dir</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_dir</span><span class="p">(</span><span class="n">versioned</span><span class="p">),</span> <span class="s2">&quot;widgets&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">base</span><span class="p">,</span> <span class="n">version</span> <span class="o">=</span> <span class="n">__WIDGET_SETTINGS_DIR</span>
+        <span class="k">if</span> <span class="n">versioned</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">version</span><span class="p">,</span> <span class="s2">&quot;widgets&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="s2">&quot;widgets&quot;</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">Setting</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Description of a setting.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Settings are automatically persisted to disk</span>
+    <span class="n">packable</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="c1"># Setting is only persisted to schema (default value does not change)</span>
+    <span class="n">schema_only</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">default</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;A misleading docstring for providing type hints for Settings</span>
+
+<span class="sd">        :type: default: T</span>
+<span class="sd">        :rtype: T</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="p">,</span> <span class="o">**</span><span class="n">data</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Name gets set in widget&#39;s meta class</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="n">default</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">{0}</span><span class="s1"> &quot;</span><span class="si">{1}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="fm">__repr__</span> <span class="o">=</span> <span class="fm">__str__</span>
+
+    <span class="k">def</span> <span class="nf">__getnewargs__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default</span><span class="p">,</span> <span class="p">)</span>
+
+
+<span class="c1"># Pylint ignores type annotations in assignments. For</span>
+<span class="c1">#</span>
+<span class="c1">#    x: int = Setting(0)</span>
+<span class="c1">#</span>
+<span class="c1"># it ignores `int` and assumes x is of type `Setting`. Annotations in</span>
+<span class="c1"># comments ( # type: int) also don&#39;t work. The only way to annotate x is</span>
+<span class="c1">#</span>
+<span class="c1">#    x: int</span>
+<span class="c1">#    x = Setting(0)</span>
+<span class="c1">#</span>
+<span class="c1"># but we don&#39;t want to clutter the code with extra lines of annotations. Hence</span>
+<span class="c1"># we disable checking the type of `Setting` by confusing pylint with an extra</span>
+<span class="c1"># definition that is never executed.</span>
+<span class="k">if</span> <span class="mi">1</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="k">class</span> <span class="nc">Setting</span><span class="p">:</span>  <span class="c1"># pylint: disable=function-redefined</span>
+        <span class="k">pass</span>
+
+
+<span class="k">def</span> <span class="nf">_apply_setting</span><span class="p">(</span><span class="n">setting</span><span class="p">:</span> <span class="n">Setting</span><span class="p">,</span> <span class="n">instance</span><span class="p">:</span> <span class="n">OWComponent</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set `setting` of widget `instance` to the given `value`, in place if</span>
+<span class="sd">    possible.</span>
+
+<span class="sd">    If old and new values are of the same type, and the type is either a list</span>
+<span class="sd">    or has methods `clear` and `update`, setting is updated in place. Otherwise</span>
+<span class="sd">    the function calls `setattr`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">target</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">setting</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">target</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">target</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">return</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s2">&quot;clear&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s2">&quot;update&quot;</span><span class="p">):</span>
+            <span class="n">target</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+            <span class="n">target</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">return</span>
+    <span class="nb">setattr</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">setting</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">SettingProvider</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;A hierarchical structure keeping track of settings belonging to</span>
+<span class="sd">    a class and child setting providers.</span>
+
+<span class="sd">    At instantiation, it creates a dict of all Setting and SettingProvider</span>
+<span class="sd">    members of the class. This dict is used to get/set values of settings</span>
+<span class="sd">    from/to the instances of the class this provider belongs to.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">provider_class</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Construct a new instance of SettingProvider.</span>
+
+<span class="sd">        Traverse provider_class members and store all instances of</span>
+<span class="sd">        Setting and SettingProvider.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        provider_class : class</span>
+<span class="sd">            class containing settings definitions</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">provider_class</span> <span class="o">=</span> <span class="n">provider_class</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">providers</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="sd">&quot;&quot;&quot;:type: dict[str, SettingProvider]&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">settings</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="sd">&quot;&quot;&quot;:type: dict[str, Setting]&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialization_data</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">provider_class</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">provider_class</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Setting</span><span class="p">):</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="n">value</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">SettingProvider</span><span class="p">):</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="n">value</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">providers</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize instance settings to their default values.</span>
+
+<span class="sd">        Mutable values are (shallow) copied before they are assigned to the</span>
+<span class="sd">        widget. Immutable are used as-is.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        instance : OWBaseWidget</span>
+<span class="sd">            widget instance to initialize</span>
+<span class="sd">        data : Optional[dict]</span>
+<span class="sd">            optional data used to override the defaults</span>
+<span class="sd">            (used when settings are loaded from schema)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialization_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialization_data</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initialize_settings</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initialize_providers</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">reset_to_original</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initialize_settings</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initialize_providers</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_initialize_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">setting</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">setting</span><span class="o">.</span><span class="n">default</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">_IMMUTABLES</span><span class="p">):</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_initialize_providers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">provider</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">providers</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="n">member</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">member</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="n">SettingProvider</span><span class="p">):</span>
+                <span class="n">provider</span><span class="o">.</span><span class="n">store_initialization_data</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">provider</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">store_initialization_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initialization_data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Store initialization data for later use.</span>
+
+<span class="sd">        Used when settings handler is initialized, but member for this</span>
+<span class="sd">        provider does not exists yet (because handler.initialize is called in</span>
+<span class="sd">        __new__, but member will be created in __init__.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        initialization_data : dict</span>
+<span class="sd">            data to be used for initialization when the component is created</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialization_data</span> <span class="o">=</span> <span class="n">initialization_data</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_default_packer</span><span class="p">(</span><span class="n">setting</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;A simple packet that yields setting name and value.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        setting : Setting</span>
+<span class="sd">        instance : OWBaseWidget</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">setting</span><span class="o">.</span><span class="n">packable</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">setting</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
+                <span class="k">yield</span> <span class="n">setting</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">setting</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0}</span><span class="s2"> is declared as setting on </span><span class="si">{1}</span><span class="s2"> &quot;</span>
+                              <span class="s2">&quot;but not present on instance.&quot;</span>
+                              <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">setting</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">instance</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">pack</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">packer</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Pack instance settings in a name:value dict.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        instance : OWBaseWidget</span>
+<span class="sd">            widget instance</span>
+<span class="sd">        packer: callable (Setting, OWBaseWidget) -&gt; Generator[(str, object)]</span>
+<span class="sd">            optional packing function</span>
+<span class="sd">            it will be called with setting and instance parameters and</span>
+<span class="sd">            should yield (name, value) pairs that will be added to the</span>
+<span class="sd">            packed_settings.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">packer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">packer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_packer</span>
+
+        <span class="n">packed_settings</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span>
+            <span class="o">*</span><span class="p">(</span><span class="n">packer</span><span class="p">(</span><span class="n">setting</span><span class="p">,</span> <span class="n">instance</span><span class="p">)</span> <span class="k">for</span> <span class="n">setting</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="p">))</span>
+
+        <span class="n">packed_settings</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+            <span class="n">name</span><span class="p">:</span> <span class="n">provider</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">name</span><span class="p">),</span> <span class="n">packer</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">provider</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">providers</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="p">})</span>
+        <span class="k">return</span> <span class="n">packed_settings</span>
+
+    <span class="k">def</span> <span class="nf">unpack</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Restore settings from data to the instance.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        instance : OWBaseWidget</span>
+<span class="sd">            instance to restore settings to</span>
+<span class="sd">        data : dict</span>
+<span class="sd">            packed data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">setting</span><span class="p">,</span> <span class="n">_data</span><span class="p">,</span> <span class="n">inst</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">traverse_settings</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">setting</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">_data</span> <span class="ow">and</span> <span class="n">inst</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">_apply_setting</span><span class="p">(</span><span class="n">setting</span><span class="p">,</span> <span class="n">inst</span><span class="p">,</span> <span class="n">_data</span><span class="p">[</span><span class="n">setting</span><span class="o">.</span><span class="n">name</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">get_provider</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">provider_class</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return provider for provider_class.</span>
+
+<span class="sd">        If this provider matches, return it, otherwise pass</span>
+<span class="sd">        the call to child providers.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        provider_class : class</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">provider_class</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">provider_class</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span>
+
+        <span class="k">for</span> <span class="n">subprovider</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">providers</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">provider</span> <span class="o">=</span> <span class="n">subprovider</span><span class="o">.</span><span class="n">get_provider</span><span class="p">(</span><span class="n">provider_class</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">provider</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">provider</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">traverse_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">instance</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Generator of tuples (setting, data, instance) for each setting</span>
+<span class="sd">        in this and child providers..</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data : dict</span>
+<span class="sd">            dictionary with setting values</span>
+<span class="sd">        instance : OWBaseWidget</span>
+<span class="sd">            instance matching setting_provider</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span> <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">setting</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">yield</span> <span class="n">setting</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">instance</span>
+
+        <span class="k">for</span> <span class="n">provider</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">providers</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">data_</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">provider</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="n">instance_</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">provider</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">setting</span><span class="p">,</span> <span class="n">component_data</span><span class="p">,</span> <span class="n">component_instance</span> <span class="ow">in</span> \
+                    <span class="n">provider</span><span class="o">.</span><span class="n">traverse_settings</span><span class="p">(</span><span class="n">data_</span><span class="p">,</span> <span class="n">instance_</span><span class="p">):</span>
+                <span class="k">yield</span> <span class="n">setting</span><span class="p">,</span> <span class="n">component_data</span><span class="p">,</span> <span class="n">component_instance</span>
+
+
+<span class="k">class</span> <span class="nc">SettingsHandler</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Reads widget setting files and passes them to appropriate providers.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a setting handler template.</span>
+
+<span class="sd">        Used in class definition. Bound instance will be created</span>
+<span class="sd">        when SettingsHandler.create is called.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">widget_class</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">provider</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="sd">&quot;&quot;&quot;:type: SettingProvider&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">defaults</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">known_settings</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="n">widget_class</span><span class="p">,</span> <span class="n">template</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a new settings handler based on the template and bind it to</span>
+<span class="sd">        widget_class.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        widget_class : class</span>
+<span class="sd">        template : SettingsHandler</span>
+<span class="sd">            SettingsHandler to copy setup from</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        SettingsHandler</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">template</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">template</span> <span class="o">=</span> <span class="n">SettingsHandler</span><span class="p">()</span>
+
+        <span class="n">setting_handler</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">template</span><span class="p">)</span>
+        <span class="n">setting_handler</span><span class="o">.</span><span class="n">defaults</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">setting_handler</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">widget_class</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">setting_handler</span>
+
+    <span class="k">def</span> <span class="nf">bind</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget_class</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Bind settings handler instance to widget_class.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        widget_class : class</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">widget_class</span> <span class="o">=</span> <span class="n">widget_class</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">provider</span> <span class="o">=</span> <span class="n">SettingProvider</span><span class="p">(</span><span class="n">widget_class</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">known_settings</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">analyze_settings</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">provider</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">read_defaults</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">analyze_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">provider</span><span class="p">,</span> <span class="n">prefix</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Traverse through all settings known to the provider</span>
+<span class="sd">        and analyze each of them.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        provider : SettingProvider</span>
+<span class="sd">        prefix : str</span>
+<span class="sd">            prefix the provider is registered to handle</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">setting</span> <span class="ow">in</span> <span class="n">provider</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">analyze_setting</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">setting</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">sub_provider</span> <span class="ow">in</span> <span class="n">provider</span><span class="o">.</span><span class="n">providers</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">new_prefix</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{0}{1}</span><span class="s1">.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">prefix</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">analyze_settings</span><span class="p">(</span><span class="n">sub_provider</span><span class="p">,</span> <span class="n">new_prefix</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">analyze_setting</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">setting</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Perform any initialization task related to setting.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        prefix : str</span>
+<span class="sd">        setting : Setting</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">known_settings</span><span class="p">[</span><span class="n">prefix</span> <span class="o">+</span> <span class="n">setting</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">setting</span>
+
+    <span class="k">def</span> <span class="nf">read_defaults</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read (global) defaults for this widget class from a file.</span>
+<span class="sd">        Opens a file and calls :obj:`read_defaults_file`. Derived classes</span>
+<span class="sd">        should overload the latter.&quot;&quot;&quot;</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_settings_filename</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+            <span class="n">settings_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">read_defaults_file</span><span class="p">(</span><span class="n">settings_file</span><span class="p">)</span>
+            <span class="c1"># Unpickling exceptions can be of any type</span>
+            <span class="c1"># pylint: disable=broad-except</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Could not read defaults for widget </span><span class="si">{0}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                              <span class="s2">&quot;The following error occurred:</span><span class="se">\n\n</span><span class="si">{1}</span><span class="s2">&quot;</span>
+                              <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">widget_class</span><span class="p">,</span> <span class="n">ex</span><span class="p">))</span>
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="n">settings_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">read_defaults_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">settings_file</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read (global) defaults for this widget class from a file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        settings_file : file-like object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">defaults</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">settings_file</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">defaults</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">key</span><span class="p">:</span> <span class="n">value</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">defaults</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Setting</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_migrate_settings</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">defaults</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">write_defaults</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Write (global) defaults for this widget class to a file.</span>
+<span class="sd">        Opens a file and calls :obj:`write_defaults_file`. Derived classes</span>
+<span class="sd">        should overload the latter.&quot;&quot;&quot;</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_settings_filename</span><span class="p">()</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">settings_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">write_defaults_file</span><span class="p">(</span><span class="n">settings_file</span><span class="p">)</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">EOFError</span><span class="p">,</span> <span class="ne">IOError</span><span class="p">,</span> <span class="n">pickle</span><span class="o">.</span><span class="n">PicklingError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Could not write default settings for </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">).&quot;</span><span class="p">,</span>
+                          <span class="bp">self</span><span class="o">.</span><span class="n">widget_class</span><span class="p">,</span> <span class="n">ex</span><span class="p">)</span>
+                <span class="n">settings_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">settings_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">PermissionError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Could not write default settings for </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">).&quot;</span><span class="p">,</span>
+                      <span class="bp">self</span><span class="o">.</span><span class="n">widget_class</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">write_defaults_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">settings_file</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Write defaults for this widget class to a file</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        settings_file : file-like object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">defaults</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">defaults</span><span class="p">)</span>
+        <span class="n">defaults</span><span class="p">[</span><span class="n">VERSION_KEY</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">widget_class</span><span class="o">.</span><span class="n">settings_version</span>
+        <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">defaults</span><span class="p">,</span> <span class="n">settings_file</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="n">PICKLE_PROTOCOL</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_settings_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the name of the file with default settings for the widget&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">widget_settings_dir</span><span class="p">(),</span>
+                            <span class="s2">&quot;</span><span class="si">{0.__module__}</span><span class="s2">.</span><span class="si">{0.__qualname__}</span><span class="s2">.pickle&quot;</span>
+                            <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">widget_class</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize widget&#39;s settings.</span>
+
+<span class="sd">        Replace all instance settings with their default values.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        instance : OWBaseWidget</span>
+<span class="sd">        data : dict or bytes that unpickle into a dict</span>
+<span class="sd">            values used to override the defaults</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">provider</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_select_provider</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_migrate_settings</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">provider</span> <span class="ow">is</span> <span class="bp">self</span><span class="o">.</span><span class="n">provider</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_defaults</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="n">provider</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">reset_to_original</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
+        <span class="n">provider</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_select_provider</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
+        <span class="n">provider</span><span class="o">.</span><span class="n">reset_to_original</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_migrate_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">settings</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Ask widget to migrate settings to the latest version.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">settings</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">widget_class</span><span class="o">.</span><span class="n">migrate_settings</span><span class="p">(</span>
+                    <span class="n">settings</span><span class="p">,</span> <span class="n">settings</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">VERSION_KEY</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">excepthook</span><span class="p">(</span><span class="o">*</span><span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">())</span>
+                <span class="n">settings</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_select_provider</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
+        <span class="n">provider</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">provider</span><span class="o">.</span><span class="n">get_provider</span><span class="p">(</span><span class="n">instance</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">provider</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2"> has not been declared as setting provider in </span><span class="si">{1}</span><span class="s2">. &quot;</span> \
+                      <span class="s2">&quot;Settings will not be saved/loaded properly. Defaults will be used instead.&quot;</span> \
+                      <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">instance</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">widget_class</span><span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+            <span class="n">provider</span> <span class="o">=</span> <span class="n">SettingProvider</span><span class="p">(</span><span class="n">instance</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">provider</span>
+
+    <span class="k">def</span> <span class="nf">_add_defaults</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">defaults</span>
+
+        <span class="n">new_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">defaults</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">new_data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">new_data</span>
+
+    <span class="k">def</span> <span class="nf">_prepare_defaults</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">defaults</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">provider</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">setting</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">provider</span><span class="o">.</span><span class="n">traverse_settings</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">defaults</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">setting</span><span class="o">.</span><span class="n">schema_only</span><span class="p">:</span>
+                <span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">setting</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">pack_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Pack the settings for the given widget. This method is used when</span>
+<span class="sd">        saving schema, so that when the schema is reloaded the widget is</span>
+<span class="sd">        initialized with its proper data and not the class-based defaults.</span>
+<span class="sd">        See :obj:`SettingsHandler.initialize` for detailed explanation of its</span>
+<span class="sd">        use.</span>
+
+<span class="sd">        Inherited classes add other data, in particular widget-specific</span>
+<span class="sd">        local contexts.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        widget : OWBaseWidget</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">widget</span><span class="o">.</span><span class="n">settingsAboutToBePacked</span><span class="o">.</span><span class="n">emit</span><span class="p">()</span>
+        <span class="n">packed_settings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">provider</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+        <span class="n">packed_settings</span><span class="p">[</span><span class="n">VERSION_KEY</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">widget_class</span><span class="o">.</span><span class="n">settings_version</span>
+        <span class="k">return</span> <span class="n">packed_settings</span>
+
+    <span class="k">def</span> <span class="nf">update_defaults</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Writes widget instance&#39;s settings to class defaults. Called when the</span>
+<span class="sd">        widget is deleted.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        widget : OWBaseWidget</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">widget</span><span class="o">.</span><span class="n">settingsAboutToBePacked</span><span class="o">.</span><span class="n">emit</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_defaults</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_defaults</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">fast_save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Store the (changed) widget&#39;s setting immediately to the context.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        widget : OWBaseWidget</span>
+<span class="sd">        name : str</span>
+<span class="sd">        value : object</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">known_settings</span><span class="p">:</span>
+            <span class="n">setting</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">known_settings</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">setting</span><span class="o">.</span><span class="n">schema_only</span><span class="p">:</span>
+                <span class="n">setting</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">reset_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reset widget settings to defaults</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        instance : OWBaseWidget</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">setting</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">inst</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">provider</span><span class="o">.</span><span class="n">traverse_settings</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span><span class="n">instance</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">setting</span><span class="o">.</span><span class="n">packable</span><span class="p">:</span>
+                <span class="n">_apply_setting</span><span class="p">(</span><span class="n">setting</span><span class="p">,</span> <span class="n">inst</span><span class="p">,</span> <span class="n">setting</span><span class="o">.</span><span class="n">default</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">ContextSetting</span><span class="p">(</span><span class="n">Setting</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Description of a context dependent setting&quot;&quot;&quot;</span>
+
+    <span class="n">OPTIONAL</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="mi">2</span>
+
+    <span class="c1"># Context settings are not persisted, but are stored in context instead.</span>
+    <span class="n">packable</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="c1"># These flags are not general - they assume that the setting has to do</span>
+    <span class="c1"># something with the attributes. Large majority does, so this greatly</span>
+    <span class="c1"># simplifies the declaration of settings in widget at no (visible)</span>
+    <span class="c1"># cost to those settings that don&#39;t need it</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                 <span class="n">exclude_attributes</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">exclude_metas</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">data</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="o">**</span><span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exclude_attributes</span> <span class="o">=</span> <span class="n">exclude_attributes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exclude_metas</span> <span class="o">=</span> <span class="n">exclude_metas</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">required</span> <span class="o">=</span> <span class="n">required</span>
+
+
+<span class="k">class</span> <span class="nc">Context</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Class for data that defines context and</span>
+<span class="sd">    values that should be applied to widget if given context</span>
+<span class="sd">    is encountered.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">argkw</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">argkw</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="vm">__dict__</span>
+
+
+<span class="k">class</span> <span class="nc">ContextHandler</span><span class="p">(</span><span class="n">SettingsHandler</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base class for setting handlers that can handle contexts.</span>
+
+<span class="sd">    Classes deriving from it need to implement method `match`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">NO_MATCH</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">MATCH</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">PERFECT_MATCH</span> <span class="o">=</span> <span class="mi">2</span>
+
+    <span class="n">MAX_SAVED_CONTEXTS</span> <span class="o">=</span> <span class="mi">50</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">global_contexts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">known_settings</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the widget: call the inherited initialization and</span>
+<span class="sd">        add an attribute &#39;context_settings&#39; to the widget. This method</span>
+<span class="sd">        does not open a context.&quot;&quot;&quot;</span>
+        <span class="n">instance</span><span class="o">.</span><span class="n">current_context</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">data</span> <span class="ow">and</span> <span class="s2">&quot;context_settings&quot;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">instance</span><span class="o">.</span><span class="n">context_settings</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;context_settings&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_migrate_contexts</span><span class="p">(</span><span class="n">instance</span><span class="o">.</span><span class="n">context_settings</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">instance</span><span class="o">.</span><span class="n">context_settings</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">read_defaults_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">settings_file</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Call the inherited method, then read global context from the</span>
+<span class="sd">           pickle.&quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">read_defaults_file</span><span class="p">(</span><span class="n">settings_file</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">global_contexts</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">settings_file</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_migrate_contexts</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">global_contexts</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_migrate_contexts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">contexts</span><span class="p">):</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">contexts</span><span class="p">):</span>
+            <span class="n">context</span> <span class="o">=</span> <span class="n">contexts</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">widget_class</span><span class="o">.</span><span class="n">migrate_context</span><span class="p">(</span>
+                    <span class="n">context</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">VERSION_KEY</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+            <span class="k">except</span> <span class="n">IncompatibleContext</span><span class="p">:</span>
+                <span class="k">del</span> <span class="n">contexts</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">excepthook</span><span class="p">(</span><span class="o">*</span><span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">())</span>
+                <span class="k">del</span> <span class="n">contexts</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">write_defaults_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">settings_file</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Call the inherited method, then add global context to the pickle.&quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">write_defaults_file</span><span class="p">(</span><span class="n">settings_file</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">add_version</span><span class="p">(</span><span class="n">context</span><span class="p">):</span>
+            <span class="n">context</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+            <span class="n">context</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+            <span class="n">context</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">VERSION_KEY</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">widget_class</span><span class="o">.</span><span class="n">settings_version</span>
+            <span class="k">return</span> <span class="n">context</span>
+
+        <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">([</span><span class="n">add_version</span><span class="p">(</span><span class="n">context</span><span class="p">)</span> <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_contexts</span><span class="p">],</span>
+                    <span class="n">settings_file</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="n">PICKLE_PROTOCOL</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">pack_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Call the inherited method, then add local contexts to the dict.&quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">pack_data</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">settings_from_widget</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+        <span class="n">context_settings</span> <span class="o">=</span> <span class="p">[</span><span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">context</span><span class="p">)</span> <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span>
+                            <span class="n">widget</span><span class="o">.</span><span class="n">context_settings</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="n">context_settings</span><span class="p">:</span>
+            <span class="n">context</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">VERSION_KEY</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">widget_class</span><span class="o">.</span><span class="n">settings_version</span>
+        <span class="n">data</span><span class="p">[</span><span class="s2">&quot;context_settings&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">context_settings</span>
+        <span class="k">return</span> <span class="n">data</span>
+
+    <span class="k">def</span> <span class="nf">update_defaults</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reimplemented from SettingsHandler</span>
+
+<span class="sd">        Merge the widgets local contexts into the global contexts and persist</span>
+<span class="sd">        the settings (including the contexts) to disk.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">widget</span><span class="o">.</span><span class="n">settingsAboutToBePacked</span><span class="o">.</span><span class="n">emit</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">settings_from_widget</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+        <span class="n">globs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_contexts</span>
+        <span class="k">assert</span> <span class="n">widget</span><span class="o">.</span><span class="n">context_settings</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">globs</span>
+        <span class="n">new_contexts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="n">widget</span><span class="o">.</span><span class="n">context_settings</span><span class="p">:</span>
+            <span class="n">context</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">setting</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">provider</span><span class="o">.</span><span class="n">traverse_settings</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">values</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">setting</span><span class="o">.</span><span class="n">schema_only</span><span class="p">:</span>
+                    <span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">setting</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">context</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">globs</span><span class="p">:</span>
+                <span class="n">new_contexts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">globs</span><span class="p">[:</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">new_contexts</span><span class="p">)</span>
+        <span class="k">del</span> <span class="n">globs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">MAX_SAVED_CONTEXTS</span><span class="p">:]</span>
+
+        <span class="c1"># Save non-context settings. Do not call super().update_defaults, so that</span>
+        <span class="c1"># settingsAboutToBePacked is emitted once.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_defaults</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_defaults</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">new_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a new context.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Context</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">open_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Open a context by finding one and setting the widget data or</span>
+<span class="sd">        creating one and fill with the data from the widget.&quot;&quot;&quot;</span>
+        <span class="n">widget</span><span class="o">.</span><span class="n">current_context</span><span class="p">,</span> <span class="n">is_new</span> <span class="o">=</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">find_or_create_context</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">is_new</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">settings_from_widget</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">settings_to_widget</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the degree to which the stored `context` matches the data</span>
+<span class="sd">        passed in additional arguments).</span>
+<span class="sd">        When match returns 0 (ContextHandler.NO_MATCH), the context will not</span>
+<span class="sd">        be used. When it returns ContextHandler.PERFECT_MATCH, the context</span>
+<span class="sd">        is a perfect match so no further search is necessary.</span>
+
+<span class="sd">        If imperfect matching is not desired, match should only</span>
+<span class="sd">        return ContextHandler.NO_MATCH or ContextHandler.PERFECT_MATCH.</span>
+
+<span class="sd">        Derived classes must overload this method.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="k">def</span> <span class="nf">find_or_create_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Find the best matching context or create a new one if nothing</span>
+<span class="sd">        useful is found. The returned context is moved to or added to the top</span>
+<span class="sd">        of the context list.&quot;&quot;&quot;</span>
+
+        <span class="c1"># First search the contexts that were already used in this widget instance</span>
+        <span class="n">best_context</span><span class="p">,</span> <span class="n">best_score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_context</span><span class="p">(</span><span class="n">widget</span><span class="o">.</span><span class="n">context_settings</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">move_up</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># If the exact data was used, reuse the context</span>
+        <span class="k">if</span> <span class="n">best_score</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">PERFECT_MATCH</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">best_context</span><span class="p">,</span> <span class="kc">False</span>
+
+        <span class="c1"># Otherwise check if a better match is available in global_contexts</span>
+        <span class="n">best_context</span><span class="p">,</span> <span class="n">best_score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_context</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">global_contexts</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span>
+                                                     <span class="n">best_score</span><span class="p">,</span> <span class="n">best_context</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">best_context</span><span class="p">:</span>
+            <span class="n">context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clone_context</span><span class="p">(</span><span class="n">best_context</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_context</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+        <span class="c1"># Store context in widget instance. It will be pushed to global_contexts</span>
+        <span class="c1"># when (if) update defaults is called.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_context</span><span class="p">(</span><span class="n">widget</span><span class="o">.</span><span class="n">context_settings</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">context</span><span class="p">,</span> <span class="n">best_context</span> <span class="ow">is</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">find_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">known_contexts</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">best_score</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">best_context</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">move_up</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Search the given list of contexts and return the context</span>
+<span class="sd">         which best matches the given args.</span>
+
+<span class="sd">        best_score and best_context can be used to provide base_values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">best_idx</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">context</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">known_contexts</span><span class="p">):</span>
+            <span class="n">score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">score</span> <span class="o">&gt;</span> <span class="n">best_score</span><span class="p">:</span>  <span class="c1"># NO_MATCH is not OK!</span>
+                <span class="n">best_context</span><span class="p">,</span> <span class="n">best_score</span><span class="p">,</span> <span class="n">best_idx</span> <span class="o">=</span> <span class="n">context</span><span class="p">,</span> <span class="n">score</span><span class="p">,</span> <span class="n">i</span>
+                <span class="k">if</span> <span class="n">score</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">PERFECT_MATCH</span><span class="p">:</span>
+                    <span class="k">break</span>
+        <span class="k">if</span> <span class="n">best_idx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">move_up</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">move_context_up</span><span class="p">(</span><span class="n">known_contexts</span><span class="p">,</span> <span class="n">best_idx</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">best_context</span><span class="p">,</span> <span class="n">best_score</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">move_context_up</span><span class="p">(</span><span class="n">contexts</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Move the context to the top of the list&quot;&quot;&quot;</span>
+        <span class="n">contexts</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">contexts</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">index</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">add_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">contexts</span><span class="p">,</span> <span class="n">setting</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add the context to the top of the list.&quot;&quot;&quot;</span>
+        <span class="n">contexts</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">setting</span><span class="p">)</span>
+        <span class="k">del</span> <span class="n">contexts</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">MAX_SAVED_CONTEXTS</span><span class="p">:]</span>
+
+    <span class="k">def</span> <span class="nf">clone_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">old_context</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Construct a copy of the context settings suitable for the context</span>
+<span class="sd">        described by additional arguments. The method is called by</span>
+<span class="sd">        find_or_create_context with the same arguments. A class that overloads</span>
+<span class="sd">        :obj:`match` to accept additional arguments must also overload</span>
+<span class="sd">        :obj:`clone_context`.&quot;&quot;&quot;</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_context</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">old_context</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+
+        <span class="n">traverse</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">provider</span><span class="o">.</span><span class="n">traverse_settings</span>
+        <span class="k">for</span> <span class="n">setting</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">traverse</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">values</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">setting</span><span class="p">,</span> <span class="n">ContextSetting</span><span class="p">):</span>
+                <span class="k">continue</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">filter_value</span><span class="p">(</span><span class="n">setting</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">context</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">filter_value</span><span class="p">(</span><span class="n">setting</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Remove values related to setting that are invalid given args.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">close_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Close the context by calling :obj:`settings_from_widget` to write</span>
+<span class="sd">        any relevant widget settings to the context.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">widget</span><span class="o">.</span><span class="n">current_context</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">settings_from_widget</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+        <span class="n">widget</span><span class="o">.</span><span class="n">current_context</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">settings_to_widget</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Apply context settings stored in currently opened context</span>
+<span class="sd">        to the widget.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="n">widget</span><span class="o">.</span><span class="n">current_context</span>
+        <span class="k">if</span> <span class="n">context</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">widget</span><span class="o">.</span><span class="n">retrieveSpecificSettings</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">setting</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">instance</span> <span class="ow">in</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">provider</span><span class="o">.</span><span class="n">traverse_settings</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">instance</span><span class="o">=</span><span class="n">widget</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">setting</span><span class="p">,</span> <span class="n">ContextSetting</span><span class="p">)</span> <span class="ow">or</span> <span class="n">setting</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decode_setting</span><span class="p">(</span><span class="n">setting</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="n">setting</span><span class="o">.</span><span class="n">name</span><span class="p">],</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+            <span class="n">_apply_setting</span><span class="p">(</span><span class="n">setting</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">settings_from_widget</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Update the current context with the setting values from the widget.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">context</span> <span class="o">=</span> <span class="n">widget</span><span class="o">.</span><span class="n">current_context</span>
+        <span class="k">if</span> <span class="n">context</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">widget</span><span class="o">.</span><span class="n">storeSpecificSettings</span><span class="p">()</span>
+
+        <span class="k">def</span> <span class="nf">packer</span><span class="p">(</span><span class="n">setting</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">setting</span><span class="p">,</span> <span class="n">ContextSetting</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">setting</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">setting</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="k">yield</span> <span class="n">setting</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">encode_setting</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">setting</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+        <span class="n">context</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">provider</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="n">packer</span><span class="o">=</span><span class="n">packer</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">fast_save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Update value of `name` setting in the current context to `value`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">setting</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">known_settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">setting</span><span class="p">,</span> <span class="n">ContextSetting</span><span class="p">):</span>
+            <span class="n">context</span> <span class="o">=</span> <span class="n">widget</span><span class="o">.</span><span class="n">current_context</span>
+            <span class="k">if</span> <span class="n">setting</span><span class="o">.</span><span class="n">schema_only</span> <span class="ow">or</span> <span class="n">context</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span>
+
+            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encode_setting</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">setting</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_packed_data</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">fast_save</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">update_packed_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Updates setting value stored in data dict&quot;&quot;&quot;</span>
+
+        <span class="o">*</span><span class="n">prefixes</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="n">prefixes</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">data</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">encode_setting</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">setting</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Encode value to be stored in settings dict&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">decode_setting</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">setting</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Decode settings value from the setting dict format&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+
+<span class="k">class</span> <span class="nc">IncompatibleContext</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Raised when a required variable in context is not available in data.&quot;&quot;&quot;</span>
+
+
+<span class="k">class</span> <span class="nc">SettingsPrinter</span><span class="p">(</span><span class="n">pprint</span><span class="o">.</span><span class="n">PrettyPrinter</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Pretty Printer that knows how to properly format Contexts.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">indent</span><span class="p">,</span> <span class="n">allowance</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">level</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">Context</span><span class="p">):</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_format</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">indent</span><span class="p">,</span> <span class="n">allowance</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Context(&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="n">itemgetter</span><span class="p">(</span><span class="mi">0</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;values&quot;</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)</span>
+            <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_repr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">level</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;,</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="p">(</span><span class="n">indent</span> <span class="o">+</span> <span class="mi">8</span><span class="p">))</span>
+        <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;values=&quot;</span><span class="p">)</span>
+        <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_format</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">indent</span><span class="o">+</span><span class="mi">15</span><span class="p">,</span>
+                     <span class="n">allowance</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">level</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;)&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">rename_setting</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="n">old_name</span><span class="p">,</span> <span class="n">new_name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Rename setting from `old_name` to `new_name`. Used in migrations.</span>
+
+<span class="sd">    The argument `settings` can be `dict` or `Context`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="n">Context</span><span class="p">):</span>
+        <span class="n">rename_setting</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">old_name</span><span class="p">,</span> <span class="n">new_name</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">settings</span><span class="p">[</span><span class="n">new_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">old_name</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">pylost_widgets</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../pylost_widgets.html">pylost_widgets package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
